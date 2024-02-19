@@ -1,4 +1,4 @@
-import { ParamType } from '@/assets/types/http';
+import { ParamType } from '@/assets/types/httpRequest';
 import { GeneralType } from './GeneralType.type';
 
 interface StudentType extends GeneralType {

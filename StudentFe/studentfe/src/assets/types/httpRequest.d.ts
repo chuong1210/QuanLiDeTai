@@ -28,6 +28,7 @@ interface ResponseType<dataType = any> {
     exception: string | null;
     succeeded?: boolean;
     code?: number;
+    access_token?:string | null; //response.data.access_token
 }
 
 export type { MetaType, ParamType, ResponseType };

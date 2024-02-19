@@ -1,4 +1,4 @@
-import http from '../../helpers/http'
+import http from '../../helpers/httpRequest'
 import { StudentType } from '@/assets/interface/Students.type'
 export const getStudents = (page: number | string, limit: number | string, signal?: AbortSignal) =>
   http.get<StudentType>('students', {

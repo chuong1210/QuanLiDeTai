@@ -1,6 +1,8 @@
 const API = {
     auth: {
-        sign_in: '/account/login',
+        // sign_in: '/account/login',
+        sign_in: '/login',
+
     },
 
     list: {

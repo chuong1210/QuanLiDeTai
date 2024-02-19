@@ -39,6 +39,11 @@ const Password = ({
           toggleMask={true}
           feedback={false}
           onChange={onChange}
+          style={{
+            position: "relative",
+            top: "50%",
+            transform: "translateY(-50%)",
+          }}
         />
       </div>
       <small className="p-error">{errorMessage}</small>

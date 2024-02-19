@@ -1,13 +1,14 @@
 "use client";
 
 import { API, AUTH_RAW_TOKEN, AUTH_TOKEN, ROUTES } from "@/assets/config";
-// import { cookies, language, request } from "@assets/helpers";
-import http from "@/assets/helpers/http";
+import { cookies } from "@/assets/helpers";
+import { http } from "@/assets/helpers";
 import { PageProps } from "@/assets/types/UI";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Loader } from "@resources/components/UI";
-import { InputText, Password } from "@/resources/components/form/InputText";
-import brand from "@resources/image/info/brand.png";
+import { Loader } from "@/resources/components/UI";
+import { InputText } from "@/resources/components/form/InputText";
+import { Password } from "@/resources/components/form/Password";
+// import brand from "@resources/image/info/brand.png";
 import { useMutation } from "@tanstack/react-query";
 import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
@@ -17,16 +18,16 @@ import { Image } from "primereact/image";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import * as yup from "yup";
+import { stringify } from "querystring";
 
 const schema = yup.object({
   userName: yup.string().required("Vui lòng nhập tên đăng nhập"),
   password: yup.string().required("Vui lòng nhập mật khẩu"),
-  remember_password: yup.boolean(),
+  // remember_password: yup.boolean(),
 });
 
-const Page = ({ params: { id } }: PageProps) => {
+const Page = () => {
   const router = useRouter();
-  const { t } = useTranslation(id);
   const { control, handleSubmit } = useForm({
     resolver: yupResolver(schema),
   });
@@ -39,11 +40,14 @@ const Page = ({ params: { id } }: PageProps) => {
       });
     },
   });
-
   const onSubmit = (data: any) => {
+    console.log("data" + stringify(data));
     signInMutation.mutate(data, {
       onSuccess(response) {
         try {
+          const accessToken = response.data.access_token;
+
+          console.log("asasadouahhkda", accessToken);
           const tokenData: any = jwtDecode(response.data.data.token);
 
           const faculty = JSON.parse(tokenData.faculty);
@@ -54,7 +58,7 @@ const Page = ({ params: { id } }: PageProps) => {
           }
 
           if (tokenData.type !== "student") {
-            toast.error(t("request:invalid_user"));
+            toast.error("request:invalid_user");
             return;
           }
 
@@ -72,7 +76,7 @@ const Page = ({ params: { id } }: PageProps) => {
             expires: new Date(tokenData.exp * 1000),
           });
 
-          router.push(language.addPrefixLanguage(id, ROUTES.home.index));
+          router.push(ROUTES.home.index);
         } catch (error) {}
       },
     });
@@ -85,13 +89,13 @@ const Page = ({ params: { id } }: PageProps) => {
 
         <div className="w-full lg:w-6 p-4 lg:p-7 bg-blue-50">
           <div className="pb-3">
-            <Image src={brand.src} alt="Image" height="80" />
+            {/* <Image src={brand.src} alt="Image" height="80" /> */}
           </div>
           <div className="text-xl text-black-alpha-90 font-500 mb-3">
-            {t("welcome_to_system")}
+            {"Chào mừng tới kênh quản lí đề tài"}
           </div>
           <p className="text-black-alpha-50 line-height-3 mt-0 mb-6">
-            Thêm lời chào khi vào hệ thống vào đây
+            Chào bạn{" "}
           </p>
           <ul className="list-none p-0 m-0">
             <li className="flex align-items-start mb-4">
@@ -103,7 +107,7 @@ const Page = ({ params: { id } }: PageProps) => {
                   Unlimited Inbox
                 </span>
                 <p className="mt-2 mb-0 text-black-alpha-50 line-height-3">
-                  Thêm mô tả ngắn về hệ thống tại đây
+                  Hello{" "}
                 </p>
               </div>
             </li>
@@ -116,7 +120,7 @@ const Page = ({ params: { id } }: PageProps) => {
                   Premium Security
                 </span>
                 <p className="mt-2 mb-0 text-black-alpha-50 line-height-3">
-                  Thêm mô tả ngắn về hệ thống tại đây
+                  Hello{" "}
                 </p>
               </div>
             </li>
@@ -129,7 +133,7 @@ const Page = ({ params: { id } }: PageProps) => {
                   Cloud Backups Inbox
                 </span>
                 <p className="mt-2 mb-0 text-black-alpha-50 line-height-3">
-                  Thêm mô tả ngắn về hệ thống tại đây
+                  Hello{" "}
                 </p>
               </div>
             </li>
@@ -139,7 +143,7 @@ const Page = ({ params: { id } }: PageProps) => {
         <div className="w-full lg:w-6 p-4 lg:p-7 surface-card">
           <div className="flex align-items-center justify-content-center mb-7">
             <span className="text-2xl font-medium text-900">
-              {t("sign_in_to_continue")}
+              Đăng nhập để tiếp tục
             </span>
             {/* <a
 							tabIndex={0}
@@ -159,8 +163,8 @@ const Page = ({ params: { id } }: PageProps) => {
                 <InputText
                   id="account"
                   value={field.value}
-                  label={t("account")}
-                  placeholder={t("account")}
+                  label={"Tài khoản"}
+                  placeholder={"Tài khoản"}
                   errorMessage={formState.errors.userName?.message}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
@@ -175,8 +179,8 @@ const Page = ({ params: { id } }: PageProps) => {
                 <Password
                   id="password"
                   value={field.value}
-                  label={t("password")}
-                  placeholder={t("password")}
+                  label={"Mật khẩu"}
+                  placeholder={"Mật khẩu"}
                   errorMessage={formState.errors.password?.message}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
@@ -186,9 +190,7 @@ const Page = ({ params: { id } }: PageProps) => {
             <div className="flex align-items-center justify-content-between">
               <div>
                 {signInMutation.isError && (
-                  <small className="p-error">
-                    {t("validation:custom.login_fail")}
-                  </small>
+                  <small className="p-error">Đăng nhập thất bại</small>
                 )}
                 {/* <Controller
 								name='remember_password'
@@ -204,12 +206,12 @@ const Page = ({ params: { id } }: PageProps) => {
 							/> */}
               </div>
               <a className="font-medium text-blue-500 hover:text-blue-700 cursor-pointer transition-colors transition-duration-150">
-                {t("forgot_password")}
+                {"Quên mật khẩu"}
               </a>
             </div>
 
             <Button
-              label={t("sign_in")}
+              label={"Đăng nhập"}
               className="w-full font-medium py-3 "
               rounded={true}
             />
