@@ -1,0 +1,1 @@
+/// liên quan đến redux lưu vào đây
