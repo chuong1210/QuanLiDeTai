@@ -12,6 +12,17 @@ interface AuthType {
     type: string;
     uid: number;
     userName: string;
+
+    // is_graduate:boolean;
+    // createdate:Date;
+    //  modifideddate:Date;
+    //  username: string;
+    //  password:string;
+    //  createdby:AuthType;
+    //  modifiedby:AuthType;
+
+
+
 }
 
 export type { AuthType };
