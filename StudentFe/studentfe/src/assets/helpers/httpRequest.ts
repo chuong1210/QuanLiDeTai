@@ -5,7 +5,6 @@ import { AUTH_RAW_TOKEN, AUTH_TOKEN } from '../config';
 import { cookies } from '.';
 import { AuthType } from '../interface/AuthType.type';
 const baseUrl = ROUTES.base;
-console.log(baseUrl);
 class Http {
   instance: AxiosInstance
   constructor() {
@@ -90,4 +89,4 @@ const post = <T = any>(
 
   return response;
 };
-export {post}
+export {post,http}

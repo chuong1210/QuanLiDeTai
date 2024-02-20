@@ -19,6 +19,13 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import * as yup from "yup";
 import { stringify } from "querystring";
+import { useState } from "react";
+import { loginStudent } from "@/assets/config/apis/studentapi";
+
+const formData: FormStateType = {
+  username: "",
+  password: "",
+};
 
 const schema = yup.object({
   userName: yup.string().required("Vui lòng nhập tên đăng nhập"),
@@ -31,25 +38,58 @@ const Page = () => {
   const { control, handleSubmit } = useForm({
     resolver: yupResolver(schema),
   });
+  const [formStateUser, setFormState] = useState<FormStateType>(formData);
+
+  const handleChange =
+    (name: keyof FormStateType) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setFormState((prev) => ({ ...prev, [name]: event.target.value }));
+    };
+  // const signInMutation = useMutation({
+  //   mutationFn: (data: any) => {
+  //     return http.post(API.auth.sign_in, {
+  //       // userName: data.userName,
+  //       // password: data.password,
+  //       username,
+  //       password,
+  //     });
+  //   },
+  // });
 
   const signInMutation = useMutation({
-    mutationFn: (data: any) => {
-      return http.post(API.auth.sign_in, {
-        userName: data.userName,
-        password: data.password,
-      });
+    mutationFn: (data: FormStateType) => {
+      console.log("username", data.username);
+      console.log("username", data.password);
+
+      return loginStudent(data);
     },
   });
+
   const onSubmit = (data: any) => {
     console.log("data" + stringify(data));
-    signInMutation.mutate(data, {
+    signInMutation.mutate(formStateUser, {
       onSuccess(response) {
         try {
-          const accessToken = response.data.access_token;
+          console.log("asasadouahhkda", JSON.stringify(response.data));
+          const accessToken: string = response.data.accessToken;
+          // const tokenData: any = jwtDecode(response.data.access_token);
 
-          console.log("asasadouahhkda", accessToken);
-          const tokenData: any = jwtDecode(response.data.data.token);
+          const base64Url = accessToken.split(".")[1];
+          const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+          const jsonPayload = decodeURIComponent(atob(base64));
 
+          const tokenData = JSON.parse(jsonPayload);
+          const userId = JSON.parse(tokenData.sub);
+          const issuedAt = tokenData.iat;
+          const expiration = tokenData.exp;
+          console.log(tokenData);
+          console.log("userid", userId);
+          console.log("issuedAt", issuedAt);
+          console.log("expiration", expiration);
+
+          if (!tokenData) {
+            return;
+          }
           const faculty = JSON.parse(tokenData.faculty);
           const customer = JSON.parse(tokenData.customer);
 
@@ -62,8 +102,8 @@ const Page = () => {
             return;
           }
 
-          if (faculty) {
-            tokenData.faculty = faculty;
+          if (userId) {
+            tokenData.userId = userId;
           }
           if (customer) {
             tokenData.customer = customer;
@@ -162,11 +202,16 @@ const Page = () => {
               render={({ field, formState }) => (
                 <InputText
                   id="account"
-                  value={field.value}
                   label={"Tài khoản"}
                   placeholder={"Tài khoản"}
                   errorMessage={formState.errors.userName?.message}
-                  onChange={field.onChange}
+                  //  value={field.value}
+                  value={formStateUser.username}
+                  //    onChange={field.onChange}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleChange("username")(e);
+                  }}
                   onBlur={field.onBlur}
                 />
               )}
@@ -178,15 +223,22 @@ const Page = () => {
               render={({ field, formState }) => (
                 <Password
                   id="password"
-                  value={field.value}
                   label={"Mật khẩu"}
                   placeholder={"Mật khẩu"}
                   errorMessage={formState.errors.password?.message}
-                  onChange={field.onChange}
+                  value={formStateUser.password}
+                  //       value={field.value}
+
+                  //    onChange={field.onChange}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleChange("password")(e);
+                  }}
                   onBlur={field.onBlur}
                 />
               )}
             />
+
             <div className="flex align-items-center justify-content-between">
               <div>
                 {signInMutation.isError && (
