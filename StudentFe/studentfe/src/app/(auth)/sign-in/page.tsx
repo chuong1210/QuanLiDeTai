@@ -4,6 +4,7 @@ import { API, AUTH_RAW_TOKEN, AUTH_TOKEN, ROUTES } from "@/assets/config";
 import { cookies } from "@/assets/helpers";
 import { http } from "@/assets/helpers";
 import { PageProps } from "@/assets/types/UI";
+
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Loader } from "@/resources/components/UI";
 import { InputText } from "@/resources/components/form/InputText";
@@ -21,6 +22,7 @@ import * as yup from "yup";
 import { stringify } from "querystring";
 import { useState } from "react";
 import { loginStudent } from "@/assets/config/apis/studentapi";
+import { ResponseType } from "@/assets/types/httpRequest";
 
 const formData: FormStateType = {
   username: "",
@@ -56,7 +58,7 @@ const Page = () => {
   //   },
   // });
 
-  const signInMutation = useMutation({
+  const signInMutation: any = useMutation({
     mutationFn: (data: FormStateType) => {
       console.log("username", data.username);
       console.log("username", data.password);
@@ -65,57 +67,62 @@ const Page = () => {
     },
   });
 
-  const onSubmit = (data: any) => {
-    console.log("data" + stringify(data));
+  const onSubmit = () => {
     signInMutation.mutate(formStateUser, {
-      onSuccess(response) {
+      onSuccess(response: ResponseType) {
         try {
           console.log("asasadouahhkda", JSON.stringify(response.data));
           const accessToken: string = response.data.accessToken;
-          // const tokenData: any = jwtDecode(response.data.access_token);
+          const tokenData: any = jwtDecode(accessToken);
+
+          // const decodedToken = jwtDecode(accessToken);
+          console.log("Token value:", response.data.token);
+
+          console.log("Decoded Token:", tokenData);
+
+          const userId = tokenData.sub;
+          const issuedAt = tokenData.iat;
+          const expiration = tokenData.exp;
 
           const base64Url = accessToken.split(".")[1];
           const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
           const jsonPayload = decodeURIComponent(atob(base64));
 
-          const tokenData = JSON.parse(jsonPayload);
-          const userId = JSON.parse(tokenData.sub);
-          const issuedAt = tokenData.iat;
-          const expiration = tokenData.exp;
-          console.log(tokenData);
-          console.log("userid", userId);
-          console.log("issuedAt", issuedAt);
-          console.log("expiration", expiration);
-
           if (!tokenData) {
             return;
           }
-          const faculty = JSON.parse(tokenData.faculty);
-          const customer = JSON.parse(tokenData.customer);
-
-          if (!tokenData) {
-            return;
-          }
-
-          if (tokenData.type !== "student") {
-            toast.error("request:invalid_user");
-            return;
-          }
-
-          if (userId) {
-            tokenData.userId = userId;
-          }
-          if (customer) {
-            tokenData.customer = customer;
-          }
-
           cookies.set(AUTH_TOKEN, tokenData, {
             expires: new Date(tokenData.exp * 1000),
           });
-          cookies.set(AUTH_RAW_TOKEN, response.data.data.token, {
+          cookies.set(AUTH_RAW_TOKEN, String(response.data.token), {
             expires: new Date(tokenData.exp * 1000),
           });
+          console.log("Success save cookies");
+          // const faculty = JSON.parse(tokenData.faculty);
+          // const customer = JSON.parse(tokenData.customer);
 
+          // if (!tokenData) {
+          //   return;
+          // }
+
+          // if (tokenData.type !== "student") {
+          //   toast.error("request:invalid_user");
+          //   return;
+          // }
+
+          // if (userId) {
+          //   tokenData.userId = userId;
+          // }
+          // if (customer) {
+          //   tokenData.customer = customer;
+          // }
+
+          // cookies.set(AUTH_TOKEN, tokenData, {
+          //   expires: new Date(tokenData.exp * 1000),
+          // });
+          // cookies.set(AUTH_RAW_TOKEN, response.data.token, {
+          //   expires: new Date(tokenData.exp * 1000),
+          // });
           router.push(ROUTES.home.index);
         } catch (error) {}
       },

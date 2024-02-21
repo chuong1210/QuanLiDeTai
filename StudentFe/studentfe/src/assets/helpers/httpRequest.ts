@@ -18,6 +18,8 @@ class Http {
   }
 }
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
+
 
 
 const http = new Http().instance
@@ -55,11 +57,11 @@ http.interceptors.request.use(
           }
 
           if (config.method === 'get') {
-              config.params.facultyId = auth?.faculty?.Id;
+              // config.params.facultyId = auth?.faculty?.Id;
           }
 
           if (config.method === 'put' || config.method === 'post' || config.method === 'delete') {
-              config.data.facultyId = auth?.faculty.Id;
+              // config.data.facultyId = auth?.faculty.Id;
           }
 
           break;
@@ -70,6 +72,31 @@ http.interceptors.request.use(
   (error) => {
       return Promise.reject(error);
   },
+);
+
+const responseIntercept = http.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error?.config;
+    if (error?.response?.status === 401 && !originalRequest?.retry) {
+      originalRequest.retry = true;
+      try {
+        // Refresh token and get a new access token
+        
+        // Retry the original request with the new access token
+        const newAccessToken = cookies.get(AUTH_RAW_TOKEN);
+        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+        return http(originalRequest);
+      } catch (refreshError) {
+        // If refreshing token fails, redirect to login or handle accordingly
+        console.error("Error refreshing token:", refreshError);
+        // Redirect to login or handle the error as needed
+        // Example: router.push('/login');
+        return Promise.reject(refreshError);
+      }
+    }
+    return Promise.reject(error);
+  }
 );
 
 http.interceptors.response.use(
@@ -84,8 +111,20 @@ const post = <T = any>(
   path: string,
   data: any,
   configs?: AxiosRequestConfig,
+  // customHeaders?: Record<string, string>, // tự thêm
+
 ): Promise<AxiosResponse<ResponseType<T>, any>> => {
-  const response = http.post(path, data, configs);
+
+
+  // const defaultHeaders = {
+  //   'Content-Type': 'application/json',
+  //   // Thêm các header mặc định khác nếu cần
+  // };
+
+  // const headers = { ...defaultHeaders, ...customHeaders };
+
+  // const response = http.post(path, data, { headers, ...configs });
+   const response = http.post(path, data, configs);
 
   return response;
 };

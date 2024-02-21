@@ -28,7 +28,9 @@ interface ResponseType<dataType = any> {
     exception: string | null;
     succeeded?: boolean;
     code?: number;
-    accessToken:string  ; //response.data.access_token
+   // accessToken:string  ; //response.data.access_token
+    // token(AUTH_RAW_TOKEN: string, token: any, arg2: { expires: Date; }): unknown;
+
 }
 
 export type { MetaType, ParamType, ResponseType };

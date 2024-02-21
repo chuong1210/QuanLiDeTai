@@ -20,6 +20,7 @@ import {
 } from "primereact/api";
 import { toast } from "react-toastify";
 import { Metadata } from "next";
+import { AuthProvider } from "@/assets/context/AuthProvider";
 
 locale("vi");
 
