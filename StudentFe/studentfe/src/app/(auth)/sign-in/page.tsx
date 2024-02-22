@@ -75,7 +75,6 @@ const Page = () => {
           const accessToken: string = response.data.accessToken;
           const tokenData: any = jwtDecode(accessToken);
 
-          // const decodedToken = jwtDecode(accessToken);
           console.log("Token value:", response.data.token);
 
           console.log("Decoded Token:", tokenData);
@@ -94,7 +93,7 @@ const Page = () => {
           cookies.set(AUTH_TOKEN, tokenData, {
             expires: new Date(tokenData.exp * 1000),
           });
-          cookies.set(AUTH_RAW_TOKEN, String(response.data.token), {
+          cookies.set(AUTH_RAW_TOKEN, accessToken, {
             expires: new Date(tokenData.exp * 1000),
           });
           console.log("Success save cookies");

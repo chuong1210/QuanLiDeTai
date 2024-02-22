@@ -84,7 +84,7 @@ export function middleware(request: NextRequest) {
       console.log(2234);
     //    return NextResponse.rewrite(targetUrl);
        return NextResponse.redirect(new URL(ROUTES.home.index,request.url));
-    } else {
+    } else if(!request.cookies.has(AUTH_TOKEN)) {
       // Nếu chưa đăng nhập, chuyển hướng đến /auth/signin
       const targetUrl = new URL(ROUTES.auth.sign_in, request.nextUrl.origin);
       console.log(123);

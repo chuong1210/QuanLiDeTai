@@ -1,5 +1,5 @@
 import { ParamType } from '@/assets/types/httpRequest';
-import { GeneralType } from './GeneralType.type';
+import { GeneralType } from './';
 
 interface StudentType extends GeneralType {
     dateOfBirth?: Date | null;

@@ -102,11 +102,17 @@ const responseIntercept = http.interceptors.response.use(
 http.interceptors.response.use(
   (response) => {
       return response;
+      // return response && response.data?response.data:response;
   },
   (error: AxiosError) => {
       return Promise.reject(error);
   },
 );
+const get = <T = any>(path: string, configs?: AxiosRequestConfig): Promise<AxiosResponse<ResponseType<T>, any>> => {
+  const response = http.get(path, configs);
+
+  return response;
+};
 const post = <T = any>(
   path: string,
   data: any,
@@ -128,4 +134,4 @@ const post = <T = any>(
 
   return response;
 };
-export {post,http}
+export {post,http,get}

@@ -8,3 +8,4 @@ interface GeneralType {
 }
 
 export type { GeneralType };
+//interface tu them
