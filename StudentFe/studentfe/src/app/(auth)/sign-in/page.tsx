@@ -24,6 +24,7 @@ import { useState } from "react";
 import { loginStudent } from "@/assets/config/apis/studentapi";
 import { ResponseType } from "@/assets/types/httpRequest";
 import { FormStateType } from "@/assets/types/loginform";
+import LoginForm from "@/resources/components/form/LoginForm";
 
 const formData: FormStateType = {
   username: "",
@@ -117,12 +118,6 @@ const Page = () => {
           //   tokenData.customer = customer;
           // }
 
-          // cookies.set(AUTH_TOKEN, tokenData, {
-          //   expires: new Date(tokenData.exp * 1000),
-          // });
-          // cookies.set(AUTH_RAW_TOKEN, response.data.token, {
-          //   expires: new Date(tokenData.exp * 1000),
-          // });
           router.push(ROUTES.home.index);
         } catch (error) {}
       },
@@ -186,99 +181,105 @@ const Page = () => {
             </li>
           </ul>
         </div>
-
-        <div className="w-full lg:w-6 p-4 lg:p-7 surface-card">
-          <div className="flex align-items-center justify-content-center mb-7">
-            <span className="text-2xl font-medium text-900">
-              Đăng nhập để tiếp tục
-            </span>
-            {/* <a
-							tabIndex={0}
-							className='font-medium text-blue-500 hover:text-blue-700 cursor-pointer transition-colors transition-duration-150'
-						>
-							Sign up
-						</a> */}
-          </div>
-          <form
-            className="flex flex-column gap-4"
-            onSubmit={handleSubmit(onSubmit)}
-          >
-            <Controller
-              name="userName"
-              control={control}
-              render={({ field, formState }) => (
-                <InputText
-                  id="account"
-                  label={"Tài khoản"}
-                  placeholder={"Tài khoản"}
-                  errorMessage={formState.errors.userName?.message}
-                  //  value={field.value}
-                  value={formStateUser.username}
-                  //    onChange={field.onChange}
-                  onChange={(e) => {
-                    field.onChange(e);
-                    handleChange("username")(e);
-                  }}
-                  onBlur={field.onBlur}
-                />
-              )}
-            />
-
-            <Controller
-              name="password"
-              control={control}
-              render={({ field, formState }) => (
-                <Password
-                  id="password"
-                  label={"Mật khẩu"}
-                  placeholder={"Mật khẩu"}
-                  errorMessage={formState.errors.password?.message}
-                  value={formStateUser.password}
-                  //       value={field.value}
-
-                  //    onChange={field.onChange}
-                  onChange={(e) => {
-                    field.onChange(e);
-                    handleChange("password")(e);
-                  }}
-                  onBlur={field.onBlur}
-                />
-              )}
-            />
-
-            <div className="flex align-items-center justify-content-between">
-              <div>
-                {signInMutation.isError && (
-                  <small className="p-error">Đăng nhập thất bại</small>
-                )}
-                {/* <Controller
-								name='remember_password'
-								control={control}
-								render={({ field }) => (
-									<Checkbox
-										id='remember_password'
-										value={field.value}
-										label={t('remember_password')}
-										onChange={(e) => field.onChange(e.checked)}
-									/>
-								)}
-							/> */}
-              </div>
-              <a className="font-medium text-blue-500 hover:text-blue-700 cursor-pointer transition-colors transition-duration-150">
-                {"Quên mật khẩu"}
-              </a>
-            </div>
-
-            <Button
-              label={"Đăng nhập"}
-              className="w-full font-medium py-3 "
-              rounded={true}
-            />
-          </form>
-        </div>
+        <LoginForm
+          onSubmit={onSubmit}
+          formStateUser={formStateUser}
+          handleChange={handleChange}
+          signInMutation={signInMutation}
+        />
       </div>
     </div>
   );
 };
 
 export default Page;
+
+// <div className="w-full lg:w-6 p-4 lg:p-7 surface-card">
+// <div className="flex align-items-center justify-content-center mb-7">
+//   <span className="text-2xl font-medium text-900">
+//     Đăng nhập để tiếp tục
+//   </span>
+//   {/* <a
+//     tabIndex={0}
+//     className='font-medium text-blue-500 hover:text-blue-700 cursor-pointer transition-colors transition-duration-150'
+//   >
+//     Sign up
+//   </a> */}
+// </div>
+// <form
+//   className="flex flex-column gap-4"
+//   onSubmit={handleSubmit(onSubmit)}
+// >
+//   <Controller
+//     name="userName"
+//     control={control}
+//     render={({ field, formState }) => (
+//       <InputText
+//         id="account"
+//         label={"Tài khoản"}
+//         placeholder={"Tài khoản"}
+//         errorMessage={formState.errors.userName?.message}
+//         //  value={field.value}
+//         value={formStateUser.username}
+//         //    onChange={field.onChange}
+//         onChange={(e) => {
+//           field.onChange(e);
+//           handleChange("username")(e);
+//         }}
+//         onBlur={field.onBlur}
+//       />
+//     )}
+//   />
+
+//   <Controller
+//     name="password"
+//     control={control}
+//     render={({ field, formState }) => (
+//       <Password
+//         id="password"
+//         label={"Mật khẩu"}
+//         placeholder={"Mật khẩu"}
+//         errorMessage={formState.errors.password?.message}
+//         value={formStateUser.password}
+//         //       value={field.value}
+
+//         //    onChange={field.onChange}
+//         onChange={(e) => {
+//           field.onChange(e);
+//           handleChange("password")(e);
+//         }}
+//         onBlur={field.onBlur}
+//       />
+//     )}
+//   />
+
+//   <div className="flex align-items-center justify-content-between">
+//     <div>
+//       {signInMutation.isError && (
+//         <small className="p-error">Đăng nhập thất bại</small>
+//       )}
+//       {/* <Controller
+//       name='remember_password'
+//       control={control}
+//       render={({ field }) => (
+//         <Checkbox
+//           id='remember_password'
+//           value={field.value}
+//           label={t('remember_password')}
+//           onChange={(e) => field.onChange(e.checked)}
+//         />
+//       )}
+//     /> */}
+//     </div>
+//     <a className="font-medium text-blue-500 hover:text-blue-700 cursor-pointer transition-colors transition-duration-150">
+//       {"Quên mật khẩu"}
+//     </a>
+//   </div>
+
+//   <Button
+//     label={"Đăng nhập"}
+//     className="w-full font-medium py-3 "
+//     rounded={true}
+//   />
+// </form>
+// </div>

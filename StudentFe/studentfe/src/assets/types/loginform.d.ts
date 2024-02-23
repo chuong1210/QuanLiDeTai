@@ -3,7 +3,7 @@ interface FormStateType {
     password: string;
   }
   interface LoginProps {
-    control: any; // Điều này phụ thuộc vào loại control bạn đang sử dụng
+    // control: any; // Điều này phụ thuộc vào loại control bạn đang sử dụng
     onSubmit: SubmitHandler<FormStateType>;
     formStateUser: FormStateType;
     handleChange: (name: keyof FormStateType) => (event: React.ChangeEvent<HTMLInputElement>) => void;
