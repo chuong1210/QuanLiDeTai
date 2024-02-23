@@ -1,6 +1,9 @@
 import { ImageProps } from 'primereact/image';
 import { ReactNode } from 'react';
-
+// export interface PageProps {
+//     params?: any
+//     searchParams?: any
+//   }
 interface PageProps {
     params: {
         // lng: string;
@@ -8,6 +11,7 @@ interface PageProps {
     };
     searchParams?: any;
     children?: ReactNode;
+    session:never
 }
 
 interface BreadcrumbProps {

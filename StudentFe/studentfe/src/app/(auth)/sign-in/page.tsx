@@ -23,6 +23,7 @@ import { stringify } from "querystring";
 import { useState } from "react";
 import { loginStudent } from "@/assets/config/apis/studentapi";
 import { ResponseType } from "@/assets/types/httpRequest";
+import { FormStateType } from "@/assets/types/loginform";
 
 const formData: FormStateType = {
   username: "",
@@ -37,7 +38,7 @@ const schema = yup.object({
 
 const Page = () => {
   const router = useRouter();
-  const { control, handleSubmit } = useForm({
+  const { control, handleSubmit, formState } = useForm({
     resolver: yupResolver(schema),
   });
   const [formStateUser, setFormState] = useState<FormStateType>(formData);

@@ -4,6 +4,7 @@ import { RadioButtonChangeEvent } from 'primereact/radiobutton';
 import { ChangeEvent, ChangeEventHandler, FocusEventHandler } from 'react';
 import { OptionType } from './common';
 import type { EditorConfig } from '@ckeditor/ckeditor5-core';
+import { SubmitHandler } from 'react-hook-form';
 
 interface InputProps {
     id: string;
@@ -27,6 +28,7 @@ interface CheckboxProps extends InputProps {
     value?: boolean;
     onChange?: (_e: CheckboxChangeEvent) => void;
 }
+
 
 interface DropdownProps extends InputProps {
     options?: OptionType[];
@@ -116,4 +118,5 @@ export type {
     RadioListProps,
     TextAreaProps,
     FileType,
+    LoginProps
 };

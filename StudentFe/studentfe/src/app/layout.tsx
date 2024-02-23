@@ -101,7 +101,7 @@ export const fontSans = FontSans({
   variable: "--font-sans",
 });
 
-const RootLayout = ({ children }: PageProps) => {
+const RootLayout = ({ children, session }: PageProps) => {
   return (
     <html>
       {/* <ReduxProvider> */}
