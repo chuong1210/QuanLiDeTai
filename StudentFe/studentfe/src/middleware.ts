@@ -38,28 +38,18 @@ export function middleware(req: NextRequest) {
     // {
      
 
-        if (
-          !req.cookies.has(AUTH_RAW_TOKEN) &&!req.cookies.has(AUTH_TOKEN) 
-          && (!req.url.includes(ROUTES.auth.sign_in)&&path!=='sign-in')
-         )
-         {
-            console.log(123);
-            console.log("raw token",!! req.cookies.get(AUTH_RAW_TOKEN));
+        // if (
+        //   !req.cookies.has(AUTH_RAW_TOKEN) &&!req.cookies.has(AUTH_TOKEN) 
+        //   && (!req.url.includes(ROUTES.auth.sign_in)&&path!=='sign-in')
+        //  )
+        //  {
+        //     console.log(123);
+        //     console.log("raw token",!! req.cookies.get(AUTH_RAW_TOKEN));
 
-            return NextResponse.redirect(new URL(`${ROUTES.auth.sign_in}`, req.url));
+        //     return NextResponse.redirect(new URL(`${ROUTES.auth.sign_in}`, req.url));
           
-        }
-        //  else
-        // {
-        
-        //     if((req.url.includes(ROUTES.auth.sign_in)&&path==='sign-in'))
-        //     {
-        //     console.log(777,req.cookies.has(AUTH_TOKEN));
-        //     return NextResponse.redirect(new URL(`${ROUTES.home.index}`, req.url));
-        //     }
-        
+        // }
    
-        //   }
         if (
 
             !req.nextUrl.pathname.startsWith('/_next') &&(req.cookies.has(AUTH_RAW_TOKEN) &&req.cookies.has(AUTH_TOKEN) )&&!req.nextUrl.pathname.startsWith('/home')

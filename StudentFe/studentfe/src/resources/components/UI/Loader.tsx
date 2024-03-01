@@ -1,7 +1,12 @@
 import { LoaderProps } from "@/assets/types/UI";
 import { ProgressSpinner } from "primereact/progressspinner";
 
-const Loader = ({ label = "Loading...", show = true }: LoaderProps) => {
+const Loader = ({
+  label = "Loading...",
+  show = true,
+  duration,
+}: LoaderProps) => {
+  const animationDuration = duration || 0.8;
   return show ? (
     <div
       className="flex align-items-center justify-content-center absolute top-0 left-0 right-0 bottom-0 gap-2"
@@ -9,7 +14,7 @@ const Loader = ({ label = "Loading...", show = true }: LoaderProps) => {
     >
       <ProgressSpinner
         strokeWidth="8"
-        animationDuration="0.8s"
+        animationDuration={`${animationDuration}s`}
         className="m-0 w-2rem h-2rem"
       />
 

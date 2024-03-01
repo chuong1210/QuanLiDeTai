@@ -23,6 +23,7 @@ interface BreadcrumbProps {
 interface LoaderProps {
     label?: string;
     show?: boolean;
+    duration?:number //tu them
 }
 
 interface DividerProps {

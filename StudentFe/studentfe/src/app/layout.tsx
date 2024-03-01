@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "../resources/styles/index.css";
 import { Inter as FontSans } from "next/font/google";
 
-import ReduxProvider from "@/assets/providers/ReduxProvider";
+import ReduxProvider from "@/assets/context/ReduxProvider";
 import { PageProps } from "@/assets/types/UI";
 import {
   QueryCache,
