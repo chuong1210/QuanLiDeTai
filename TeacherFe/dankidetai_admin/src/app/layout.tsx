@@ -7,6 +7,7 @@ import moment from 'moment';
 import 'moment/locale/vi';
 import ProviderQuery from "@/assets/middleware/reactQueryProvider";
 import { ReduxProviders } from "@/assets/middleware/reduxProvider";
+import { ToastContainer } from "react-toastify";
 
 const inter = Inter({ subsets: ["latin"] });
 moment.locale('vi');
@@ -32,6 +33,7 @@ export default function RootLayout({
           <PrimeReactProvider value={primeReactValue}>
             <body suppressHydrationWarning={true} className={inter.className}>
               <main className="main">
+                <ToastContainer />
                 {children}
               </main>
             </body>
