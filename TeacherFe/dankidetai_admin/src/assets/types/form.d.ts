@@ -30,7 +30,7 @@ interface InputNumberProps extends InputProps {
     onChange?: (_e: number) => void;
 }
 
-interface InputPasswordProps extends InputProps {}
+interface InputPasswordProps extends InputProps { }
 
 interface CheckboxProps extends InputProps {
     value?: boolean;
@@ -109,7 +109,9 @@ interface InputFileProps extends InputProps {
     defaultFileText?: string;
     hasDefault?: boolean;
     fileClassName?: string;
-    onChange?: (_e: InputFileOnChange) => void;
+    onChange?: (_e: ChangeEvent<HTMLInputElement>) => void;
+    onRemove?: () => void
+    onSubmitFile?: () => void
 }
 
 export type {

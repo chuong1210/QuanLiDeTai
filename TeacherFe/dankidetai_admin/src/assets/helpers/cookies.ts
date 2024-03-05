@@ -1,5 +1,6 @@
 import { deleteCookie, getCookie, setCookie } from 'cookies-next';
 import { OptionsType } from 'cookies-next/lib/types';
+import { ACCESS_TOKEN } from '../configs/request';
 
 const get = <T>(key: string): T | undefined => {
     const value = getCookie(key);
@@ -28,7 +29,7 @@ const remove = (key: string) => {
 };
 
 const logOut = () => {
-    // remove(AUTH_RAW_TOKEN);
+    remove(ACCESS_TOKEN);
     // remove(AUTH_TOKEN);
 };
 

@@ -4,23 +4,16 @@ import _ from "lodash";
 import API from '../configs/api';
 import * as cookies from "./cookies"
 import { ACCESS_TOKEN } from '../configs/request';
-import { toast } from 'react-toastify';
-const request = axios.create({
+import { redirect, useRouter } from 'next/navigation'
+import { NextResponse } from 'next/server';
+
+export const request = axios.create({
     baseURL: API.base,
     headers: {
-        accept: 'text/plain',
+        //accept: 'text/plain',
         'Content-Type': 'application/json',
     },
 });
-
-const handleNoToken = () => {
-    // Hiển thị toast thông báo lỗi
-    toast.error('Bạn cần đăng nhập để tiếp tục!');
-
-    // Hoặc chuyển hướng người dùng tới trang đăng nhập
-    // const history = useHistory();
-    // history.push('/login');
-};
 
 request.interceptors.request.use(
     (config) => {
@@ -32,21 +25,19 @@ request.interceptors.request.use(
         //     config.headers.Authorization = `${token}`;
         // }
         // else {
-        //     console.log(config)
-        //     handleNoToken()
-        //     //toast.error('Bạn cần đăng nhập để tiếp tục!');
-        //     return Promise.reject("No token")
+        //     throw new Error("You need login!")
         // }
         return config;
     },
     (error) => {
+
         return Promise.reject(error);
     },
 );
 
 request.interceptors.response.use(
     (response) => {
-        return response.data;
+        return response;
     },
     (error: AxiosError) => {
         return Promise.reject(error);
@@ -55,9 +46,9 @@ request.interceptors.response.use(
 
 const get = <T = any>(path: string, configs?: AxiosRequestConfig): Promise<AxiosResponse<ResponseType<T>, any>> => {
     const response = request.get(path, configs);
-
     return response;
 };
+
 
 const post = <T = any>(
     path: string,
@@ -65,7 +56,6 @@ const post = <T = any>(
     configs?: AxiosRequestConfig,
 ): Promise<AxiosResponse<ResponseType<T>, any>> => {
     const response = request.post(path, data, configs);
-
     return response;
 };
 
