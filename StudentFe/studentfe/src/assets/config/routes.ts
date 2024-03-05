@@ -9,17 +9,17 @@ const ROUTES = {
         notification: '/information/notification',
     },
 
-    thesis: {
-        group: '/thesis/group',
-        student_join: '/thesis/student_join',
-        register_topic: '/thesis/register_topic',
-        invite: '/thesis/invite',
-        job_detail: '/thesis/group/job',
-        schedule: 'thesis/schedule',
+    topic: {
+        group: '/topic/group',
+        student_join: '/topic/student_join',
+        register_topic: '/topic/register_topic',
+        invite: '/topic/invite',
+        job_detail: '/topic/group/job',
+        schedule: 'topic/schedule',
     },
 
     external: {
-        exercise: '/thesis/group/exercise',
+        exercise: '/topic/group/exercise',
     },
 
     auth: {

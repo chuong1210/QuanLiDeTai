@@ -4,6 +4,10 @@ const API = {
         sign_in: '/log-in',
 
     },
+    file:{
+        upload:'upload',
+        export:'export'
+    },
 
     list: {
         faculty: '/faculty',
@@ -28,7 +32,9 @@ const API = {
         group: '/group',
 
         thesis: '/thesis',
-        register_topic: '/thesis/listThesisRegistration',
+        // register_topic: '/thesis/listThesisRegistration',
+        register_topic: '/subjects/listTopicRegistration',
+
 
         invitation: '/invitation',
 
@@ -54,10 +60,17 @@ const API = {
     },
 
     post: {
-        register_topic: '/thesisRegistration',
+        register_topic: '/topicRegistration',
         google_drive: '/googleDrive',
         change_invite_status: '/invitation/changeStatus',
     },
+    change: //tu them
+    {
+        register_topic: '/topicRegistration',
+        register_thesis:'/thesisRegistration',
+        register_project:'/projectRegistration',
+
+    }
 };
 
 export { API };

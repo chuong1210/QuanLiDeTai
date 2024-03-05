@@ -1,10 +1,12 @@
-import { reduxMiddlewares } from '@assets/middleware';
+import { reduxMiddlewares } from './middleware';
 import { configureStore, type Action, type ThunkAction } from '@reduxjs/toolkit';
 import {
 	useDispatch as useReduxDispatch,
 	useSelector as useReduxSelector,
 	type TypedUseSelectorHook,
 } from 'react-redux';
+import { createWrapper } from 'next-redux-wrapper';
+
 import { reducer } from './rootReducer';
 
 export const reduxStore = configureStore({
@@ -13,6 +15,8 @@ export const reduxStore = configureStore({
 		return getDefaultMiddleware().concat(reduxMiddlewares);
 	},
 });
+// export const wrapper = createWrapper(reduxStore, { debug: true });
+
 export const useDispatch = () => useReduxDispatch<ReduxDispatch>();
 export const useSelector: TypedUseSelectorHook<ReduxState> = useReduxSelector;
 export type ReduxStore = typeof reduxStore;

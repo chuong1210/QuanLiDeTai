@@ -3,6 +3,8 @@ import { StudentType } from '@/assets/interface/Students.type'
 import { API } from './api';
 import { headers } from 'next/headers';
 import { AUTH_RAW_TOKEN } from '../httpRequest';
+import { FormStateType } from '@/assets/types/loginform';
+import { TopicParamType, TopicType } from '@/assets/interface';
 
 
 export const loginStudent = (user: FormStateType) => http.post(API.auth.sign_in,user, 
@@ -19,7 +21,22 @@ export const loginStudent = (user: FormStateType) => http.post(API.auth.sign_in,
 //     signal // để cancle phía axios
 //   })
 
+// courseApi.js
+export const fetchAllCourses = async () => {
+   await http.get<TopicType>(API.list.register_topic)
+ 
+  };
+  
+  export const fetchTopicCourses = async (topic:string, signal?: AbortSignal) => {
+    await http.get<TopicType>(API.list.register_topic+`${topic}`)
 
+  };
+  
+  export const registerCourseAPI = async (courseId:string,data:TopicType) => {
+    await http.post(API.post.register_topic+`${courseId}`,data)
+
+  };
+  
 
 
 // export const updateStudent = (id: number | string, student: StudentType) => http.put<StudentType>(`students/${id}`, student)

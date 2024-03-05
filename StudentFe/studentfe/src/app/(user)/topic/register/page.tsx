@@ -4,11 +4,16 @@ import { API, DEFAULT_PARAMS, ROUTES, ROWS_PER_PAGE } from "@/assets/config";
 import { http } from "@/assets/helpers";
 import { HTML } from "@/assets/helpers/string";
 import { useGetDetail, useGetList } from "@/assets/useHooks/useGet";
-import { TeacherType, TopicParamType, TopicType } from "@/assets/interface";
+import {
+  ChangeRegistration,
+  TeacherType,
+  TopicParamType,
+  TopicType,
+} from "@/assets/interface";
 import { PageProps } from "@/assets/types/UI";
 import { Loader } from "@/resources/components/UI";
 import { Dropdown } from "@/resources/components/form/Dropdown";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import Link from "next/link";
 import { Button } from "primereact/button";
@@ -22,8 +27,17 @@ import { Skeleton } from "primereact/skeleton";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useDebouncedCallback } from "use-debounce";
+import { OptionType } from "@/assets/types/common";
+import {
+  fetchAllCourses,
+  fetchTopicCourses,
+  registerCourseAPI,
+} from "@/assets/config/apis/studentapi";
+import { FileUpload } from "primereact/fileupload";
+import File from "@/resources/components/form/File";
+import { Toast } from "primereact/toast";
 
-const RegisterTopicPage = ({ params: { lng } }: PageProps) => {
+const RegisterTopicPage = ({ params: { i } }: PageProps) => {
   const teacherQuery = useGetList<TeacherType>({ module: "teacher" });
   const [params, setParams] = useState<TopicParamType>(DEFAULT_PARAMS);
   const [selected, setSelected] = useState<TopicType>();
@@ -39,8 +53,9 @@ const RegisterTopicPage = ({ params: { lng } }: PageProps) => {
   });
 
   const topicMutation = useMutation<any, AxiosError, { thesisId: number }>({
-    mutationFn: (data) => {
-      return http.post(API.post.register_topic, data);
+    mutationFn: (data: any) => {
+      // return http.post(API.post.register_topic, data);
+      return registerCourseAPI(Topic, data);
     },
   });
 
@@ -53,17 +68,17 @@ const RegisterTopicPage = ({ params: { lng } }: PageProps) => {
     },
   });
 
-  //   const debounceKeyword = useDebouncedCallback((keyword) => {
-  //     setParams((prev) => ({
-  //       ...prev,
-  //       filters: http.handleFilter(
-  //         prev.filters,
-  //         "(internalCode|name)",
-  //         "@=",
-  //         keyword
-  //       ),
-  //     }));
-  //   }, 600);
+  const debounceKeyword = useDebouncedCallback((keyword) => {
+    setParams((prev) => ({
+      ...prev,
+      filters: http.handleFilter(
+        prev.filters,
+        "(internalCode|name)",
+        "@=",
+        keyword
+      ),
+    }));
+  }, 600);
 
   const renderActions = (data: TopicType) => {
     return (
@@ -84,19 +99,66 @@ const RegisterTopicPage = ({ params: { lng } }: PageProps) => {
     }));
   };
 
+  const ChangeRegistrationOptions: ChangeRegistration = {
+    all: "All",
+    topic: "Topic",
+    thesis: "Thesis",
+    project: "Project",
+  };
+
+  // Function to convert ChangeRegistration object to options array
+  const convertChangeRegistrationToOptions = (
+    changeRegistration: ChangeRegistration
+  ): OptionType[] => {
+    return Object.entries(changeRegistration).map(([key, value]) => ({
+      label: value,
+      value: key,
+    }));
+  };
+  const options = convertChangeRegistrationToOptions(ChangeRegistrationOptions);
+
+  const [Topic, setTopic] = useState<string>("All");
+
+  //tu them
+  const fetchCourseQuery = useQuery({
+    queryKey: ["Course", Topic],
+    queryFn: () => {
+      const controller = new AbortController();
+      setTimeout(() => {
+        controller.abort();
+      }, 5000);
+      return fetchTopicCourses(Topic, controller.signal);
+    },
+    retry: 0,
+  });
+  //
+
   return (
     <div className="flex flex-column gap-4">
       <div className="flex align-items-center justify-content-between bg-white h-4rem px-3 border-round-lg shadow-3">
-        <p className="text-xl font-semibold">{`Danh sách ${{
-          module: "module:đề tài".toLowerCase(),
-        }}`}</p>
+        <p className="text-xl font-semibold">{`Danh sách 
+          đề tài
+        `}</p>
       </div>
-
-      <div className="flex align-items-center gap-3">
+      <File />
+      <div className="flex align-items-center gap-3 mb-8 ">
         <InputText
           placeholder={`${"search"}...`}
           className="w-20rem"
           //   onChange={(e) => debounceKeyword(e.target.value)}
+        />
+
+        <Dropdown
+          placeholder="Chọn đề tài"
+          id="noti_type"
+          row={true}
+          label={"Chọn đề tài"}
+          value={Topic}
+          options={options}
+          onChange={(e) => {
+            setTopic(e);
+            toast.success("Topic " + Topic);
+          }}
         />
       </div>
 
@@ -108,7 +170,7 @@ const RegisterTopicPage = ({ params: { lng } }: PageProps) => {
           rowHover={true}
           stripedRows={true}
           showGridlines={true}
-          emptyMessage={"list_empty"}
+          emptyMessage={"Danh sách hiện trống"}
         >
           <Column
             alignHeader="center"
@@ -117,7 +179,7 @@ const RegisterTopicPage = ({ params: { lng } }: PageProps) => {
               color: "var(--surface-a)",
               whiteSpace: "nowrap",
             }}
-            header={"common:action"}
+            header={"Thao tác"}
             body={renderActions}
           />
           <Column
@@ -128,12 +190,7 @@ const RegisterTopicPage = ({ params: { lng } }: PageProps) => {
               whiteSpace: "nowrap",
             }}
             field="internalCode"
-            header={
-              "common:code_of" +
-              {
-                obj: "module:thesis".toLowerCase(),
-              }
-            }
+            header={"Mã đề tài"}
           />
 
           <Column
@@ -144,7 +201,7 @@ const RegisterTopicPage = ({ params: { lng } }: PageProps) => {
               whiteSpace: "nowrap",
             }}
             field="name"
-            header={"common:name_of" + { obj: "module:thesis".toLowerCase() }}
+            header={"Tên đề tài"}
           />
           <Column
             alignHeader="center"

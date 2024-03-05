@@ -105,6 +105,20 @@ interface InputFileProps extends InputProps {
     onChange?: (_e: InputFileOnChange) => void;
 }
 
+type tableType = {
+ value?:number|string
+};
+type InputTableOnChange = {
+    value?: tableType[];
+};
+
+interface TableProps extends InputProps
+{
+    showGridlines?:boolean;
+    value?:tableType[];
+    paginator?:string;
+     rows?:number;
+}
 export type {
     CheckboxProps,
     DropdownProps,
@@ -118,5 +132,5 @@ export type {
     RadioListProps,
     TextAreaProps,
     FileType,
-    LoginProps
+    TableProps,
 };

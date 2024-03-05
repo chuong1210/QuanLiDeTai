@@ -10,6 +10,7 @@ interface NotificationType extends GeneralType {
     images?: FileType[];
 }
 
-interface NotificationParamType extends ParamType {}
+interface NotificationParamType extends ParamType {
+}
 
 export type { NotificationParamType, NotificationType };

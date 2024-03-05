@@ -98,6 +98,12 @@ const responseIntercept = http.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+//tu them
+http.defaults.headers.common['Authorization'] = AUTH_TOKEN;
+//http.defaults.headers.common.Authorization =cookies.get( AUTH_TOKEN);
+
+
+//
 
 http.interceptors.response.use(
   (response) => {
@@ -134,4 +140,36 @@ const post = <T = any>(
 
   return response;
 };
-export {post,http,get}
+
+const update = <T = any>(
+  path: string,
+  data: any,
+  configs?: AxiosRequestConfig,
+): Promise<AxiosResponse<ResponseType<T>, any>> => {
+  const response = http.put(path, data, configs);
+
+  return response;
+};
+
+const handleFilter = (
+  original: string | undefined,
+  field: string,
+  operator: '>' | '@=' | '==',
+  value: string | number | undefined,
+) => {
+  let filters = original?.split(', ') || [];
+
+  filters = filters.filter((t) => t != '');
+  let index = filters.findIndex((t) => t.includes(field + operator));
+
+  if (filters.length > 0 && index > -1) {
+      filters.splice(index, 1);
+  }
+
+  if (value) {
+      filters.push(field + operator + value);
+  }
+
+  return filters.join(', ') || '';
+};
+export {post,http,get,update,handleFilter}

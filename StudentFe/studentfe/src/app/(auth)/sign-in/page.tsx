@@ -12,7 +12,7 @@ import { Password } from "@/resources/components/form/Password";
 // import brand from "@resources/image/info/brand.png";
 import { useMutation } from "@tanstack/react-query";
 import { jwtDecode } from "jwt-decode";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { PrimeIcons } from "primereact/api";
 import { Button } from "primereact/button";
 import { Image } from "primereact/image";
@@ -25,6 +25,7 @@ import { loginStudent } from "@/assets/config/apis/studentapi";
 import { ResponseType } from "@/assets/types/httpRequest";
 import { FormStateType } from "@/assets/types/loginform";
 import LoginForm from "@/resources/components/form/LoginForm";
+import { headers } from "next/headers";
 
 const formData: FormStateType = {
   username: "",
@@ -98,6 +99,7 @@ const Page = () => {
           cookies.set(AUTH_RAW_TOKEN, accessToken, {
             expires: new Date(tokenData.exp * 1000),
           });
+
           console.log("Success save cookies");
           // const faculty = JSON.parse(tokenData.faculty);
           // const customer = JSON.parse(tokenData.customer);
@@ -119,6 +121,7 @@ const Page = () => {
           // }
 
           router.push(ROUTES.home.index);
+          //  redirect(ROUTES.home.index)
         } catch (error) {}
       },
     });

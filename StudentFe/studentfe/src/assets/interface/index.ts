@@ -9,6 +9,12 @@ export * from './Group.type'
 export * from './Job.type'
 export * from './Notification.type'
 export * from './Point.type'
+export * from './IChaneRegis.type'
+export * from './invite.type'
+export * from './Schedule.type'
+
+
+
 
 
 

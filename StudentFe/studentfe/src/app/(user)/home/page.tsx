@@ -27,8 +27,9 @@ import { Panel, PanelHeaderTemplateOptions } from "primereact/panel";
 import { Ripple } from "primereact/ripple";
 import { Skeleton } from "primereact/skeleton";
 import { classNames } from "primereact/utils";
+import _ from "lodash";
 
-const HomePage = ({ params: { lng } }: PageProps) => {
+const HomePage = ({ params: { _ } }: PageProps) => {
   const groupQuery = useGetDetail<GroupType, GroupParamType>({
     module: "group",
     params: {
@@ -115,7 +116,7 @@ const HomePage = ({ params: { lng } }: PageProps) => {
                 />
               ))}
 
-              <Link href={ROUTES.thesis.invite}>
+              <Link href={ROUTES.topic.invite}>
                 <Button label="Thêm thành viên" size="small" rounded={true} />
               </Link>
             </AvatarGroup>
@@ -187,7 +188,7 @@ const HomePage = ({ params: { lng } }: PageProps) => {
 
                         <div className="flex align-items-center justify-content-between gap-3 cursor-pointer bg-white border-top-1 border-300 p-3">
                           <Link
-                            href={`${ROUTES.thesis.job_detail}/${job.id}?topicId=${groupQuery.response?.data?.thesisDto?.id}&groupId=${groupQuery.response?.data?.id}`}
+                            href={`${ROUTES.topic.job_detail}/${job.id}?topicId=${groupQuery.response?.data?.thesisDto?.id}&groupId=${groupQuery.response?.data?.id}`}
                             className="p-ripple hover:bg-blue-50 hover:underline border-round"
                           >
                             <p className="text-blue-600 font-semibold">
