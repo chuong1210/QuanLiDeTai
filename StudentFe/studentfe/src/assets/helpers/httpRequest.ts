@@ -1,9 +1,11 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { ROUTES } from '../config/routes';
-import { ResponseType } from '../types/httpRequest';
+import { MetaType, ParamType, ResponseType } from '../types/httpRequest';
 import { AUTH_RAW_TOKEN, AUTH_TOKEN } from '../config';
 import { cookies } from '.';
 import { AuthType } from '../interface/AuthType.type';
+import { OptionType } from '../types/common';
+import _ from 'lodash';
 const baseUrl = ROUTES.base;
 class Http {
   instance: AxiosInstance
@@ -114,6 +116,18 @@ http.interceptors.response.use(
       return Promise.reject(error);
   },
 );
+
+
+const defaultMeta: MetaType = {
+  currentPage: 1,
+  hasNextPage: false,
+  hasPreviousPage: false,
+  messages: [],
+  pageSize: 10,
+  totalCount: 1,
+  totalPages: 1,
+};
+
 const get = <T = any>(path: string, configs?: AxiosRequestConfig): Promise<AxiosResponse<ResponseType<T>, any>> => {
   const response = http.get(path, configs);
 
@@ -150,6 +164,29 @@ const update = <T = any>(
 
   return response;
 };
+const handleSort = (sorts: OptionType | undefined, params: ParamType): string => {
+  let result = params.sorts || '';
+
+  if (!sorts) {
+      return result;
+  }
+
+  const resultSplit = _.split(result, ',').filter((t) => t !== '');
+
+  const keyIndex = resultSplit.findIndex((t) => t.includes(sorts.name || '...'));
+  const symbol = sorts.value === 1 ? '' : '-';
+  const newValue = `${symbol}${sorts.name}`;
+
+  if (keyIndex !== -1) {
+      resultSplit[keyIndex] = newValue;
+  } else {
+      resultSplit.push(newValue);
+  }
+
+  result = _.join(resultSplit, ',');
+
+  return result;
+};
 
 const handleFilter = (
   original: string | undefined,
@@ -172,4 +209,7 @@ const handleFilter = (
 
   return filters.join(', ') || '';
 };
-export {post,http,get,update,handleFilter}
+const currentPage = (page: number | undefined) => {
+  return page ? page - 1 : 0;
+};
+export {post,http,get,update,handleFilter,handleSort,defaultMeta,currentPage}
