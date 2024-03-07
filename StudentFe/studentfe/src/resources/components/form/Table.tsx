@@ -4,345 +4,204 @@ import { Column } from "primereact/column";
 import { TableProps } from "@/assets/types/form";
 import { classNames } from "primereact/utils";
 import { StyleClass } from "primereact/StyleClass";
-
-const TableSchema = ({ data }: any) =>
-  // { value, showGridlines }: TableProps
-  {
-    const [products, setProducts] = useState([]);
-
-    const headerRowClass = {
-      background: "#f3f7f9",
-      borderBottom: "2px solid #cad6d8",
-      color: " #1da1f2",
-      whiteSpace: "nowrap",
-    };
-
-    const headerFirstRowClass = {
-      background: "#ffffce",
-      borderBottom: "2px solid #cad6d8",
-      color: " #1da1f2",
-      border: "1px solid #ddd",
-      whiteSpace: "nowrap",
-    };
-
-    interface TableData {
-      day: string;
-      dayOfWeek: string;
-      shift?: string;
-      course?: string;
-      code?: string;
-      session?: string;
-      room?: string;
-      teacher?: string;
-    }
-    interface headerTable {
-      day: string;
-      dayOfWeek: string;
-    }
-    const headerTable: headerTable[] = [
-      {
-        day: "04/03/2024",
-        dayOfWeek: "Thứ 2",
-      },
-      {
-        day: "05/03/2024",
-        dayOfWeek: "Thứ 3",
-      },
-      {
-        day: "06/03/2024",
-        dayOfWeek: "Thứ 4",
-      },
-      {
-        day: "07/03/2024",
-        dayOfWeek: "Thứ 5",
-      },
-      {
-        day: "08/03/2024",
-        dayOfWeek: "Thứ 6",
-      },
-      {
-        day: "09/03/2024",
-        dayOfWeek: "Thứ 7",
-      },
-      {
-        day: "10/03/2024",
-        dayOfWeek: "Chủ nhật",
-      },
-    ];
-
-    const rowsData: TableData[] = [
-      {
-        day: "04/03/2024",
-        dayOfWeek: "Thứ 2",
-        shift: "Sáng",
-        course: "Lập trình hướng đối tượng",
-        code: "13DHTH03 - 010110196203",
-        session: "4 - 6",
-        room: "A402 - 140 Lê Trọng Tấn",
-        teacher: "Bùi Công Danh",
-      },
-      {
-        day: "04/03/2024",
-        dayOfWeek: "Thứ 3",
-        shift: "Chiều",
-        course: "Lập trình hướng đối tượng",
-        code: "13DHTH03 - 010110196203",
-        session: "4 - 6",
-        room: "A402 - 140 Lê Trọng Tấn",
-        teacher: "Bùi Công Danh",
-      },
-      {
-        day: "04/03/2024",
-        dayOfWeek: "Thứ 4",
-        shift: "Tối",
-        course: "Lập trình hướng đối tượng",
-        code: "13DHTH03 - 010110196203",
-        session: "4 - 6",
-        room: "A402 - 140 Lê Trọng Tấn",
-        teacher: "Bùi Công Danh",
-      },
-      {
-        day: "04/03/2024",
-        dayOfWeek: "Thứ 5",
-        shift: "Sáng",
-        course: "Lập trình hướng đối tượng",
-        code: "13DHTH03 - 010110196203",
-        session: "4 - 6",
-        room: "A402 - 140 Lê Trọng Tấn",
-        teacher: "Bùi Công Danh",
-      },
-      {
-        day: "04/03/2024",
-        dayOfWeek: "Thứ 6",
-        shift: "Sáng",
-        course: "Lập trình hướng đối tượng",
-        code: "13DHTH03 - 010110196203",
-        session: "4 - 6",
-        room: "A402 - 140 Lê Trọng Tấn",
-        teacher: "Bùi Công Danh",
-      },
-      {
-        day: "04/03/2024",
-        dayOfWeek: "Thứ 7",
-        shift: "Chiều",
-        course: "Lập trình hướng đối tượng",
-        code: "13DHTH03 - 010110196203",
-        session: "4 - 6",
-        room: "A402 - 140 Lê Trọng Tấn",
-        teacher: "Bùi Công Danh",
-      },
-      {
-        day: "04/03/2024",
-        dayOfWeek: "Chủ nhật",
-        shift: "Chiều",
-        course: "Lập trình hướng đối tượng",
-        code: "13DHTH03 - 010110196203",
-        session: "4 - 6",
-        room: "A402 - 140 Lê Trọng Tấn",
-        teacher: "Bùi Công Danh",
-      },
-      // ... (Thêm dữ liệu cho các dòng khác)
-    ];
-    const shiftArray: any = ["Sáng", "Chiều", "Tối"];
-
-    return (
-      // <div className="table-responsive overflow-x-auto">
-      //   <table
-      //     className="fl-table table table-bordered text-center no-footer dtr-inline w-full center mb-8 max-w-full"
-      //     role="grid"
-      //   >
-      //     <thead
-      //       className="bg-[#f3f7f9] "
-      //       style={{
-      //         background: "#f3f7f9",
-      //         borderBottom: "2px solid #cad6d8",
-      //         color: " #1da1f2",
-      //         whiteSpace: "nowrap",
-      //       }}
-      //     >
-      //       <tr role="row" className="max-h-0">
-      //         <th lang="lichtheotuan-cahoc">Ca học</th>
-      //         <th>
-      //           <span lang="lichtheotuan-mon">Thứ 2</span>
-      //           <br />
-      //           04/03/2024
-      //         </th>
-      //         <th>
-      //           <span lang="lichtheotuan-tue">Thứ 3</span>
-      //           <br />
-      //           05/03/2024
-      //         </th>
-      //         <th>
-      //           <span lang="lichtheotuan-wed">Thứ 4</span>
-      //           <br />
-      //           06/03/2024
-      //         </th>
-      //         <th>
-      //           <span lang="lichtheotuan-thu">Thứ 5</span>
-      //           <br />
-      //           07/03/2024
-      //         </th>
-      //         <th>
-      //           <span lang="lichtheotuan-fri">Thứ 6</span>
-      //           <br />
-      //           08/03/2024
-      //         </th>
-      //         <th>
-      //           <span lang="lichtheotuan-sat">Thứ 7</span>
-      //           <br />
-      //           09/03/2024
-      //         </th>
-      //         <th>
-      //           <span lang="lichtheotuan-sun">Chủ nhật</span>
-      //           <br />
-      //           10/03/2024
-      //         </th>
-      //       </tr>
-      //     </thead>
-      //     <tbody
-      //       className="bg-"
-      //       style={{
-      //         backgroundImage:
-      //           "url('https://sinhvien.hufi.edu.vn/Content/ThemeMXH/img/icons/transparent-pattern-square-4.png')",
-      //       }}
-      //     >
-      //       <tr role="row">
-      //         <td
-      //           role="cell"
-      //           lang="lichtheotuan"
-      //           style={{ background: "#ffffce" }}
-      //         >
-      //           <b>Sáng</b>
-      //         </td>
-      //         <td>
-      //           <div
-      //             className="content color-lichhoc text-left  align-items-left"
-      //             data-bg="996650"
-      //           >
-      //             <b>
-      //               <a
-      //                 href="/sinh-vien/page-lhp.html?g=dTcVgEv7UiaNkXTyJKTL3e9stcqHs8cMQKkv-_hZvuEtN1eoGjefs2iPuZt0cbyk4ZxZsvvLvnjjlNYjkiCIcqc8S0ktOFbDTU4MQBl94IXaz68zlFDMsHaMTqOM8ox6"
-      //                 target="_blank"
-      //                 className="text-decoration:none;color: #003763;"
-      //                 data-toggle="tooltip"
-      //                 data-placement="auto"
-      //                 title=""
-      //                 data-original-title=""
-      //               >
-      //                 Lập trình hướng đối tượng
-      //               </a>
-      //             </b>
-
-      //             <p>13DHTH03 - 010110196203</p>
-
-      //             <p>
-      //               <span lang="lichtheotuan-tiet">Tiết</span>: 4 - 6
-      //             </p>
-
-      //             <p>
-      //               <span lang="giang-duong">Phòng</span>: A402 - 140 Lê Trọng
-      //               Tấn{" "}
-      //             </p>
-
-      //             <p>
-      //               <span lang="lichtheotuan-gv">GV</span>: Bùi Công Danh
-      //             </p>
-      //           </div>
-      //         </td>
-      //       </tr>
-      //       <tr role="row">
-      //         <td lang="lichtheotuan">
-      //           <b>Chiều</b>
-      //         </td>
-      //         <td></td>
-      //         <td>
-      //           <div className="content color-lichhoc text-left  align-items-left">
-      //             <b>
-      //               <a
-      //                 href="/sinh-vien/page-lhp.html?g=ikLiDpZjrERfoOs54GONF1nBL28EFyGCdQhp5qlf88vUaoKiQphM481kRk790VMSaydpwHAvPHbZDGkKf9nrIjTgE22naWPMZhMKSSDCnInT40OUEgvAAL-efuu0aqrY"
-      //                 target="_blank"
-      //                 data-toggle="tooltip"
-      //                 data-placement="auto"
-      //                 title=""
-      //                 className="text-decoration:none;color: #003763;"
-      //                 data-original-title=""
-      //               >
-      //                 Công nghệ phần mềm
-      //               </a>
-      //             </b>
-
-      //             <p>13DHBM03 - 010110196303</p>
-
-      //             <p>
-      //               <span lang="lichtheotuan-tiet">Tiết</span>: 7 - 9
-      //             </p>
-
-      //             <p>
-      //               <span lang="giang-duong">Phòng</span>: A403 - 140 Lê Trọng
-      //               Tấn
-      //             </p>
-
-      //             <p>
-      //               <span lang="lichtheotuan-gv">GV</span>: Ngô Minh Anh Thư
-      //             </p>
-      //           </div>
-      //         </td>
-      //       </tr>
-      //       <tr role="row">
-      //         <td lang="lichtheotuan">
-      //           <b>Tối</b>
-      //         </td>
-      //         <td></td>
-      //         <td></td>
-      //         <td></td>
-      //         <td></td>
-      //         <td></td>
-      //         <td></td>
-      //         <td></td>
-      //       </tr>
-      //     </tbody>
-      //   </table>
-      // </div>
-
-      <div className="table-responsive  " style={{ overflowX: "hidden" }}>
-        <DataTable
-          showGridlines
-          value={shiftArray}
-          className=" overflow-hidden fl-table table table-bordered text-center no-footer dtr-inline w-full center mb-8 max-w-full "
-          tableStyle={{ maxWidth: "5rem", overflow: "hidden" }}
-          role="grid"
-        >
-          <Column
-            field="shift"
-            header="Ca học"
-            style={headerFirstRowClass}
-            body={(sh) => <div>{sh}</div>}
-          />
-          {rowsData.map((date, index) => (
-            <Column
-              key={index}
-              field={`day${index + 1}`}
-              header={
-                <>
-                  <span>{date.dayOfWeek}</span>
-                  <br />
-                  <span>{date.day}</span>
-                </>
-              }
-              body={() => (
-                <div style={headerRowClass}>
-                  <span>{date.dayOfWeek}</span>
-                  <br />
-                  <h1>{date.teacher}</h1>
-                  <span>{date.day}</span>
-                </div>
-              )}
-              style={headerRowClass}
-            />
-          ))}
-        </DataTable>
-      </div>
-    );
+import { Row } from "primereact/row";
+import { headers } from "next/headers";
+import { date } from "@/assets/helpers";
+import { groupBy } from "lodash";
+import { da } from "date-fns/locale";
+import { Button } from "primereact/button";
+interface dayofWeekType {
+  Monday: string;
+  Tuesday: string;
+  Wednesday: string;
+  Thursday: string;
+  Friday: string;
+  Saturday: string;
+  Sunday: string;
+}
+function getDayOfWeek(day: keyof dayofWeekType) {
+  const daysOfWeek: dayofWeekType = {
+    Monday: "Mon",
+    Tuesday: "Tue",
+    Wednesday: "Wed",
+    Thursday: "Thu",
+    Friday: "Fri",
+    Saturday: "Sat",
+    Sunday: "Sun",
   };
+  return daysOfWeek[day];
+}
+
+function getDateOfWeek(dayIndex: number): number {
+  const curr = new Date(); // get current date
+  const firstDayOfWeek = new Date(
+    curr.setDate(curr.getDate() - curr.getDay() + 1)
+  ); // Đặt lại thời gian cho ngày đầu tiên của tuần
+  firstDayOfWeek.setDate(firstDayOfWeek.getDate() + dayIndex); // Tăng lên để đạt được ngày mong muốn của tuần
+  return firstDayOfWeek.getDate(); // Trả về ngày của tháng
+}
+const TableSchema = ({ data }: any) => {
+  const headerRowClass = {
+    background:
+      "#f3f7f9" +
+      "url(https://sinhvien.hufi.edu.vn/Content/ThemeMXH/img/icons/transparent-pattern-square-4.png)",
+    borderBottom: "2px solid #cad6d8",
+    color: " #1da1f2",
+    whiteSpace: "nowrap",
+  };
+
+  const headerFirstRowClass = {
+    background: "#ffffce",
+    borderBottom: "2px solid #cad6d8",
+    color: " #1da1f2",
+    border: "1px solid #ddd",
+    whiteSpace: "nowrap",
+  };
+
+  interface IScheduleDataType {
+    [key: string]: { [key: string]: string };
+  }
+  const scheduleData: IScheduleDataType = {
+    Morning: { period: "Buổi", time: "Sáng" },
+    Afternoon: { period: "Buổi", time: "Chiều" },
+    Evening: { period: "Buổi", time: "Tối" },
+  };
+  interface TableData {
+    day: string;
+    dayOfWeek: string;
+    shift: string;
+    course: string;
+    code?: string;
+    session?: string;
+    room: string;
+    teacher?: string;
+  }
+
+  const rowsData: TableData[] = [
+    {
+      day: "04/03/2024",
+      dayOfWeek: "Monday",
+      shift: "Afternoon",
+      course: "Lập trình hướng đối tượng",
+      code: "13DHTH03 - 010110196203",
+      session: "4 - 6",
+      room: "A402 - 140 Lê Trọng Tấn",
+      teacher: "Bùi Công Danh",
+    },
+
+    {
+      day: "04/03/2024",
+      shift: "Morning",
+      dayOfWeek: "Monday",
+      course: "Lập trình hướng đối tượng",
+      code: "13DHTH03 - 010110196203",
+      session: "4 - 6",
+      room: "A402 - 140 Lê Trọng Tấn",
+      teacher: "Bùi Công Danh",
+    },
+    // ... (Thêm dữ liệu cho các dòng khác)
+  ];
+  interface apiData {
+    room: string;
+    class: string;
+    time: string;
+    day: string;
+  }
+  const apiData: apiData[] = [
+    { room: "101", class: "Math", time: "Morning", day: "Monday" },
+    { room: "202", class: "English", time: "Afternoon", day: "Tuesday" },
+  ];
+
+  // apiData.forEach((item) => {
+  //   if (["Morning", "Afternoon", "Evening"].includes(item.time)) {
+  //     const day = getDayOfWeek(item.day as keyof dayofWeekType);
+  //     scheduleData[item.time as keyof IScheduleDataType][
+  //       day
+  //     ] = `${item.class} (Phòng: ${item.room})`;
+  //   }
+  // });
+  rowsData.forEach((item) => {
+    if (["Morning", "Afternoon", "Evening"].includes(item.shift)) {
+      const day = getDayOfWeek(item.dayOfWeek as keyof dayofWeekType);
+      scheduleData[item.shift as keyof IScheduleDataType][
+        day
+      ] = `${item.course}\n Giáo viên ${item.teacher} (Phòng: ${item.room})`;
+    }
+  });
+
+  const formattedData = Object.values(scheduleData);
+  return (
+    // <div className="table-responsive  " style={{ overflowX: "hidden" }}>
+    //   <Button onClick={handlePrevious}>Previous</Button>
+
+    //   {/* Nút Next */}
+    //   <Button color="danger" onClick={handleNext}>
+    //     Next
+    //   </Button>
+    //   <DataTable
+    //     showGridlines
+    //     value={shiftArray}
+    //     className=" overflow-hidden fl-table table table-bordered text-center no-footer dtr-inline w-full center mb-8 max-w-full "
+    //     tableStyle={{ maxWidth: "5rem", overflow: "hidden" }}
+    //     role="grid"
+    //   >
+    //     <Column
+    //       field="shift"
+    //       header="Ca học"
+    //       style={headerFirstRowClass}
+    //       headerStyle={{ background: "#f3f7f9" }}
+    //       body={(sh) => <div>{sh}</div>}
+    //     />
+    //     {rowsData.map((date, index) => {
+    //       const rowData = shiftArray.find(
+    //         (row: string) => row === date.shift
+    //       );
+    //       return (
+    //         <Column
+    //           key={index}
+    //           field={`day${index + 1}`}
+    //           header={
+    //             <>
+    //               <span>{date.dayOfWeek}</span>
+    //               <br />
+    //               <span>{date.day}</span>
+    //             </>
+    //           }
+    //           body={(data) =>
+    //             data === date.shift &&
+    //             rowData === date.shift && (
+    //               <div style={headerRowClass}>
+    //                 <span>{date.course}</span>
+    //                 <br />
+    //                 <h1>{date.teacher}</h1>
+    //                 <span>{date.room}</span>
+    //               </div>
+    //             )
+    //           }
+    //           style={headerRowClass}
+    //         />
+    //       );
+    //     })}
+    //   </DataTable>
+    // </div>
+    <div>
+      <h3>Thời Khóa Biểu</h3>
+      <DataTable value={formattedData} showGridlines>
+        {/* <Column field="period" header="" style={headerFirstRowClass} /> */}
+        <Column field="time" style={headerFirstRowClass} header="Ca học" />
+        <Column
+          field="Mon"
+          header={`Thứ 2 (${getDateOfWeek(0)})`}
+          style={headerRowClass}
+        />
+        <Column field="Tue" header={`Thứ 3 (${getDateOfWeek(1)})`} />
+        <Column field="Wed" header={`Thứ 4 (${getDateOfWeek(2)})`} />
+        <Column field="Thu" header={`Thứ 5 (${getDateOfWeek(3)})`} />
+        <Column field="Fri" header={`Thứ 6 (${getDateOfWeek(4)})`} />
+        <Column field="Sat" header={`Thứ 7 (${getDateOfWeek(5)})`} />
+      </DataTable>
+    </div>
+  );
+};
 
 export { TableSchema };

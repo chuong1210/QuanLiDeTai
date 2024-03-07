@@ -7,6 +7,7 @@ import { useGetList } from "@/assets//useHooks/useGet";
 import { GroupParamType, GroupType } from "@/assets/interface";
 import { PageProps } from "@/assets/types/UI";
 import { MetaType } from "@/assets/types/httpRequest";
+import { DEFAULT_META } from "@/assets/config/httpRequest";
 import { Loader } from "@/resources/components/UI";
 import { Dropdown } from "@/resources/components/form/Dropdown";
 import Link from "next/link";
@@ -17,7 +18,7 @@ import { Paginator, PaginatorPageChangeEvent } from "primereact/paginator";
 import { useState } from "react";
 
 const GroupPage = ({ params: { lng } }: PageProps) => {
-  const [meta, setMeta] = useState<MetaType>(http.defaultMeta);
+  const [meta, setMeta] = useState<MetaType>(DEFAULT_META);
 
   const [params, setParams] = useState<GroupParamType>({
     page: meta.currentPage,
@@ -61,7 +62,7 @@ const GroupPage = ({ params: { lng } }: PageProps) => {
       </div>
 
       <div className="border-round-xl overflow-hidden relative shadow-5">
-        <Loader show={groupQuery.isFetching} />
+        {/* <Loader show={groupQuery.isFetching} /> */}
 
         <DataTable value={groupQuery.response?.data || []}>
           <Column

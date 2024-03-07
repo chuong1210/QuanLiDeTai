@@ -8,7 +8,7 @@ import HeadlessTippy from "@tippyjs/react/headless";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/assets/config";
 
-// import { Breadcrumb } from "../UI";
+import { Breadcrumb } from "../UI";
 const Logout = () => {
   cookies.logOut();
 };
@@ -18,7 +18,7 @@ const Header = () => {
   return (
     <header>
       <div className="flex align-items-center justify-content-between flex-1 h-4rem px-4">
-        {/* <Breadcrumb lng={lng} /> */}
+        {/* <Breadcrumb /> */}
 
         <div
           className="flex align-items-center justify-content-end gap-6"

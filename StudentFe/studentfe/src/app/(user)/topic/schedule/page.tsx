@@ -29,6 +29,9 @@ import { classNames } from "primereact/utils";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ScheduleForm, { ScheduleFormRefType } from "./form";
 import { TableSchema } from "@/resources/components/form/Table";
+import { ScheduleTable } from "@/resources/components/form/TableForm";
+import exportComponentAsPDF from "@/assets/helpers/exportPdf";
+import exportComponentToPDF from "@/assets/helpers/exportPdf";
 
 const SchedulePage = () => {
   const dateRefs = useRef<HTMLDivElement[] | null[]>([]);
@@ -210,6 +213,12 @@ const SchedulePage = () => {
   useEffect(() => {
     setShow(true);
   }, []);
+
+  const scheduleTableRef = useRef(null);
+
+  const handleExportClick = async () => {
+    await exportComponentToPDF(scheduleTableRef);
+  };
 
   return (
     <Card title="Lịch phản biện" subTitle="Lịch phản biện diễn ra trong tuần">
@@ -416,7 +425,19 @@ const SchedulePage = () => {
       </div>
 
       <div>
-        <TableSchema />
+        <h1>Lịch báo cáo đề tài</h1>
+        <Button
+          icon="pi pi-print"
+          size="small"
+          className="ml-2 max-w-7rem w-full"
+          label="In lịch"
+          raised
+          onClick={handleExportClick}
+          severity="info"
+        ></Button>
+        {/* <TableSchema /> */}
+
+        <ScheduleTable ref={scheduleTableRef} />
       </div>
       <ScheduleForm
         title="Thông tin"

@@ -104,13 +104,13 @@ export const fontSans = FontSans({
 const RootLayout = ({ children, session }: PageProps) => {
   return (
     <html>
-      {/* <ReduxProvider> */}
-      <QueryClientProvider client={queryClient}>
-        <PrimeReactProvider value={primeReactValue}>
-          {children}
-        </PrimeReactProvider>
-      </QueryClientProvider>
-      {/* </ReduxProvider> */}
+      <ReduxProvider>
+        <QueryClientProvider client={queryClient}>
+          <PrimeReactProvider value={primeReactValue}>
+            {children}
+          </PrimeReactProvider>
+        </QueryClientProvider>
+      </ReduxProvider>
     </html>
   );
 };

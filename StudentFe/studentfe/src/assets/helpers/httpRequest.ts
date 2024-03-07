@@ -118,15 +118,6 @@ http.interceptors.response.use(
 );
 
 
-const defaultMeta: MetaType = {
-  currentPage: 1,
-  hasNextPage: false,
-  hasPreviousPage: false,
-  messages: [],
-  pageSize: 10,
-  totalCount: 1,
-  totalPages: 1,
-};
 
 const get = <T = any>(path: string, configs?: AxiosRequestConfig): Promise<AxiosResponse<ResponseType<T>, any>> => {
   const response = http.get(path, configs);
@@ -212,4 +203,4 @@ const handleFilter = (
 const currentPage = (page: number | undefined) => {
   return page ? page - 1 : 0;
 };
-export {post,http,get,update,handleFilter,handleSort,defaultMeta,currentPage}
+export {post,http,get,update,handleFilter,handleSort,currentPage}
