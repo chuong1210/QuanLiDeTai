@@ -50,12 +50,12 @@ const MenuItem = ({ item }: MenuItemProps) => {
         }
         onItemClick?.(currItem);
         if (currItem.to) {
-            router.push(currItem.to)
+            return router.push(currItem.to)
         }
     };
 
     const SubItem = () => {
-        return items?.map((child) => (<div style={{ marginLeft: "12px" }}>
+        return items?.map((child, index) => (<div key={index} style={{ marginLeft: "12px" }}>
             <MenuItem key={child.label} item={{ ...child }} />
         </div>
         ));
@@ -65,7 +65,7 @@ const MenuItem = ({ item }: MenuItemProps) => {
         <div className='my-1'>
             <div
                 className={classNames(
-                    'flex align-items-center gap-2 h-3rem px-3 no-underline cursor-pointer transition-linear transition-duration-200 border-round-lg p-ripple',
+                    'flex align-items-center gap-2 h-3rem px-3 no-underline cursor-pointer transition-linear transition-duration-200 p-ripple',
                     itemClassName,
                     {
                         'hover:bg-blue-100': !isOpenMenu,

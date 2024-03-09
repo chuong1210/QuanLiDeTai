@@ -1,0 +1,4 @@
+interface DefaultResponse {
+
+    id?: number;
+}

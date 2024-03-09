@@ -1,12 +1,9 @@
 import API from '@/assets/configs/api';
-import { ACCESS_TOKEN } from '@/assets/configs/request';
-import ROUTER from '@/assets/configs/routers';
-import { cookies } from '@/assets/helpers';
 import * as request from '@/assets/helpers/request';
 import { FormRefType, FormType } from '@/assets/types/form';
-import { InputText } from '@/resources/components/form';
+import { Dropdown, InputText } from '@/resources/components/form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
@@ -15,43 +12,62 @@ import { DataTable } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
 import React, { forwardRef, useImperativeHandle, useState } from 'react'
 import { Controller, Resolver, useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
 import * as yup from "yup"
-import { key } from './page';
+import { key } from '../department/page';
+import { toast } from 'react-toastify';
+import { fields } from './page';
 
-const defaultValues: DepartmentType = {
-    name: ""
-
+const defaultValues: SubjectType = {
+    name: "",
+    departments: {
+        name: ""
+    }
 }
 
 const schema = yup.object({
     id: yup.number(),
     name: yup.string().required(),
-
+    departments: yup.object().shape({
+        name: yup.string().required()
+    })
 })
 
-const Form = forwardRef<FormRefType<DepartmentType>, FormType<DepartmentType>>(({ type, title, data, onSuccess }, ref) => {
+const Form = forwardRef<FormRefType<SubjectType>, FormType<SubjectType>>(({ type, title, data, onSuccess }, ref) => {
     const [visible, setVisible] = useState(false);
     const { control, handleSubmit, reset, getValues } = useForm({
-        resolver: yupResolver(schema) as Resolver<DepartmentType>, defaultValues: defaultValues
+        resolver: yupResolver(schema) as Resolver<SubjectType>, defaultValues: defaultValues
     });
-    Form.displayName = `forwardRef${key}`
-    const StudentMutation = useMutation<any, AxiosError<ResponseType>, DepartmentType>({
+    const StudentMutation = useMutation<any, AxiosError<ResponseType>, any>({
         mutationFn: (data) => {
-            //console.log(data)
-            return type === "edit" ? request.update(API.department.update + `/${data.id}`, { name: data.name }) : request.post(API.department.insert, { name: data.name })
+            console.log(data)
+            return type === "edit" ? request.update(API.subjects.update + `/${data.id}`, { name: data.name, nameDepartment: data.departments.name }) : request.post(API.subjects.insert, { name: data.name, nameDepartment: data.departments.name })
         },
     });
-    const show = (data?: DepartmentType) => {
+
+    const DeparmentQuery = useQuery<DepartmentType[], AxiosError<ResponseType>>({
+        enabled: false,
+        refetchOnWindowFocus: false,
+        queryKey: [key, 'list'],
+        queryFn: async () => {
+            const response = await request.get<DepartmentType[]>(API.department.getAll);
+
+            return response.data || [];
+        },
+    });
+
+
+    const show = (data?: SubjectType) => {
         setVisible(true);
+
         if (data) {
             reset(data);
         } else {
             reset(defaultValues);
         }
+        DeparmentQuery.refetch()
 
     };
-    const onSubmit = (data: DepartmentType) => {
+    const onSubmit = (data: SubjectType) => {
         StudentMutation.mutate(data, {
             onSuccess: (response) => {
                 close();
@@ -75,7 +91,7 @@ const Form = forwardRef<FormRefType<DepartmentType>, FormType<DepartmentType>>((
         <Dialog
             header={title}
             visible={visible}
-            style={{ width: '70vw' }}
+            style={{ width: '40vw' }}
             className='overflow-hidden'
             contentClassName='mb-8'
             onHide={close}
@@ -85,14 +101,13 @@ const Form = forwardRef<FormRefType<DepartmentType>, FormType<DepartmentType>>((
                     <div className="p-col">
                         <Card>
                             <DataTable value={[data || []]}>
-                                <Column field="id" header="id" />
-                                <Column field="name" header="name" />
+                                {fields.map((field, index) => <Column key={index} field={field.code} header={field.field} />)}
                             </DataTable>
                         </Card>
                     </div>
                 </div> :
                     <form className='mt-2 flex' onSubmit={handleSubmit(onSubmit)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }}>
-                        <div className='col-12 flex flex-column gap-3'>
+                        <div className='col-6 flex flex-column gap-3'>
                             <Controller
                                 name="name"
                                 control={control}
@@ -100,17 +115,33 @@ const Form = forwardRef<FormRefType<DepartmentType>, FormType<DepartmentType>>((
                                     <InputText
                                         id='form_data_name'
                                         value={field.value}
-                                        label={"Ngành"}
-                                        placeholder={"Ngành"}
+                                        label={"Bộ môn"}
+                                        placeholder={"Bộ môn"}
                                         errorMessage={fieldState.error?.message}
                                         onChange={field.onChange}
                                     />
                                 )}
                             />
                         </div>
-
-
-
+                        <div className='col-6 flex flex-column gap-3'>
+                            <Controller
+                                name="departments"
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <Dropdown
+                                        id='form_data_industry_id'
+                                        options={DeparmentQuery.data?.map((t) => ({ label: t.name, value: t.name }))}
+                                        value={field.value?.name}
+                                        label={"Ngành"}
+                                        placeholder={"Ngành"}
+                                        errorMessage={fieldState.error?.message}
+                                        onChange={(e) => {
+                                            field.onChange({ name: e })
+                                        }}
+                                    />
+                                )}
+                            />
+                        </div>
                         <div className='flex align-items-center justify-content-end gap-2 absolute bottom-0 left-0 right-0 bg-white p-4'>
                             <Button
                                 label={'cancel'}

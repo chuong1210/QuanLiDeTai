@@ -17,34 +17,35 @@ export const request = axios.create({
 
 request.interceptors.request.use(
     (config) => {
-        // const token = cookies.get(ACCESS_TOKEN);
-        // if (!config.headers.Authorization) {
-        //     config.headers.Authorization = '';
-        // }
-        // if (token) {
-        //     config.headers.Authorization = `${token}`;
-        // }
-        // else {
-        //     throw new Error("You need login!")
-        // }
+        const token = cookies.get(ACCESS_TOKEN);
+        if (!config.headers.Authorization) {
+            config.headers.Authorization = '';
+        }
+        if (token) {
+            config.headers.Authorization = `${token}`;
+        }
+        else {
+            throw new Error("You need login!")
+        }
         return config;
     },
     (error) => {
-
         return Promise.reject(error);
     },
 );
 
 request.interceptors.response.use(
     (response) => {
+        // console.log(response)
         return response;
     },
     (error: AxiosError) => {
+
         return Promise.reject(error);
     },
 );
 
-const get = <T = any>(path: string, configs?: AxiosRequestConfig): Promise<AxiosResponse<ResponseType<T>, any>> => {
+const get = <T = any>(path: string, configs?: AxiosRequestConfig): Promise<AxiosResponse<T, any>> => {
     const response = request.get(path, configs);
     return response;
 };
@@ -54,7 +55,7 @@ const post = <T = any>(
     path: string,
     data: any,
     configs?: AxiosRequestConfig,
-): Promise<AxiosResponse<ResponseType<T>, any>> => {
+): Promise<AxiosResponse<T, any>> => {
     const response = request.post(path, data, configs);
     return response;
 };
@@ -63,7 +64,7 @@ const update = <T = any>(
     path: string,
     data: any,
     configs?: AxiosRequestConfig,
-): Promise<AxiosResponse<ResponseType<T>, any>> => {
+): Promise<AxiosResponse<T, any>> => {
     const response = request.put(path, data, configs);
 
     return response;

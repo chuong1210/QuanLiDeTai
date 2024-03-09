@@ -23,11 +23,6 @@ export default function Home() {
     const router = useRouter();
     const signInMutation = useMutation({
         mutationFn: (data: any) => {
-            console.log(data)
-            // return request.post("/log-in", {
-            //   username: data.userName,
-            //   password: data.password,
-            // });
             return axios.post("http://localhost:8888/log-in", {
                 username: data.userName,
                 password: data.password,
@@ -39,7 +34,6 @@ export default function Home() {
         signInMutation.mutate(data, {
             onSuccess(response) {
                 try {
-                    console.log("/// checkk res", response);
                     cookies.set(ACCESS_TOKEN, response.data.accessToken);
 
                     router.push(ROUTER.home);

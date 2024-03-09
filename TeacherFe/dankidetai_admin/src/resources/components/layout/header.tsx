@@ -5,7 +5,10 @@ import React, { useRef } from 'react'
 import MenuItem from '../UI/MenuItem'
 import { cookies } from '@/assets/helpers'
 import { MenuItemType } from '@/assets/types/menu'
-
+import Link from 'next/link'
+import ROUTER from '@/assets/configs/routers'
+import brand from "@/resources/image/huit/brand.png"
+import Image from 'next/image'
 export default function Header() {
     //console.log(data)
     const userModalRef = useRef<OverlayPanel>(null);
@@ -15,21 +18,21 @@ export default function Header() {
     }
     return (
         <div
-            className='flex align-items-center justify-content-end flex-1 h-4rem shadow-2 bg-white pr-5 fixed top-0 left-0 right-0'
-            style={{ zIndex: 500, paddingLeft: '20rem' }}
+            className='w-100 flex align-items-center justify-content-between  h-4rem shadow-2 bg-white pr-5 fixed top-0 left-0 right-0'
+            style={{ zIndex: 500 }}
         >
-            <div>
-                <div style={{ cursor: "pointer" }} onClick={(e) => userModalRef?.current?.toggle(e)}>
-
-                    <span className="pi pi-user bg-primary p-2 border-circle"></span>
-                    <span>Trần Vinh Hiển</span>
-                </div>
-                <OverlayPanel ref={userModalRef} className='p-0'>
-                    <ul>
-                        {HEADER_MENU().map(item => <MenuItem key={item.code} item={{ ...item, onItemClick: logOut }} />)}
-                    </ul>
-                </OverlayPanel>
+            <Link className='p-2' href={ROUTER.home}>
+                <Image src={brand} alt='' width={244} height={60} priority={true} />
+            </Link>
+            <div style={{ cursor: "pointer" }} onClick={(e) => userModalRef?.current?.toggle(e)}>
+                <span className="pi pi-user bg-primary p-2 border-circle"></span>
+                <span>Trần Vinh Hiển</span>
             </div>
+            <OverlayPanel ref={userModalRef} className='p-0'>
+                <ul>
+                    {HEADER_MENU().map(item => <MenuItem key={item.code} item={{ ...item, onItemClick: logOut }} />)}
+                </ul>
+            </OverlayPanel>
         </div>
     )
 }
