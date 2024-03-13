@@ -8,7 +8,6 @@ import moment from "moment";
 import { Card } from "primereact/card";
 import { da } from "date-fns/locale";
 // import { useRouter } from "next/navigation";
-import NotificationPage from "../page";
 import { useRouter } from "next/navigation";
 
 const NotificationDetailPage = ({ params: { id } }: PageProps) => {

@@ -20,8 +20,11 @@ interface UseGetDetailType<TParam, TData> extends UseGetType<TParam, TData> {
     module: keyof typeof API.detail;
 }
 
-interface useGetListMultiType<TParam, TData> extends UseGetType<TParam, TData> {
-    module: keyof typeof API.list;
+// interface useGetListMultiType<TParam, TData> extends UseGetType<TParam, TData> {
+//     module: keyof typeof API.list;
+//     data: TData[];
+// }
+interface useGetListMultiType<TParam, TData> extends UseGetListType<TParam, TData> {
     data: TData[];
 }
 

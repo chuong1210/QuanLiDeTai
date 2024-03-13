@@ -1,7 +1,8 @@
 import { MetaType, ParamType } from '@/assets/types/httpRequest';
 import moment from 'moment';
 
-const AUTH_TOKEN = 'auth_token';
+// const AUTH_TOKEN = 'auth_token';
+const AUTH_TOKEN = 'access_token';
 const AUTH_RAW_TOKEN = 'auth_raw_token';
 const TOKEN_EXPIRE = moment().add({ minute: 600 }).toDate().getMinutes();
 const ROWS_PER_PAGE = [10, 20, 30];
