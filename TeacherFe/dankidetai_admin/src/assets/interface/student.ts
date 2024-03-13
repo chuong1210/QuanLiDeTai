@@ -1,12 +1,13 @@
-interface StudentType {
-    id: number;
-    MSSV: string;
-    Name: string;
-    Class: string;
-    DayOfBirth: string;
-    Email: string;
-    PhoneNumber: string;
-    IdNganh?: number;
-    IdGroup?: number;
-    IdPoint?: number
+interface StudentType extends DefaultResponse {
+    maSo: string;
+    name: string;
+    DOB?: string;
+    myClass: string;
+    email: string;
+    phoneNumber: string;
+    chucVu?: string;
+    departmentName?: number;
+    subjectName?: string;
+    idPoint?: number;
+    idGroup?: number;
 }[]

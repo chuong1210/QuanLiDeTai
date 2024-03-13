@@ -1,4 +1,3 @@
-interface DepartmentType {
-    id: number;
+interface DepartmentType extends DefaultResponse {
     name: string;
-}[]
+}

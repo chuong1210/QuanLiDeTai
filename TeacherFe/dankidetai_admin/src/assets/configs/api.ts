@@ -4,7 +4,26 @@ const API = {
     department: {
         insert: "/departments/insert",
         update: "/departments/update",
-        delete: "/departments/delete"
+        delete: "/departments/delete",
+        getAll: "/departments/showAll"
+    },
+    subjects: {
+        insert: "/subjects/insert",
+        update: "/subjects/update",
+        delete: "/subjects/delete",
+        getAll: "/subjects/showAll"
+    },
+    students: {
+        insert_from_excel: "/students/insert-from-excel",
+        insert: "/students/insert",
+        delete: "/students/delete",
+        getAll: "/students/showAll"
+    },
+    teachers: {
+        insert: "/teachers/insert",
+        delete: "/teachers/delete",
+        getAll: "/teachers/showAll"
     }
+
 }
 export default API

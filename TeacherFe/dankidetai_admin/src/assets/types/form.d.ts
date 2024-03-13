@@ -114,6 +114,23 @@ interface InputFileProps extends InputProps {
     onSubmitFile?: () => void
 }
 
+interface FormRefType<T> {
+    show?: (data?: T) => void;
+    close?: () => void;
+}
+
+interface FormType<T> {
+    title: string;
+    type: "detail" | "edit" | "create"
+    data?: T
+    onSuccess?: (data: T) => void;
+}
+interface TypeSelected<T> {
+    data?: T,
+    type: "detail" | "edit" | "create"
+
+}
+
 export type {
     CheckboxProps,
     DropdownProps,
@@ -128,4 +145,7 @@ export type {
     RadioListProps,
     TextAreaProps,
     InputNumberProps,
+    FormRefType,
+    FormType,
+    TypeSelected
 };

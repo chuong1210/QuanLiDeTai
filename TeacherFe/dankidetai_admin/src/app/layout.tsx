@@ -3,14 +3,16 @@ import { Inter } from "next/font/google";
 import "@/resources/styles/index.css"
 import 'react-toastify/dist/ReactToastify.css';
 import { APIOptions, PrimeReactProvider } from 'primereact/api';
-import moment from 'moment';
 import 'moment/locale/vi';
+
 import ProviderQuery from "@/assets/middleware/reactQueryProvider";
 import { ReduxProviders } from "@/assets/middleware/reduxProvider";
 import { ToastContainer } from "react-toastify";
+import Sidebar from "@/resources/components/layout/sidebar";
+import Header from "@/resources/components/layout/header";
 
 const inter = Inter({ subsets: ["latin"] });
-moment.locale('vi');
+
 
 export const metadata: Metadata = {
   title: "HUIT",

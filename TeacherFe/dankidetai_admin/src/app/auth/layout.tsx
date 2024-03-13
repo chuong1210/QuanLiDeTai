@@ -2,15 +2,12 @@
 import { ACCESS_TOKEN } from '@/assets/configs/request';
 import { PageProps } from '@/assets/types/UI';
 import * as cookies from "@/assets/helpers/cookies"
-import ROUTER from '@/assets/configs/routers';
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 const AuthLayout = ({ children }: PageProps) => {
-    const router = useRouter();
     function checkAuth() {
         const token = cookies.get(ACCESS_TOKEN);
         if (token) {
-            return router.push(ROUTER.home)
+            cookies.logOut()
         }
     }
     useEffect(() => {

@@ -1,8 +1,7 @@
 import { InputDateProps } from '@/assets/types/form';
-import { Calendar as PrimeCalendar } from 'primereact/calendar';
+import { Calendar } from 'primereact/calendar';
 import { classNames } from 'primereact/utils';
 import { useEffect, useState } from 'react';
-
 const InputDate = ({
     id,
     label,
@@ -21,8 +20,9 @@ const InputDate = ({
     const [date, setDate] = useState<Date | undefined | null>(value ? new Date(value) : null);
 
     useEffect(() => {
+        //console.log("value", value)
         if (value) {
-            setDate(new Date(value));
+            setDate(value);
         }
     }, [value]);
 
@@ -42,9 +42,8 @@ const InputDate = ({
                         {required && <span className='p-error'> ⁎</span>}
                     </label>
                 )}
-                <PrimeCalendar
+                <Calendar
                     inputId={id}
-                    locale='vi'
                     hideOnDateTimeSelect={true}
                     value={date}
                     hourFormat='24'

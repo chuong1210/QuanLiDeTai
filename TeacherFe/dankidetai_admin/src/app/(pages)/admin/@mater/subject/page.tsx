@@ -1,5 +1,4 @@
 "use client"
-import { Loader } from "@/resources/components/UI";
 import { Dropdown } from "@/resources/components/form";
 import { Button } from "primereact/button";
 import { Column } from "primereact/column";
@@ -17,34 +16,47 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import API from "@/assets/configs/api";
 import { DropdownValue } from "@/assets/configs/general";
+import { Skeleton } from "primereact/skeleton";
+import { Loader } from "@/resources/components/UI";
 
-export const key = "ngành"
+
+interface fieldsType {
+    field: string;
+    code: 'id' | "name" | "departments.name";
+    typeInput: string
+}
+export const fields: fieldsType[] = [
+    { field: "id", code: "id", typeInput: "text" },
+    { field: "Tên", code: "name", typeInput: "text" },
+    { field: "Ngành", code: "departments.name", typeInput: "text" }
+]
+export const key = "bộ môn"
 function Page() {
-    const fieldss = ["id", "name"]
-    const [setlected, setSelected] = useState<TypeSelected<DepartmentType>>()
-    const formRef = useRef<FormRefType<DepartmentType>>(null);
+    //const fieldss = ["id", "name", "departments.name"]
+    const [setlected, setSelected] = useState<TypeSelected<SubjectType>>()
+    const formRef = useRef<FormRefType<SubjectType>>(null);
     const confirmModalRef = useRef<ConfirmModalRefType>(null);
 
 
-    const DeparmentQuery = useQuery<DepartmentType[], AxiosError<ResponseType>>({
+    const SubjectQuery = useQuery<SubjectType[], AxiosError<ResponseType>>({
         refetchOnWindowFocus: false,
         queryKey: [key, 'list'],
         queryFn: async () => {
-            const response = await request.get<DepartmentType[]>(`${API.department.getAll}`);
-            //console.log(response)
+            const response = await request.get<SubjectType[]>(`${API.subjects.getAll}`);
+            console.log(response)
             const responseData = response.data ?? [];
             return responseData || [];
         },
     });
 
-    const DeparmentMutation = useMutation<any, AxiosError<ResponseType>, DepartmentType>({
+    const SubjectMutation = useMutation<any, AxiosError<ResponseType>, SubjectType>({
         mutationFn: (data) => {
-            return request.remove(`${API.department.delete}`, { data: [data.id] });
+            return request.remove(`${API.subjects.delete}`, { data: [data.id] });
         },
     });
 
 
-    const renderActions = (data: DepartmentType) => {
+    const renderActions = (data: SubjectType) => {
         return (
             <div className='flex align-items-center justify-content-center gap-3'>
                 <FaInfoCircle className="hover:text-primary cursor-pointer" onClick={() => {
@@ -68,10 +80,10 @@ function Page() {
         );
     };
 
-    const onRemove = (data: DepartmentType) => {
-        DeparmentMutation.mutate(data, {
+    const onRemove = (data: SubjectType) => {
+        SubjectMutation.mutate(data, {
             onSuccess: () => {
-                DeparmentQuery.refetch();
+                SubjectQuery.refetch();
 
                 toast.success("Xóa thành công");
             },
@@ -79,7 +91,7 @@ function Page() {
     }
     return (
         <div>
-            <Loader show={DeparmentQuery.isFetching || DeparmentMutation.isPending} />
+            {SubjectQuery.isFetching || SubjectMutation.isPending && <Loader />}
             <Confirm
                 ref={confirmModalRef}
                 onAccept={onRemove}
@@ -101,7 +113,7 @@ function Page() {
             <div >
 
                 <DataTable
-                    value={DeparmentQuery.data}
+                    value={SubjectQuery.data}
                     rowHover={true}
                     stripedRows={true}
                     showGridlines={true}
@@ -117,7 +129,7 @@ function Page() {
                         header={'Lựa chọn'}
                         body={renderActions}
                     />
-                    {fieldss.map((fields, index) => <Column
+                    {fields.map((field, index) => <Column
                         key={index}
                         alignHeader='center'
                         headerStyle={{
@@ -125,8 +137,9 @@ function Page() {
                             color: 'var(--bluegray-900)',
                             whiteSpace: 'nowrap',
                         }}
-                        field={fields}
-                        header={fields}
+                        field={field.code}
+                        header={field.field}
+                        body={(SubjectQuery.isLoading || SubjectMutation.isPending) && <Skeleton />}
                     />)}
 
 
@@ -150,7 +163,7 @@ function Page() {
             <Form
                 type={setlected?.type || "detail"}
                 data={setlected?.data}
-                onSuccess={(data) => DeparmentQuery.refetch()}
+                onSuccess={(data) => SubjectQuery.refetch()}
                 title={`${setlected?.type === "detail" ?
                     `Thông tin ${key} ${setlected?.data?.name || ""}`
                     : setlected?.type === "create" ?

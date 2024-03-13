@@ -1,13 +1,16 @@
+"use client"
 import ROUTER from '@/assets/configs/routers'
 import Link from 'next/link'
-import React from 'react'
+import { useRouter } from 'next/navigation'
+import React, { useEffect } from 'react'
 
 export default function Home() {
+  const router = useRouter()
+  useEffect(() => {
+    router.push(ROUTER.home)
+  }, [])
   return (
     <>
-      <Link href={ROUTER.auth.login}>Login</Link>
-      <Link href={"/admin"}>admin</Link>
-      <div>Home</div>
     </>
   )
 }
