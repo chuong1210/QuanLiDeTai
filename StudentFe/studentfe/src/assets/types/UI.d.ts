@@ -6,7 +6,6 @@ import { ReactNode } from 'react';
 //   }
 interface PageProps {
     params: {
-        // lng: string;
         [key: string]: any;
     };
     searchParams?: any;

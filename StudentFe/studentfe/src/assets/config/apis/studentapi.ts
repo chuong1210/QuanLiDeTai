@@ -5,6 +5,7 @@ import { headers } from 'next/headers';
 import { AUTH_RAW_TOKEN } from '../httpRequest';
 import { FormStateType } from '@/assets/types/loginform';
 import { TopicParamType, TopicType } from '@/assets/interface';
+import { formChangePassword } from '@/assets/types/changePassword';
 
 
 export const loginStudent = (user: FormStateType) => http.post(API.auth.sign_in,user, 
@@ -37,6 +38,11 @@ export const fetchAllCourses = async () => {
 
   };
   
+
+  export const updatePassword = async (passwordData: formChangePassword) => {
+ await http.post(`${API.post.change_password}/`, passwordData);
+   
+  };
 
 
 // export const updateStudent = (id: number | string, student: StudentType) => http.put<StudentType>(`students/${id}`, student)

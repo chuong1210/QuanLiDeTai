@@ -16,16 +16,14 @@ import moment from "moment";
 import CustomImage from "@/resources/components/UI/Image";
 
 interface NotificationPageContextType {
-  lng: string;
   tab: "IV" | "NT";
 }
 
 const NotificationPageContext = createContext<NotificationPageContextType>({
-  lng: "",
   tab: "NT",
 });
 
-const NotificationPage = ({ params: { lng } }: PageProps) => {
+const NotificationPage = ({ params: { id } }: PageProps) => {
   const [tab, setTab] = useState<"NT" | "IV">("NT");
   const { isLoading, response } = useGetList<
     NotificationType,
@@ -40,7 +38,6 @@ const NotificationPage = ({ params: { lng } }: PageProps) => {
   });
 
   const value = {
-    lng,
     tab,
   };
 

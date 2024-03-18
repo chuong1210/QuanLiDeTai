@@ -17,7 +17,7 @@ import { Skeleton } from "primereact/skeleton";
 import { toast } from "react-toastify";
 
 const TopicDetailPage = ({ params: _params }: PageProps) => {
-  const { lng, id } = _params;
+  const { id } = _params;
   const router = useRouter();
 
   const { response, isFetching } = useGetDetail<TopicType>({

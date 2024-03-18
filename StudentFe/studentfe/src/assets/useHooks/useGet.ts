@@ -28,6 +28,19 @@ interface useGetListMultiType<TParam, TData> extends UseGetListType<TParam, TDat
     data: TData[];
 }
 
+// const list = (params: any) => ({
+//     notification: ['notifications', 'list', params],
+//     faculty: ['faculties', 'list', params],
+//     // Các dòng khác tương tự...
+// });
+// Khi bạn gọi list({ facultyId: 1, pageSize: 10 }), nó sẽ trả về:
+
+// javascript
+// Copy code
+// {
+//     notification: ['notifications', 'list', { facultyId: 1, pageSize: 10 }],
+//     faculty: ['faculties', 'list', { facultyId: 1, pageSize: 10 }],
+//     // Các dòng khác tương tự...
 const useGetList = <TQueryFnData, TParam = ParamType>({
     module,
     params,

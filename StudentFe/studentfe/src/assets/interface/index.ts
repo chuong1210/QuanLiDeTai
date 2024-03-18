@@ -12,6 +12,10 @@ export * from './Point.type'
 export * from './IChaneRegis.type'
 export * from './invite.type'
 export * from './Schedule.type'
+export * from './Exchange.type'
+export * from './JobRs.type'
+
+
 
 
 
