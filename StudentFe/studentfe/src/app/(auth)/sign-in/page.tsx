@@ -40,9 +40,9 @@ const schema = yup.object({
 
 const Page = () => {
   const router = useRouter();
-  const { control, handleSubmit, formState } = useForm({
-    resolver: yupResolver(schema),
-  });
+  // const { control, handleSubmit, formState } = useForm({
+  //   resolver: yupResolver(schema),
+  // });
   const [formStateUser, setFormState] = useState<FormStateType>(formData);
 
   const handleChange =

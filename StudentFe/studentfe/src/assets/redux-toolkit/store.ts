@@ -5,7 +5,6 @@ import {
 	useSelector as useReduxSelector,
 	type TypedUseSelectorHook,
 } from 'react-redux';
-import { createWrapper } from 'next-redux-wrapper';
 
 import { reducer } from './rootReducer';
 

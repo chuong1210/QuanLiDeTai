@@ -2,7 +2,6 @@ import { cookies } from '@/assets/helpers';
 import { OptionsType } from 'cookies-next/lib/types';
 import { useEffect, useState } from 'react';
 import { serialize } from 'v8';
-const cookie = serialize('session')
   
 const useCookies = <T>(key: string): [T | undefined, (_key: string, _value: T, _options?: OptionsType) => void] => {
     const [data, _setData] = useState<T>();

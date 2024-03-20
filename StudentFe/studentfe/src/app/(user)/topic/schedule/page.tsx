@@ -435,7 +435,6 @@ const SchedulePage = () => {
           onClick={handleExportClick}
           severity="info"
         ></Button>
-        {/* <TableSchema /> */}
 
         <ScheduleTable ref={scheduleTableRef} />
       </div>

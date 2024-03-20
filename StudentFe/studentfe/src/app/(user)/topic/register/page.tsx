@@ -6,6 +6,7 @@ import { HTML } from "@/assets/helpers/string";
 import { useGetDetail, useGetList } from "@/assets/useHooks/useGet";
 import {
   ChangeRegistration,
+  TeacherParamType,
   TeacherType,
   TopicParamType,
   TopicType,
@@ -38,7 +39,9 @@ import File from "@/resources/components/form/File";
 import { Toast } from "primereact/toast";
 
 const RegisterTopicPage = ({ params: { i } }: PageProps) => {
-  const teacherQuery = useGetList<TeacherType>({ module: "teacher" });
+  const teacherQuery = useGetList<TeacherType, TeacherParamType>({
+    module: "teacher",
+  });
   const [params, setParams] = useState<TopicParamType>(DEFAULT_PARAMS);
   const [selected, setSelected] = useState<TopicType>();
 
@@ -78,6 +81,7 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
         keyword
       ),
     }));
+    console.log("value", keyword);
   }, 600);
 
   const renderActions = (data: TopicType) => {
@@ -145,7 +149,7 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
         <InputText
           placeholder={`${"search"}...`}
           className="w-20rem"
-          //   onChange={(e) => debounceKeyword(e.target.value)}
+          onChange={(e) => debounceKeyword(e.target.value)}
         />
 
         <Dropdown
@@ -281,12 +285,7 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
                             key={teacher.id}
                           >
                             <div className="flex align-items-center">
-                              <p className="w-15rem">
-                                {"common:name_of" +
-                                  {
-                                    obj: "module:teacher".toLowerCase(),
-                                  }}
-                              </p>
+                              <p className="w-15rem">Tên giáo viên</p>
                               <p className="text-900 font-semibold">
                                 {teacher?.name}
                               </p>

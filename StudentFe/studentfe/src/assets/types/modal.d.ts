@@ -1,7 +1,6 @@
 import { FacultyType } from '@assets/interface';
 import { MouseEvent } from 'react';
 import { OptionType } from './common';
-import { LanguageType } from './lang';
 
 interface ConfirmModalRefType {
     show: (event: MouseEvent, data: any, message: string) => void;
@@ -16,12 +15,23 @@ interface ConfirmModalType {
     onAccept?: (data: any) => void;
     onReject?: () => void;
 }
+// types/modal.ts
 
+ interface ChangePasswordModalRefType {
+    showModal: () => void;
+    resetModal:()=>void
+    hideModal:()=>void
+  }
+  
+   interface ChangePasswordModalType {
+    onSave: (data: formChangePassword) => void;
+    onCancel: () => void;
+  }
 interface SelectObjectModalRefType {
     show: (items: OptionType[], defaultIndex?: number) => void;
 }
 
-interface SelectObjectModalType extends LanguageType {
+interface SelectObjectModalType{
     title: string;
     onConfirm: (data: OptionType) => void;
 }
@@ -30,7 +40,7 @@ interface SelectFacultyModalRefType {
     show: (selected?: FacultyType) => void;
 }
 
-interface SelectFacultyModalType extends LanguageType {
+interface SelectFacultyModalType  {
     onConfirm: (data: FacultyType | undefined) => void;
 }
 
@@ -41,4 +51,7 @@ export type {
     SelectObjectModalType,
     SelectFacultyModalRefType,
     SelectFacultyModalType,
+    ChangePasswordModalRefType,
+    ChangePasswordModalType
+
 };
