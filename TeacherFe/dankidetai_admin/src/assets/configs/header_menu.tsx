@@ -9,7 +9,7 @@ const USER_MENU = (): MenuItemType[] => {
         {
             code: 'info',
             parent: 'info',
-            to: ROUTER.admin.info,
+            to: ROUTER.infomation,
             label: 'Thông tin',
             icon: <FaUser />,
 

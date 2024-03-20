@@ -5,25 +5,20 @@ import React, { useRef } from 'react'
 import MenuItem from '../UI/MenuItem'
 import { cookies } from '@/assets/helpers'
 import { MenuItemType } from '@/assets/types/menu'
-import Link from 'next/link'
-import ROUTER from '@/assets/configs/routers'
 import brand from "@/resources/image/huit/brand.png"
 import Image from 'next/image'
+// import Image from 'next/image'
 export default function Header() {
-    //console.log(data)
     const userModalRef = useRef<OverlayPanel>(null);
     const logOut = (item: MenuItemType) => {
         if (item.code === "logout") cookies.logOut()
-
     }
     return (
         <div
             className='w-100 flex align-items-center justify-content-between  h-4rem shadow-2 bg-white pr-5 fixed top-0 left-0 right-0'
             style={{ zIndex: 500 }}
         >
-            <Link className='p-2' href={ROUTER.home}>
-                <Image src={brand} alt='' width={244} height={60} priority={true} />
-            </Link>
+            <Image src={brand} alt='' width={244} height={60} priority={true} />
             <div style={{ cursor: "pointer" }} onClick={(e) => userModalRef?.current?.toggle(e)}>
                 <span className="pi pi-user bg-primary p-2 border-circle"></span>
                 <span>Trần Vinh Hiển</span>

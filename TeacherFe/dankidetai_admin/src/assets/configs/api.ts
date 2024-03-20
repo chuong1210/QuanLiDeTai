@@ -16,12 +16,14 @@ const API = {
     students: {
         insert_from_excel: "/students/insert-from-excel",
         insert: "/students/insert",
+        update: "/students/update",
         delete: "/students/delete",
         getAll: "/students/showAll"
     },
     teachers: {
         insert: "/teachers/insert",
         delete: "/teachers/delete",
+        update: "/teachers/update",
         getAll: "/teachers/showAll"
     }
 

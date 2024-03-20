@@ -26,7 +26,7 @@ const Editor = ({
 
     return (
         <div className={classNames(blockClassName)}>
-            <div className={classNames('block', { 'flex align-items-center': row })}>
+            <div className={classNames('block h-5rem', { 'flex align-items-center': row })}>
                 {label && (
                     <p
                         className={classNames('font-medium block text-800', {
@@ -44,6 +44,7 @@ const Editor = ({
                     editor={ClassicEditor}
                     data={inputValue}
                     disabled={disabled}
+
                     config={{
                         ...config,
                         placeholder,
