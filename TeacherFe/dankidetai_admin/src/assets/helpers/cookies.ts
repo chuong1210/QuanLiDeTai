@@ -8,7 +8,6 @@ const get = <T>(key: string): T | undefined => {
     if (!value) {
         return undefined;
     }
-
     try {
         return JSON.parse(value) as T;
     } catch (e) {

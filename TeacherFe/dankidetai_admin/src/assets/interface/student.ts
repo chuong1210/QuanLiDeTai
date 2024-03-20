@@ -1,7 +1,6 @@
 interface StudentType extends DefaultResponse {
     maSo: string;
     name: string;
-    DOB?: string;
     myClass: string;
     email: string;
     phoneNumber: string;
@@ -10,4 +9,4 @@ interface StudentType extends DefaultResponse {
     subjectName?: string;
     idPoint?: number;
     idGroup?: number;
-}[]
+}
