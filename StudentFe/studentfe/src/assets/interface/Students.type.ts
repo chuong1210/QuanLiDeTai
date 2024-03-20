@@ -5,8 +5,6 @@ interface StudentType extends GeneralType {
     dateOfBirth?: Date | null;
     gender?: string;
     class?: string;
-    phoneNumber?: string;
-    email?: string;
     majorId?: string | number;
     studentJoinId?: number;
     status?: string;

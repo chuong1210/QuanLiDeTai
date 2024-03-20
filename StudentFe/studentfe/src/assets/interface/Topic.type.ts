@@ -20,7 +20,6 @@ interface TopicType extends GeneralType {
 }
 
 interface TopicParamType extends ParamType {
-    id?: number | string;
     isGetIssuer?: boolean;
     isGetThesisInstructions?: boolean;
     isGetThesisReviews?: boolean;

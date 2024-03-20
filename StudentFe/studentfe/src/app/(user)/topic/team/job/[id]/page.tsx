@@ -16,7 +16,7 @@ import { PageProps } from "@/assets/types/UI";
 import { FileType } from "@/assets/types/form";
 import { ResponseType } from "@/assets/types/httpRequest";
 import { Loader } from "@/resources/components/UI";
-import { InputFile } from "@/resources/components/form/inputFile";
+import { InputFile } from "@/resources/components/form/InputFile";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import moment from "moment";

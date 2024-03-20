@@ -28,9 +28,7 @@ import { Card } from "primereact/card";
 import { classNames } from "primereact/utils";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ScheduleForm, { ScheduleFormRefType } from "./form";
-import { TableSchema } from "@/resources/components/form/Table";
 import { ScheduleTable } from "@/resources/components/form/TableForm";
-import exportComponentAsPDF from "@/assets/helpers/exportPdf";
 import exportComponentToPDF from "@/assets/helpers/exportPdf";
 
 const SchedulePage = () => {

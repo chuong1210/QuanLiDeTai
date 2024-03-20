@@ -14,7 +14,6 @@ export const reduxStore = configureStore({
 		return getDefaultMiddleware().concat(reduxMiddlewares);
 	},
 });
-// export const wrapper = createWrapper(reduxStore, { debug: true });
 
 export const useDispatch = () => useReduxDispatch<ReduxDispatch>();
 export const useSelector: TypedUseSelectorHook<ReduxState> = useReduxSelector;

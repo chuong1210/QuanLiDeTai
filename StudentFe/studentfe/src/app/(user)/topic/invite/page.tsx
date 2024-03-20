@@ -11,7 +11,6 @@ import { AxiosError } from "axios";
 import { Button } from "primereact/button";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
-import { InputText } from "primereact/inputtext";
 import { Paginator, PaginatorPageChangeEvent } from "primereact/paginator";
 import { useRef, useState } from "react";
 import InviteForm, { InviteFormRefType } from "./form";
@@ -20,6 +19,7 @@ import { ConfirmModalRefType, ConfirmModalType } from "@/assets/types/modal";
 import { ConfirmModal } from "@/resources/components/modal";
 import { useGetList } from "@/assets/useHooks/useGet";
 import { toast } from "react-toastify";
+import { InputText } from "primereact/inputtext";
 
 const InvitePage = ({ params: { lng } }: PageProps) => {
   const formRef = useRef<InviteFormRefType>(null);
@@ -97,11 +97,11 @@ const InvitePage = ({ params: { lng } }: PageProps) => {
   return (
     <div className="flex flex-column gap-4">
       <div className="flex align-items-center justify-content-between bg-white h-4rem px-3 border-round-lg shadow-3">
-        <p className="text-xl font-semibold">{"List of student"}</p>
+        <p className="text-xl font-semibold">Danh sách sinh viên</p>
       </div>
 
       <div className="flex align-items-center justify-content-between">
-        <InputText placeholder={"search"} className="w-20rem" />
+        <InputText placeholder={"Tra cứu sinh viên"} className="w-20rem" />
       </div>
 
       <div className="border-round-xl overflow-hidden relative shadow-5">
@@ -114,7 +114,7 @@ const InvitePage = ({ params: { lng } }: PageProps) => {
           rowHover={true}
           stripedRows={true}
           showGridlines={true}
-          emptyMessage={"List hiện trống"}
+          emptyMessage={"Danh sách sinh viên hiện trống"}
         >
           <Column
             alignHeader="center"

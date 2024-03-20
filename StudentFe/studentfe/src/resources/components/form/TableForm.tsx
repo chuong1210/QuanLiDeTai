@@ -1,14 +1,17 @@
-import React, { LegacyRef, forwardRef, useEffect, useState } from "react";
+import React, {
+  LegacyRef,
+  forwardRef,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { ScheduleType } from "@/assets/interface";
 import { Button } from "primereact/button";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
-import autoTable from "jspdf-autotable";
-import { fontFamily } from "html2canvas/dist/types/css/property-descriptors/font-family";
-import { fontWeight } from "html2canvas/dist/types/css/property-descriptors/font-weight";
-import { classNames } from "primereact/utils";
+import { da } from "date-fns/locale";
 
 const convertDayOfWeek = (day: string) => {
   const conversion: any = {
@@ -40,22 +43,12 @@ interface daysofWeekType {
 }
 interface TableData {
   day: string;
-  dayOfWeek: string;
   shift: string;
   course: string;
   code?: string;
   session?: string;
   room: string;
   teacher?: string;
-}
-interface ScheduleFormRefType {
-  show?: (_data?: ScheduleType) => void;
-  close?: () => void;
-}
-
-interface ScheduleFormType {
-  title: string;
-  onSuccess?: (_data: ScheduleType) => void;
 }
 
 interface ISchedule {
@@ -80,54 +73,65 @@ interface ISchedule {
 // Trong hàm ScheduleTable
 
 const ScheduleTable = forwardRef((props, ref) => {
-  const scheduleDataTemplate: ISchedule = {
-    Morning: { period: "Buổi", time: "Sáng" },
-    Afternoon: { period: "Buổi", time: "Chiều" },
-    Evening: { period: "Buổi", time: "Tối" },
-  };
-  const rowsData: TableData[] = [
-    {
-      day: "04/03/2024",
-      dayOfWeek: "Monday",
-      shift: "Afternoon",
-      course: "Lập trình hướng đối tượng",
-      code: "13DHTH03 - 010110196203",
-      session: "4 - 6",
-      room: "A402 - 140 Lê Trọng Tấn",
-      teacher: "Bùi Công Danh",
-    },
-    {
-      day: "04/03/2024",
-      dayOfWeek: "Saturday",
-      shift: "Afternoon",
-      course: "Lập trình hướng đối tượng",
-      code: "13DHTH03 - 010110196203",
-      session: "4 - 6",
-      room: "A402 - 140 Lê Trọng Tấn",
-      teacher: "Bùi Công Danh",
-    },
-    {
-      day: "04/03/2024",
-      shift: "Evening",
-      dayOfWeek: "Monday",
-      course: "Lập trình hướng đối tượng",
-      code: "13DHTH03 - 010110196203",
-      session: "4 - 6",
-      room: "A402 - 140 Lê Trọng Tấn",
-      teacher: "Bùi Công Danh",
-    },
-    {
-      day: "04/03/2024",
-      shift: "Morning",
-      dayOfWeek: "Sunday",
-      course: "Lập trình hướng đối tượng",
-      code: "13DHTH03 - 010110196203",
-      session: "4 - 6",
-      room: "A402 - 140 Lê Trọng Tấn",
-      teacher: "Bùi Công Danh",
-    },
-    // ... (Thêm dữ liệu cho các dòng khác)
-  ];
+  const [firstDayOfWeek, setFirstDayOfWeek] = useState<Date>(new Date());
+
+  const scheduleDataTemplate: ISchedule = useMemo(() => {
+    return {
+      Morning: { period: "Buổi", time: "Sáng" },
+      Afternoon: { period: "Buổi", time: "Chiều" },
+      Evening: { period: "Buổi", time: "Tối" },
+    };
+  }, []);
+  const rowsData: TableData[] = useMemo(
+    () => [
+      {
+        day: "04/03/2024",
+        shift: "Afternoon",
+        course: "Lập trình hướng đối tượng",
+        code: "13DHTH03 - 010110196203",
+        session: "4 - 6",
+        room: "A402 - 140 Lê Trọng Tấn",
+        teacher: "Bùi Công Danh",
+      },
+      {
+        day: "20/03/2024",
+        shift: "Afternoon",
+        course: "Lập trình hướng đối tượng",
+        code: "13DHTH03 - 010110196203",
+        session: "4 - 6",
+        room: "A402 - 140 Lê Trọng Tấn",
+        teacher: "Bùi Công Danh",
+      },
+      {
+        day: "24/04/2024",
+        shift: "Afternoon",
+        course: "Tiếng anh 2",
+        code: "13DHTH03 - 010110196203",
+        session: "4 - 6",
+        room: "A102 - 140 Lê Trọng Tấn",
+        teacher: "Ngọc Hiền",
+      },
+      {
+        day: "24/04/2024",
+        shift: "Morning",
+        course: "Tiếng anh 3",
+        code: "13QTKD03 - 010110196203",
+        session: "4 - 6",
+        room: "A102 - 140 Lê Trọng Tấn",
+        teacher: "Phan thị châu trinh",
+      },
+      {
+        day: "24/04/2024",
+        shift: "Morning",
+        course: "Bắn súng",
+        code: "13DHTH03 - 010110196203",
+        session: "4 - 6",
+        room: "A102 - 140 Lê Trọng Tấn",
+        teacher: "Phan thị châu trinh",
+      },
+    ],
+    []
+  ); // Empty dependency array indicates this useMemo has no dependencies and should only run once on initial render.
 
   const ColumnScedule = {
     background:
@@ -152,17 +156,7 @@ const ScheduleTable = forwardRef((props, ref) => {
     background: "#rgb(102, 117, 128)",
     left: "20px",
   };
-  const scheduleData: ISchedule = rowsData.reduce(
-    (acc: ISchedule, item: TableData) => {
-      const { shift, dayOfWeek, course, teacher, room } = item;
-      acc[shift as keyof ISchedule][
-        convertDayOfWeek(dayOfWeek)
-      ] = `${course}\n ${teacher}\n ${room}`;
-      return acc;
-    },
-    JSON.parse(JSON.stringify(scheduleDataTemplate)) // Sử dụng bản sao sâu để không làm thay đổi template ban đầu
-  );
-  const formattedData = Object.values(scheduleData);
+
   const parseData = (data: string) => {
     // Phân tách dữ liệu dựa vào việc xuống dòng của chuỗi.
     const lines = data.split("\n");
@@ -222,35 +216,11 @@ const ScheduleTable = forwardRef((props, ref) => {
     }
     return null;
   };
-  const bodyTemplate1 = (rowData: any, column: any) => {
-    if (rowData[column.field]) {
-      const customCss =
-        column.field === "course"
-          ? "font-bold text-red-400 font-weight-400"
-          : column.field === "teacher"
-          ? " text-blue-300"
-          : column.field === "room"
-          ? "font-bold text-red-100"
-          : "";
 
-      return (
-        <div
-          className={classNames("custom-column ", { customCss })}
-          style={{
-            backgroundColor: "rgba(54, 144, 241, 0.5)",
-            padding: "10px",
-            borderRadius: "7px",
-            color: "#667580",
-            width: "80%",
-            marginLeft: "15px",
-            opacity: "98%",
-          }}
-        >
-          {rowData[column.field]}
-        </div>
-      );
-    }
-    return null;
+  // Hàm này chuyển đổi ngày từ dạng chuỗi dd/mm/yyyy thành đối tượng Date
+  const parseDate = (dateStr: string) => {
+    const [day, month, year] = dateStr.split("/").map(Number);
+    return new Date(year, month - 1, day);
   };
 
   const headerTemplate = (header: string) => {
@@ -262,7 +232,6 @@ const ScheduleTable = forwardRef((props, ref) => {
     );
   };
 
-  const [firstDayOfWeek, setFirstDayOfWeek] = useState<Date>(new Date());
   useEffect(() => {
     const now = new Date();
     const currentDayOfWeek = now.getDay();
@@ -304,6 +273,35 @@ const ScheduleTable = forwardRef((props, ref) => {
       .padStart(2, "0")}/${year}`;
   };
 
+  // Sử dụng state để lưu trữ lịch học cho tuần hiện tại
+  const [currentWeekData, setCurrentWeekData] = useState<TableData[]>([]);
+  useEffect(() => {
+    const getCurrentWeekData = (rowsData: TableData[], startDate: Date) => {
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6); // kết thúc vào Chủ Nhật của tuần
+
+      return rowsData
+        .filter((dataItem) => {
+          const itemDate = parseDate(dataItem.day);
+          return itemDate >= startDate && itemDate <= endDate;
+        })
+        .reduce((weekData, item) => {
+          const dayName = daysOfWeek.find(
+            (d) => parseDate(item.day).getDay() === d.dayIndex
+          )?.name;
+          if (dayName) {
+            weekData[item.shift][
+              dayName
+            ] = `${item.course}\n${item.teacher}\n${item.room}`;
+          }
+          return weekData;
+        }, JSON.parse(JSON.stringify(scheduleDataTemplate)));
+    };
+
+    setCurrentWeekData(getCurrentWeekData(rowsData, firstDayOfWeek));
+  }, [firstDayOfWeek, rowsData, scheduleDataTemplate]);
+  const data = Object.values(currentWeekData);
+
   return (
     <div className="mt-3">
       <div className="p-d-flex p-jc-between">
@@ -330,7 +328,8 @@ const ScheduleTable = forwardRef((props, ref) => {
 
       <div ref={ref as LegacyRef<HTMLDivElement>}>
         <DataTable
-          value={formattedData}
+          // value={formattedData}
+          value={Object.values(currentWeekData)}
           style={{
             textAlign: "center",
             minWidth: "100%",

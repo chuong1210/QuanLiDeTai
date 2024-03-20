@@ -35,3 +35,17 @@ a {
     text-align: center;
     margin: 0 auto;
 }
+
+.list-none {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .list-none li {
+    padding: 0.25rem 0;
+  }
+  
+  .p-shadow-24 {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.24);
+  }

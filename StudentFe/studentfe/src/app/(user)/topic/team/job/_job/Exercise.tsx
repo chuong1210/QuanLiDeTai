@@ -1,4 +1,4 @@
-import { InputFile } from "@/resources/components/form/inputFile";
+import { InputFile } from "@/resources/components/form/InputFile";
 import { Button } from "primereact/button";
 import { useContext, useEffect, useState } from "react";
 import { JobPageContext } from "../[id]/page";
