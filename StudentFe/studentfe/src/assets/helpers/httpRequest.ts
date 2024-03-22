@@ -1,12 +1,14 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { ROUTES } from '../config/routes';
 import { MetaType, ParamType, ResponseType } from '../types/httpRequest';
-import { AUTH_RAW_TOKEN, AUTH_TOKEN } from '../config';
+import { REFRESH_TOKEN, ACCESS_TOKEN } from '../config';
 import { cookies } from '.';
 import { AuthType } from '../interface/AuthType.type';
 import { OptionType } from '../types/common';
 import _ from 'lodash';
+import useRefreshToken from '../useHooks/useRefreshToken';
 const baseUrl = ROUTES.base;
+
 class Http {
   instance: AxiosInstance
   constructor() {
@@ -29,15 +31,15 @@ const http = new Http().instance
 http.interceptors.request.use(
   (config) => {
       while (true) {
-          const token = cookies.get(AUTH_RAW_TOKEN);
-          const auth = cookies.get<AuthType>(AUTH_TOKEN);
+          const Accesstoken = cookies.get(ACCESS_TOKEN);
+          const auth = cookies.get<AuthType>(REFRESH_TOKEN );
 
           if (!config.headers.Authorization) {
               config.headers.Authorization = '';
           }
 
-          if (token) {
-              config.headers.Authorization = `Bearer ${token}`;
+          if (Accesstoken) {
+              config.headers.Authorization = `Bearer ${Accesstoken}`;
           }
 
           if (!auth) {
@@ -76,33 +78,31 @@ http.interceptors.request.use(
   },
 );
 
-const responseIntercept = http.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error?.config;
-    if (error?.response?.status === 401 && !originalRequest?.retry) {
-      originalRequest.retry = true;
+http.interceptors.response.use(
+  response => response,
+  async error => {
+    const originalRequest = error.config;
+    if (error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true; // đánh dấu là đã làm mới token
       try {
-        // Refresh token and get a new access token
-        
-        // Retry the original request with the new access token
-        const newAccessToken = cookies.get(AUTH_RAW_TOKEN);
-        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-        return http(originalRequest);
+        const newAccessToken = await useRefreshToken(); // Gọi hàm refresh token tại đây
+        if (newAccessToken) {
+          // Nếu có token mới, đặt lại headers và gửi lại request
+          originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+          // Gửi lại request đầu tiên với access token mới
+          return http(originalRequest);
+        }
       } catch (refreshError) {
-        // If refreshing token fails, redirect to login or handle accordingly
-        console.error("Error refreshing token:", refreshError);
-        // Redirect to login or handle the error as needed
-        // Example: router.push('/login');
+        // Xử lý lỗi làm mới token ở đây
         return Promise.reject(refreshError);
       }
     }
+    // Đối với các lỗi khác, tiếp tục từ chối Promise.
     return Promise.reject(error);
   }
 );
 //tu them
-http.defaults.headers.common['Authorization'] = AUTH_TOKEN;
-//http.defaults.headers.common.Authorization =cookies.get( AUTH_TOKEN);
+//http.defaults.headers.common.Authorization =cookies.get(ACCESS_TOKEN);
 
 
 //
@@ -133,14 +133,6 @@ const post = <T = any>(
 ): Promise<AxiosResponse<ResponseType<T>, any>> => {
 
 
-  // const defaultHeaders = {
-  //   'Content-Type': 'application/json',
-  //   // Thêm các header mặc định khác nếu cần
-  // };
-
-  // const headers = { ...defaultHeaders, ...customHeaders };
-
-  // const response = http.post(path, data, { headers, ...configs });
    const response = http.post(path, data, configs);
 
   return response;

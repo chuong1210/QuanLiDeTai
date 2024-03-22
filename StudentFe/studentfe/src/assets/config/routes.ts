@@ -26,6 +26,10 @@ const ROUTES = {
     auth: {
         sign_in: '/sign-in',
     },
+    
+    profile: {
+        student: '/profile',
+    },
 };
 
 export { ROUTES };

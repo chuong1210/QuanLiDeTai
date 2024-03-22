@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
     
-    AUTH_RAW_TOKEN,
     ROUTES,
-    AUTH_TOKEN,
+    ACCESS_TOKEN,
+    REFRESH_TOKEN,
     API,
 } from '@/assets/config';
 import { AuthType } from '@/assets/interface/AuthType.type';
@@ -22,7 +22,7 @@ export function middleware(req: NextRequest) {
     }
 
     // try {
-    //     let auth: AuthType = JSON.parse(req.cookies.get(AUTH_TOKEN)?.value || '');
+    //     let auth: AuthType = JSON.parse(req.cookies.get(ACCESS_TOKEN)?.value || '');
 
     //     if (auth && auth.type !== 'student') {
     //         req.cookies.clear();
@@ -39,12 +39,12 @@ export function middleware(req: NextRequest) {
      
 
         // if (
-        //   !req.cookies.has(AUTH_RAW_TOKEN) &&!req.cookies.has(AUTH_TOKEN) 
+        //   !req.cookies.has(REFRESH_TOKEN) &&!req.cookies.has(ACCESS_TOKEN) 
         //   && (!req.url.includes(ROUTES.auth.sign_in)&&path!=='sign-in')
         //  )
         //  {
         //     console.log(123);
-        //     console.log("raw token",!! req.cookies.get(AUTH_RAW_TOKEN));
+        //     console.log("raw token",!! req.cookies.get(REFRESH_TOKEN));
 
         //     return NextResponse.redirect(new URL(`${ROUTES.auth.sign_in}`, req.url));
           
@@ -52,12 +52,12 @@ export function middleware(req: NextRequest) {
    
         if (
 
-            !req.nextUrl.pathname.startsWith('/_next') &&(req.cookies.has(AUTH_RAW_TOKEN) &&req.cookies.has(AUTH_TOKEN) )&&!req.nextUrl.pathname.startsWith('/home')
+            !req.nextUrl.pathname.startsWith('/_next') &&(req.cookies.has(REFRESH_TOKEN) &&req.cookies.has(ACCESS_TOKEN) )&&!req.nextUrl.pathname.startsWith('/home')
         ) {
     
         
         if (req.url.includes(ROUTES.auth.sign_in)&&path==='sign-in') {
-            console.log(777,req.cookies.has(AUTH_TOKEN));
+            console.log(777,req.cookies.has(ACCESS_TOKEN));
             return NextResponse.redirect(new URL(`${ROUTES.home.index}`, req.url));
         }
 
@@ -71,7 +71,7 @@ export function middleware(req: NextRequest) {
     //     // let response = NextResponse.redirect(new URL(`/${ROUTES.auth.sign_in}${req.nextUrl.pathname}`, req.url));
     //     let response = NextResponse.redirect(new URL(`/${ROUTES.auth.sign_in}`, req.url));
 
-    //     if (req.cookies.has(AUTH_RAW_TOKEN)|| req.cookies.get(AUTH_TOKEN)) {
+    //     if (req.cookies.has(REFRESH_TOKEN)|| req.cookies.get(ACCESS_TOKEN)) {
     //         console.log(234);
 
     //         response = NextResponse.redirect(new URL(`/${ROUTES.home.index}${req.nextUrl.pathname}`, req.url));
@@ -96,16 +96,16 @@ export function middleware(req: NextRequest) {
 
 // export function middleware(request: NextRequest) {
 //     // Kiểm tra xem có token đăng nhập không
-// console.log(request.cookies.has(AUTH_TOKEN))
+// console.log(request.cookies.has(ACCESS_TOKENN))
 // const { pathname } = request.nextUrl
 
-//     if (request.cookies.has(AUTH_TOKEN)) {
+//     if (request.cookies.has(ACCESS_TOKEN)) {
 //     //  const targetUrl = new URL("/home", request.nextUrl.origin);
 //       console.log(2234);
 //     //    return NextResponse.rewrite(targetUrl);
 //        return NextResponse.redirect(new URL(ROUTES.home.index,request.url));
 //     } 
-//     else   if(!request.cookies.has(AUTH_TOKEN)) {
+//     else   if(!request.cookies.has(ACCESS_TOKEN)) {
 //       const targetUrl = new URL(ROUTES.auth.sign_in, request.nextUrl.origin);
 //       // console.log("path name",request.url) path name http://localhost:3000/sign-in
 //      // let response = NextResponse.redirect(new URL(`/${ROUTES.auth.sign_in}`, request.url));

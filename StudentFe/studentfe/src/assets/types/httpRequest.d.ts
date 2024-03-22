@@ -29,7 +29,7 @@ interface ResponseType<dataType = any> {
     succeeded?: boolean;
     code?: number;
    // accessToken:string  ; //response.data.access_token
-    // token(AUTH_RAW_TOKEN: string, token: any, arg2: { expires: Date; }): unknown;
+    // token(REFRESH_TOKEN: string, token: any, arg2: { expires: Date; }): unknown;
 
 }
 

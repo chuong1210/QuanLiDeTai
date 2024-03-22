@@ -14,7 +14,7 @@ import { MenuItem } from "../UI/";
 import { Divider } from "primereact/divider";
 import { ADMIN_MENU } from "@/assets/config/menu/admin_menu";
 import { USER_MENU } from "@/assets/config/menu/user_menu";
-import { AUTH_RAW_TOKEN, AUTH_TOKEN, ROUTES } from "@/assets/config";
+import { REFRESH_TOKEN, ACCESS_TOKEN, ROUTES } from "@/assets/config";
 import { useChangePassword } from "@/assets/useHooks/useChangePassword";
 import { ChangePasswordModal } from "../modal";
 
@@ -28,7 +28,7 @@ const Menu = () => {
   const adminMenu = ADMIN_MENU();
   const pathName = usePathname();
   const userMenu = USER_MENU(pathName);
-  const [auth] = useCookies<AuthType>(AUTH_TOKEN);
+  const [auth] = useCookies<AuthType>(ACCESS_TOKEN);
   const userModalRef = useRef<OverlayPanel>(null);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -36,8 +36,8 @@ const Menu = () => {
     const onLogoutClick = () => {
       router.push(ROUTES.auth.sign_in);
 
-      deleteCookie(AUTH_TOKEN);
-      deleteCookie(AUTH_RAW_TOKEN);
+      deleteCookie(ACCESS_TOKEN);
+      deleteCookie(REFRESH_TOKEN);
       dispatch(
         menuSlice.actions.onItemClick({
           activeItem: "home",

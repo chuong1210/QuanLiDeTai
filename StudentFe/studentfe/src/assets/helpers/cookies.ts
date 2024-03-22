@@ -1,6 +1,6 @@
 
 
-import { AUTH_RAW_TOKEN, AUTH_TOKEN } from '@/assets/config';
+import { ACCESS_TOKEN, REFRESH_TOKEN} from '@/assets/config';
 import { MenuItemType } from '@/assets/types/menu';
 import { deleteCookie, getCookie, setCookie } from 'cookies-next';
 import { OptionsType } from 'cookies-next/lib/types';
@@ -31,8 +31,8 @@ const remove = (key: string) => {
 };
 
 const logOut = () => {
-    remove(AUTH_RAW_TOKEN);
-    remove(AUTH_TOKEN);
+    remove(REFRESH_TOKEN);
+    remove(ACCESS_TOKEN);
 };
 
 const checkPermission = (permission: string, permissions: string[]): boolean => {
