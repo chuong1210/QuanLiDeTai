@@ -15,7 +15,7 @@ import { useMutation } from "@tanstack/react-query";
 import { updatePassword } from "../apis/studentapi";
 
 const USER_MENU = (pathName: string): MenuItemType[] => {
-  let base: string = "http://localhost:3000";
+  const base: string = "http://localhost:3000";
 
   return [
     {
@@ -30,7 +30,8 @@ const USER_MENU = (pathName: string): MenuItemType[] => {
       parent: "info",
       label: "Thông tin cá nhân",
       icon: <FaUser />,
-      to: `${pathName || "/home"}`,
+      // to: base + `${pathName || "/home"}`,
+      to: base + `${ROUTES.profile.student}/${1}`,
     },
 
     {

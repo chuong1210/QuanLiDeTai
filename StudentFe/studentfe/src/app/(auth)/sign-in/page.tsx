@@ -1,6 +1,6 @@
 "use client";
 
-import { API, AUTH_RAW_TOKEN, AUTH_TOKEN, ROUTES } from "@/assets/config";
+import { API, ACCESS_TOKEN, ROUTES, REFRESH_TOKEN } from "@/assets/config";
 import { cookies } from "@/assets/helpers";
 import { http } from "@/assets/helpers";
 import { PageProps } from "@/assets/types/UI";
@@ -74,7 +74,6 @@ const Page = () => {
     signInMutation.mutate(formStateUser, {
       onSuccess(response: ResponseType) {
         try {
-          console.log("asasadouahhkda", JSON.stringify(response.data));
           const accessToken: string = response.data.accessToken;
           const tokenData: any = jwtDecode(accessToken);
 
@@ -93,10 +92,10 @@ const Page = () => {
           if (!tokenData) {
             return;
           }
-          cookies.set(AUTH_TOKEN, tokenData, {
+          cookies.set(ACCESS_TOKEN, tokenData, {
             expires: new Date(tokenData.exp * 1000),
           });
-          cookies.set(AUTH_RAW_TOKEN, accessToken, {
+          cookies.set(REFRESH_TOKEN, accessToken, {
             expires: new Date(tokenData.exp * 1000),
           });
 

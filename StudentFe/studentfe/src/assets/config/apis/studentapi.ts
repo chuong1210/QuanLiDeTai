@@ -2,7 +2,7 @@ import { cookies, http } from '@/assets/helpers';
 import { StudentType } from '@/assets/interface/Students.type'
 import { API } from './api';
 import { headers } from 'next/headers';
-import { AUTH_RAW_TOKEN } from '../httpRequest';
+import { REFRESH_TOKEN } from '../httpRequest';
 import { FormStateType } from '@/assets/types/loginform';
 import { TopicParamType, TopicType } from '@/assets/interface';
 import { formChangePassword } from '@/assets/types/changePassword';
@@ -10,7 +10,7 @@ import { formChangePassword } from '@/assets/types/changePassword';
 
 export const loginStudent = (user: FormStateType) => http.post(API.auth.sign_in,user, 
 //   {headers: {
-//   Authorization: `Bearer ${cookies.get(AUTH_RAW_TOKEN)}`
+//   Authorization: `Bearer ${cookies.get(REFRESH_TOKEN)}`
 // }}
 );
 // export const getStudents = (page: number | string, limit: number | string, signal?: AbortSignal) =>

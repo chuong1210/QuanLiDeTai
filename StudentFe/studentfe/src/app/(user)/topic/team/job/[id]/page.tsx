@@ -1,6 +1,6 @@
 "use client";
 
-import { API, AUTH_TOKEN } from "@/assets/config";
+import { API, ACCESS_TOKEN } from "@/assets/config";
 import { http } from "@/assets/helpers";
 import { HTML } from "@/assets/helpers/string";
 import {
@@ -50,7 +50,7 @@ const JobPageContext = createContext<JobPageContextType>({
 const JobPage = ({ params, searchParams }: PageProps) => {
   const { id } = params;
   const { topicId, groupId } = searchParams;
-  const [auth] = useCookies<AuthType>(AUTH_TOKEN);
+  const [auth] = useCookies<AuthType>(ACCESS_TOKEN);
 
   const jobDetail = useGetDetail<JobType>({
     module: "job",

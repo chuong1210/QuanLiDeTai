@@ -3,7 +3,7 @@ import { Button } from "primereact/button";
 import { useContext, useEffect, useState } from "react";
 import { JobPageContext } from "../[id]/page";
 import { FileType } from "@/assets/types/form";
-import { AUTH_TOKEN, MODULE } from "@/assets/config";
+import { ACCESS_TOKEN, MODULE } from "@/assets/config";
 import useCookies from "@/assets/useHooks/useCookies";
 import { AuthType } from "@/assets/interface";
 
@@ -14,7 +14,7 @@ interface YourExerciseProps {
 const YourExercise = ({ onSubmit }: YourExerciseProps) => {
   const { exercise, job, groupId } = useContext(JobPageContext);
   const [_files, setFiles] = useState<FileType[]>(exercise || []);
-  const [auth] = useCookies<AuthType>(AUTH_TOKEN);
+  const [auth] = useCookies<AuthType>(ACCESS_TOKEN);
 
   useEffect(() => {
     if (exercise) {

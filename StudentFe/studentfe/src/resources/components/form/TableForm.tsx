@@ -12,6 +12,8 @@ import { Button } from "primereact/button";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import { da } from "date-fns/locale";
+import { InputDate } from "./InputDate";
+import { Calendar } from "primereact/calendar";
 
 const convertDayOfWeek = (day: string) => {
   const conversion: any = {
@@ -74,6 +76,7 @@ interface ISchedule {
 
 const ScheduleTable = forwardRef((props, ref) => {
   const [firstDayOfWeek, setFirstDayOfWeek] = useState<Date>(new Date());
+  const [currentDay, setCurrentDay] = useState<Date>(new Date());
 
   const scheduleDataTemplate: ISchedule = useMemo(() => {
     return {
@@ -131,7 +134,7 @@ const ScheduleTable = forwardRef((props, ref) => {
       },
     ],
     []
-  ); // Empty dependency array indicates this useMemo has no dependencies and should only run once on initial render.
+  );
 
   const ColumnScedule = {
     background:
@@ -307,22 +310,38 @@ const ScheduleTable = forwardRef((props, ref) => {
       <div className="p-d-flex p-jc-between">
         <Button
           size="small"
-          className="text-center"
+          className="p-button-outlined p-mr-2"
           onClick={handlePreviousClick}
-          label="Previous"
+          label="Trở về"
           outlined
           icon="pi pi-chevron-left"
         ></Button>
+
         <Button
           icon="pi pi-chevron-right"
           size="small"
-          className="ml-2 max-w-6rem w-full p-justify-end pr-2"
-          label="Next"
+          className="p-button-outlined p-mr-2 ml-2 w-6rem"
+          label="Tiếp"
+          iconPos="right"
           onClick={handleNextClick}
-          raised
-          severity="info"
           outlined
         ></Button>
+        <Calendar
+          locale="vi"
+          hideOnDateTimeSelect={true}
+          value={currentDay}
+          hourFormat="24"
+          dateFormat="dd/mm/yy"
+          showButtonBar={true}
+          iconPos="right"
+          icon="pi pi-calendar  "
+          onChange={(e) => {
+            if (e.target.value) {
+            }
+          }}
+          inputClassName="w-7rem h-3rem ml-2 p-inputtext p-component p-rounded "
+          className="p-mr-2"
+        />
       </div>
       <h3>Thời Khóa Biểu</h3>
 
