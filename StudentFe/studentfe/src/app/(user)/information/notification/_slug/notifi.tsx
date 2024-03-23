@@ -23,7 +23,7 @@ const NotificationTab = () => {
     },
   });
 
-  const { lng } = useContext(NotificationPageContext);
+  // const { lng } = useContext(NotificationPageContext);
 
   return (
     <Card
@@ -33,12 +33,7 @@ const NotificationTab = () => {
           <Dropdown
             id="noti_type"
             row={true}
-            label={
-              "Loại" +
-              {
-                obj: "Thông báo".toLowerCase(),
-              }
-            }
+            label={"Loại" + " thông báo"}
             value={notiType}
             options={[
               { label: "Chung", value: "G" },

@@ -99,7 +99,6 @@ const TableSchema = ({ data }: any) => {
       room: "A402 - 140 Lê Trọng Tấn",
       teacher: "Bùi Công Danh",
     },
-    // ... (Thêm dữ liệu cho các dòng khác)
   ];
   interface apiData {
     room: string;

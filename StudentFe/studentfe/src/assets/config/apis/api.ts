@@ -63,6 +63,8 @@ const API = {
         register_topic: '/topicRegistration',
         google_drive: '/googleDrive',
         change_invite_status: '/invitation/changeStatus',
+        change_password: '/update/password',// tu them
+
     },
     change: //tu them
     {

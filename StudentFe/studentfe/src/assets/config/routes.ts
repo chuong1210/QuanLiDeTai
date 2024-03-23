@@ -1,6 +1,7 @@
 const ROUTES = {
     base: 'http://localhost:8888',
 
+
     home: {
         index: '/home',
     },

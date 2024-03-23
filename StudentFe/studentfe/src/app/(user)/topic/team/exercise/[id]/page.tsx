@@ -17,7 +17,7 @@ const ExercisePage = ({ params }: PageProps) => {
             <div className="border-bottom-1 border-blue-700 pb-3">
               <div className="flex gap-3">
                 <p className="font-semibold text-3xl text-blue-700 mt-1 flex-1">
-                  Bài tập đầu đời
+                  Bài tập 1
                 </p>
                 <Button
                   icon="pi pi-ellipsis-v"

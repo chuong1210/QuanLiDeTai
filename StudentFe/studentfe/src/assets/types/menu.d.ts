@@ -15,5 +15,9 @@ interface MenuItemType {
     onItemClick?: (_item: MenuItemType) => void;
     onSubItemClick?: (_item: MenuItemType) => void;
 }
+interface MenuItemProps {
+    item: MenuItemType;
+    permissions: string[];
+  }
 
-export type { MenuItemType };
+export type { MenuItemType,MenuItemProps };

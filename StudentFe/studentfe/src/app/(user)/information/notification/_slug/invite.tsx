@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import { NotificationPageContext } from "../page";
 
 const InviteTab = () => {
-  const { lng, tab } = useContext(NotificationPageContext);
+  // const { lng, tab } = useContext(NotificationPageContext);
   const inviteQuery = useGetList<InviteType, InviteParamType>({
     module: "invitation",
     params: {
