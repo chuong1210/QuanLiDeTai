@@ -19,54 +19,27 @@ const schema = yup.object({
 })
 
 export default function Page() {
-    const [visible, setVisible] = useState(false);
     const { control, handleSubmit, reset, setValue, getValues } = useForm({
         resolver: yupResolver(schema),
-        //defaultValues: defaultValues
 
     });
-
-    // const StudentMutation = useMutation<any, AxiosError<ResponseType>, any>({
-    //     mutationFn: (data) => {
-    //         return request.update(API.students.insert + `/${data.id}`, { name: data.name })
-    //     },
-    // });
 
     const TeacherQuery = useQuery<TeacherType[], AxiosError<ResponseType>>({
         refetchOnWindowFocus: false,
         queryKey: ['list-Teacher'],
         queryFn: async () => {
             const response = await request.get<TeacherType[]>(API.teachers.getAll);
-            //console.log(response)
             return response.data || [];
         },
     });
 
 
-
-    const show = (data: any) => {
-        setVisible(true);
-        if (data) {
-            reset(data);
-        } else {
-            //reset(defaultValues);
-        }
-        TeacherQuery.refetch()
-
-    };
     const onSubmit = (data: any) => {
         toast.success("Cập nhật thành công");
         console.log(data)
-        // StudentMutation.mutate((data), {
-        //     onSuccess: (response) => {
-        //         close();
-        //         toast.success("Cập nhật thành công");
-        //     },
-        // });
     };
 
     const close = () => {
-        setVisible(false);
         reset();
     };
 
@@ -86,7 +59,6 @@ export default function Page() {
                             errorMessage={fieldState.error?.message}
                             onChange={field.onChange}
                         />}
-
                     />
                 </div>
                 <div className='col-6 flex flex-column gap-3 mb-2'>

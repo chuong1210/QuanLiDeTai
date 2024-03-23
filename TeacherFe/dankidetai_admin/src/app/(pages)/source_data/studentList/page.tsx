@@ -17,8 +17,10 @@ import { ConfirmModalRefType } from "@/assets/types/modal";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import API from "@/assets/configs/api";
-import { DropdownValue } from "@/assets/configs/general";
+import { DropdownValue, roleE } from "@/assets/configs/general";
 import Confirm from "@/resources/components/UI/Confirm";
+import { cookies } from "@/assets/helpers";
+import { ROLE_USER } from "@/assets/configs/request";
 export const key = "học sinh"
 // chờ có file hoàng chỉnh rồi mới làm tiếp
 interface fieldsType {
@@ -36,12 +38,6 @@ export const fields: fieldsType[] = [
 ]
 
 function Page() {
-
-    const fieldsDefault = [{
-        maSo: '2001221382', name: "Trần Vinh Hiển",
-        myClass: '13DHTH08', email: "vinhhien12z@gmail.com",
-        phoneNumber: "0344197279", subjectName: "Kỹ thuật phần mềm"
-    }];
 
     const [studentOnExcel, setStudentOnExcel] = useState<StudentType[]>([])
     const [setlected, setSelected] = useState<TypeSelected<StudentType>>()
@@ -68,11 +64,7 @@ function Page() {
             return request.remove(`${API.students.delete}`, { data: [data.id] });
         },
     });
-    const StudentListMutationInsert = useMutation<any, AxiosError<ResponseType>, StudentType[]>({
-        mutationFn: (data) => {
-            return request.post(`${API.students.insert_from_excel}`, { students: data });
-        },
-    });
+
 
     const renderActions = (data: StudentType) => {
         return (
@@ -81,24 +73,29 @@ function Page() {
                     formRef.current?.show?.(data);
                     setSelected({ type: "detail", data: data })
                 }} />
-                <i
-                    className='pi pi-pencil hover:text-primary cursor-pointer'
-                    onClick={() => {
-                        formRef.current?.show?.(data);
-                        setSelected({ type: "edit", data: data })
-                    }}
-                />
+                {
+                    cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.admin) && (
+                        <>
+                            <i
+                                className='pi pi-pencil hover:text-primary cursor-pointer'
+                                onClick={() => {
+                                    formRef.current?.show?.(data);
+                                    setSelected({ type: "edit", data: data })
+                                }}
+                            />
+                            <i
+                                className='pi pi-trash hover:text-red-600 cursor-pointer'
+                                onClick={(e) => {
+                                    confirmModalRef.current?.show?.(e, data, `Bạn có chắc muốn xóa ${key} ${data.name}`);
+                                }}
+                            />
+                        </>
+                    )
+                }
             </div>
         );
     };
-    const onAddStudentExcel = (data: StudentType[]) => {
-        StudentListMutationInsert.mutate(data, {
-            onSuccess: () => {
-                StudentListQuery.refetch();
-                toast.success("Thêm thành công");
-            },
-        })
-    }
+
     const onRemove = (data: StudentType) => {
         StudentListMutation.mutate(data, {
             onSuccess: () => {
@@ -109,38 +106,19 @@ function Page() {
         });
     }
     return (
-        <div>            {StudentListQuery.isFetching || StudentListMutation.isPending && <Loader />}
+        <div>
+            {StudentListQuery.isFetching || StudentListMutation.isPending && <Loader />}
             <Confirm
                 ref={confirmModalRef}
                 onAccept={onRemove}
                 acceptLabel={'confirm'}
                 rejectLabel={'cancel'}
             />
-
-            <h3>Thực hiện thêm {key} vào đợt đăng kí Khóa luận</h3>
             {
-                (StudentListQuery.data?.length === 0 || StudentListQuery.data === undefined) ?
+                cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.admin) && <>
+                    <h3>Thực hiện thêm {key} vào đợt đăng kí Khóa luận</h3>
 
-                    <div >
-                        <Button className="my-3" onClick={() => XLSX.handleExportFile(fieldsDefault, "FilestudentExample")}>Export fie mẫu</Button>
-                        <h3>chose file</h3>
-                        <InputFile
-                            accept='.xlsx ,.xls'
-                            id="importFile"
-                            multiple={true}
-                            onChange={(e) => {
-                                XLSX.handleImportFile(e, (data) => {
-                                    setStudentOnExcel(data)
-                                })
-                            }}
-                            onRemove={() => {
-                                setStudentOnExcel([])
-                            }}
-                            onSubmitFile={() => {
-                                onAddStudentExcel(studentOnExcel)
-                            }}
-                        />
-                    </div> : <Button
+                    <Button
                         label={`Thêm ${key} mới`}
                         icon='pi pi-plus'
                         size='small'
@@ -150,7 +128,9 @@ function Page() {
                             setSelected({ type: "create", data: undefined })
                         }}
                     />
+                </>
             }
+
             <div className="my-3">
 
                 <DataTable

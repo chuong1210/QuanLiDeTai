@@ -2,7 +2,7 @@
 import { roleE } from '@/assets/configs/general';
 import { ROLE_USER } from '@/assets/configs/request';
 import { cookies } from '@/assets/helpers';
-import React, { ReactNode, useEffect } from 'react'
+import React, { ReactNode } from 'react'
 
 export default function Layout(
     { children, admin, giaovu, giaovien, truongkhoa, truongbomon }:
@@ -11,8 +11,9 @@ export default function Layout(
             giaovu: ReactNode, giaovien: ReactNode,
             truongkhoa: ReactNode, truongbomon: ReactNode
         }) {
+    // const roles = useSelector((state: Rootstate) => state.role.role);
+
     const element = (role?: roleE) => {
-        console.log(role)
         switch (role) {
             case roleE.admin: return [admin, truongkhoa, truongbomon, giaovu, giaovien];
             case roleE.truongkhoa: return truongkhoa;

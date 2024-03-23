@@ -31,18 +31,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      {/* <ReduxProviders> */}
       <ProviderQuery>
-        <PrimeReactProvider value={primeReactValue}>
-          <body suppressHydrationWarning={true} className={inter.className}>
-            <main className="main">
-              <ToastContainer />
-              {children}
-            </main>
-          </body>
-        </PrimeReactProvider>
+        <ReduxProviders>
+          <PrimeReactProvider value={primeReactValue}>
+            <body suppressHydrationWarning={true} className={inter.className}>
+              <main className="main">
+                <ToastContainer />
+                {children}
+              </main>
+            </body>
+          </PrimeReactProvider>
+        </ReduxProviders>
       </ProviderQuery>
-      {/* </ReduxProviders> */}
     </html>
   );
 }

@@ -6,14 +6,9 @@ import { Button } from "primereact/button";
 import { ACCESS_TOKEN, ROLE_USER } from "@/assets/configs/request";
 import * as cookies from "@/assets/helpers/cookies"
 import { useRouter } from "next/navigation";
-import { Controller, Resolver, useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup"
-import { PrimeIcons } from "primereact/api";
-import Link from "next/link";
-import { jwtDecode } from "jwt-decode";
-import { useState } from "react";
-import { luuDuLieu } from "@/assets/helpers/localstore";
 import { roleE } from "@/assets/configs/general";
 const schema = () =>
     yup.object({
@@ -25,6 +20,7 @@ const schema = () =>
 
 export default function FormLogin() {
     const router = useRouter()
+
     const { control, handleSubmit } = useForm({
         resolver: yupResolver(schema()),
         defaultValues: {
@@ -48,9 +44,8 @@ export default function FormLogin() {
                 try {
                     //console.log(response)
                     cookies.set(ACCESS_TOKEN, response.data.accessToken);
-                    console.log(jwtDecode(response.data.accessToken),)
-                    cookies.set(ROLE_USER, [roleE.giaovien])
-
+                    //console.log(jwtDecode(response.data.accessToken),)
+                    cookies.set(ROLE_USER, [roleE.giaovu])
                     // console.log(cookies.get(ROLE_USER))
                     return router.push("/admin");
                 } catch (error) {

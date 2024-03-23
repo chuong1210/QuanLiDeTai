@@ -29,7 +29,9 @@
 import { roleE } from '@/assets/configs/general';
 import { ROLE_USER } from '@/assets/configs/request';
 import { cookies } from '@/assets/helpers';
+import { Rootstate } from '@/assets/redux/store';
 import React, { ReactNode, useEffect } from 'react'
+import { useSelector } from 'react-redux';
 
 export default function Layout(
     { children, admin, giaovu, giaovien, truongkhoa, truongbomon }:
@@ -38,8 +40,8 @@ export default function Layout(
             giaovu: ReactNode, giaovien: ReactNode,
             truongkhoa: ReactNode, truongbomon: ReactNode
         }) {
+
     const element = (role?: roleE) => {
-        console.log(role)
         switch (role) {
             case roleE.admin: return [admin, truongkhoa, truongbomon, giaovu, giaovien];
             case roleE.truongkhoa: return truongkhoa;

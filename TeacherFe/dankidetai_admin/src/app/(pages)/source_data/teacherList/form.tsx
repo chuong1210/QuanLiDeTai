@@ -25,13 +25,13 @@ const defaultValues: TeacherType = {
     email: "", phoneNumber: "",
     subjectName: "",
     departmentName: "",
+    chucVu: [], hocVi: []
 }
 const schema = yup.object({
     maSo: yup.string().required(),
     name: yup.string().required(),
     email: yup.string().email().required(),
     phoneNumber: yup.string().min(8).max(11).required(),
-
     hocVi: yup.array().required(),
     chucVu: yup.array().required(),
     departmentName: yup.string().required(),
@@ -114,6 +114,7 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
             className='overflow-hidden'
             contentClassName='mb-8'
             onHide={close}
+            onClick={(e) => { e.preventDefault() }}
         >
             {
                 type === "detail" ?
@@ -167,19 +168,22 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
                             <Controller
                                 name={"chucVu"}
                                 control={control}
-                                render={({ field, fieldState }) => (
-                                    <MultiSelect
-                                        id='form_data_chucVu'
-                                        options={ChucVuValue}
-                                        value={field.value ? field.value : undefined}
-                                        label={"Chức vụ"}
-                                        placeholder={"Chức vụ"}
-                                        errorMessage={fieldState.error?.message}
-                                        onChange={(e) => {
-                                            field.onChange(e)
-                                        }}
-                                    />
-                                )}
+                                render={({ field, fieldState }) => {
+                                    console.log(field.value)
+                                    return (
+                                        <MultiSelect
+                                            id='form_data_chucVu'
+                                            options={ChucVuValue}
+                                            value={field.value && Array.isArray(field.value) ? field.value : undefined}
+                                            label={"Chức vụ"}
+                                            placeholder={"Chức vụ"}
+                                            errorMessage={fieldState.error?.message}
+                                            onChange={(e) => {
+                                                field.onChange(e)
+                                            }}
+                                        />
+                                    )
+                                }}
                             />
                         </div>
                         {/* học vị drop */}
@@ -191,7 +195,7 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
                                     <MultiSelect
                                         id='form_data_hocVi'
                                         options={HocViValue}
-                                        value={field.value ? field.value : undefined}
+                                        value={field.value && Array.isArray(field.value) ? field.value : undefined}
                                         label={"Học Vị"}
                                         placeholder={"Học Vị"}
                                         errorMessage={fieldState.error?.message}
@@ -247,7 +251,7 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
                                     close();
                                 }}
                             />
-                            <Button label={'save'} icon='pi pi-save' />
+                            <Button type='submit' label={'save'} icon='pi pi-save' />
                         </div>
                     </form>
             }

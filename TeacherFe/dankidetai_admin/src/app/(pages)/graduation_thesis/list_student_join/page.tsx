@@ -17,8 +17,10 @@ import { ConfirmModalRefType } from "@/assets/types/modal";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import API from "@/assets/configs/api";
-import { DropdownValue } from "@/assets/configs/general";
+import { DropdownValue, roleE } from "@/assets/configs/general";
 import Confirm from "@/resources/components/UI/Confirm";
+import { cookies } from "@/assets/helpers";
+import { ROLE_USER } from "@/assets/configs/request";
 export const key = "học sinh"
 // chờ có file hoàng chỉnh rồi mới làm tiếp
 interface fieldsType {
@@ -81,13 +83,25 @@ function Page() {
                     formRef.current?.show?.(data);
                     setSelected({ type: "detail", data: data })
                 }} />
-                <i
-                    className='pi pi-pencil hover:text-primary cursor-pointer'
-                    onClick={() => {
-                        formRef.current?.show?.(data);
-                        setSelected({ type: "edit", data: data })
-                    }}
-                />
+                {
+                    cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.giaovu) && (
+                        <>
+                            <i
+                                className='pi pi-pencil hover:text-primary cursor-pointer'
+                                onClick={() => {
+                                    formRef.current?.show?.(data);
+                                    setSelected({ type: "edit", data: data })
+                                }}
+                            />
+                            <i
+                                className='pi pi-trash hover:text-red-600 cursor-pointer'
+                                onClick={(e) => {
+                                    confirmModalRef.current?.show?.(e, data, `Bạn có chắc muốn xóa ${key} ${data.name}`);
+                                }}
+                            />
+                        </>
+                    )
+                }
             </div>
         );
     };
@@ -116,76 +130,79 @@ function Page() {
                 acceptLabel={'confirm'}
                 rejectLabel={'cancel'}
             />
+            {
+                cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.giaovu) && (
+                    <>
 
-            <h3>Thực hiện thêm {key} vào đợt đăng kí Khóa luận</h3>
-            <div >
-                <Button className="my-3" onClick={() => XLSX.handleExportFile(fieldsDefault, "FilestudentExample")}>Export fie mẫu</Button>
-                <h3>chose file</h3>
-                <InputFile
-                    accept='.xlsx ,.xls'
-                    id="importFile"
-                    multiple={true}
-                    onChange={(e) => {
-                        XLSX.handleImportFile(e, (data) => {
-                            setStudentOnExcel(data)
-                        })
-                    }}
-                    onRemove={() => {
-                        setStudentOnExcel([])
-                    }}
-                    onSubmitFile={() => {
-                        onAddStudentExcel(studentOnExcel)
-                    }}
-                />
-            </div>
-            <DataTable
-                value={studentOnExcel}
-                rowHover={true}
-                stripedRows={true}
-                showGridlines={true}
-                emptyMessage={'list_empty'}
-            >
-                {
-                    studentOnExcel.length === 0 &&
-                    <Column
-                        alignHeader='center'
-                        headerStyle={{
-                            background: 'var(--bluegray-100)',
-                            color: 'var(--bluegray-900)',
-                            whiteSpace: 'nowrap',
-                        }}
-                        header={'Lựa chọn'}
-                        body={renderActions}
-                    />
-                }
+                        <h3>Thực hiện thêm {key} vào đợt đăng kí Khóa luận</h3>
+                        <div >
+                            <Button className="my-3" onClick={() => XLSX.handleExportFile(fieldsDefault, "FilestudentExample")}>Export fie mẫu</Button>
+                            <h3>chose file</h3>
+                            <InputFile
+                                accept='.xlsx ,.xls'
+                                id="importFile"
+                                multiple={true}
+                                onChange={(e) => {
+                                    XLSX.handleImportFile(e, (data) => {
+                                        setStudentOnExcel(data)
+                                    })
+                                }}
+                                onRemove={() => {
+                                    setStudentOnExcel([])
+                                }}
+                                onSubmitFile={() => {
+                                    onAddStudentExcel(studentOnExcel)
+                                }}
+                            />
+                        </div>
+                        <DataTable
+                            value={studentOnExcel}
+                            rowHover={true}
+                            stripedRows={true}
+                            showGridlines={true}
+                            emptyMessage={'list_empty'}
+                        >
+                            {
+                                studentOnExcel.length === 0 &&
+                                <Column
+                                    alignHeader='center'
+                                    headerStyle={{
+                                        background: 'var(--bluegray-100)',
+                                        color: 'var(--bluegray-900)',
+                                        whiteSpace: 'nowrap',
+                                    }}
+                                    header={'Lựa chọn'}
+                                    body={renderActions}
+                                />
+                            }
 
-                {fields.map((field, index) => <Column
-                    key={index}
-                    alignHeader='center'
-                    headerStyle={{
-                        background: 'var(--bluegray-100)',
-                        color: 'var(--bluegray-900)',
-                        whiteSpace: 'nowrap',
-                    }}
-                    field={field.code}
-                    header={field.field}
-                />)}
+                            {fields.map((field, index) => <Column
+                                key={index}
+                                alignHeader='center'
+                                headerStyle={{
+                                    background: 'var(--bluegray-100)',
+                                    color: 'var(--bluegray-900)',
+                                    whiteSpace: 'nowrap',
+                                }}
+                                field={field.code}
+                                header={field.field}
+                            />)}
 
 
-            </DataTable>
+                        </DataTable>
 
-            <h2 className="m-4">Danh sách sinh viên hiện tại</h2>
-            <Button
-                label={`Thêm ${key} mới`}
-                icon='pi pi-plus'
-                size='small'
-                className="my-3"
-                onClick={() => {
-                    formRef.current?.show?.();
-                    setSelected({ type: "create", data: undefined })
-                }}
-            />
-
+                        <h2 className="m-4">Danh sách sinh viên hiện tại</h2>
+                        <Button
+                            label={`Thêm ${key} mới`}
+                            icon='pi pi-plus'
+                            size='small'
+                            className="my-3"
+                            onClick={() => {
+                                formRef.current?.show?.();
+                                setSelected({ type: "create", data: undefined })
+                            }}
+                        />
+                    </>)}
             <div className="my-3">
 
                 <DataTable

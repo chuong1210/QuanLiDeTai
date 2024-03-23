@@ -13,6 +13,7 @@ export default function Header() {
     const logOut = (item: MenuItemType) => {
         if (item.code === "logout") cookies.logOut()
     }
+
     return (
         <div
             className='w-100 flex align-items-center justify-content-between  h-4rem shadow-2 bg-white pr-5 fixed top-0 left-0 right-0'

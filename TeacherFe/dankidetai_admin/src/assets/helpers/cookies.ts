@@ -1,6 +1,6 @@
 import { deleteCookie, getCookie, setCookie } from 'cookies-next';
 import { OptionsType } from 'cookies-next/lib/types';
-import { ACCESS_TOKEN } from '../configs/request';
+import { ACCESS_TOKEN, ROLE_USER } from '../configs/request';
 
 const get = <T>(key: string): T | undefined => {
     const value = getCookie(key);
@@ -29,7 +29,7 @@ const remove = (key: string) => {
 
 const logOut = () => {
     remove(ACCESS_TOKEN);
-    // remove(AUTH_TOKEN);
+    remove(ROLE_USER);
 };
 
 export { get, logOut, remove, set };

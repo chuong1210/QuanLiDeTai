@@ -3,8 +3,8 @@ interface TeacherType extends DefaultResponse {
     name: string;
     email: string;
     phoneNumber: string;
-    hocVi?: string[];
-    chucVu?: string[];
+    hocVi: string[];
+    chucVu: string[];
     departmentName: string;
     subjectName: string;
 }

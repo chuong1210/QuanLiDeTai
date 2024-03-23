@@ -15,9 +15,13 @@ import { ConfirmModalRefType } from "@/assets/types/modal";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import API from "@/assets/configs/api";
-import { DropdownValue } from "@/assets/configs/general";
+import { DropdownValue, roleE } from "@/assets/configs/general";
 import { Skeleton } from "primereact/skeleton";
 import { Loader } from "@/resources/components/UI";
+import { useSelector } from "react-redux";
+import { Rootstate } from "@/assets/redux/store";
+import { ROLE_USER } from "@/assets/configs/request";
+import { cookies } from "@/assets/helpers";
 
 
 interface fieldsType {
@@ -36,6 +40,7 @@ function Page() {
     const [setlected, setSelected] = useState<TypeSelected<SubjectType>>()
     const formRef = useRef<FormRefType<SubjectType>>(null);
     const confirmModalRef = useRef<ConfirmModalRefType>(null);
+    const roles = useSelector((state: Rootstate) => state.role.role);
 
 
     const SubjectQuery = useQuery<SubjectType[], AxiosError<ResponseType>>({
@@ -61,19 +66,25 @@ function Page() {
                     formRef.current?.show?.(data);
                     setSelected({ type: "detail", data: data })
                 }} />
-                <i
-                    className='pi pi-pencil hover:text-primary cursor-pointer'
-                    onClick={() => {
-                        formRef.current?.show?.(data);
-                        setSelected({ type: "edit", data: data })
-                    }}
-                />
-                <i
-                    className='pi pi-trash hover:text-red-600 cursor-pointer'
-                    onClick={(e) => {
-                        confirmModalRef.current?.show?.(e, data, `Bạn có chắc muốn xóa ${key} ${data.name}`);
-                    }}
-                />
+                {/* {roles.includes(roleE.admin) && */}
+                {cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.admin) &&
+                    (
+                        <>
+                            <i
+                                className='pi pi-pencil hover:text-primary cursor-pointer'
+                                onClick={() => {
+                                    formRef.current?.show?.(data);
+                                    setSelected({ type: "edit", data: data })
+                                }}
+                            />
+                            <i
+                                className='pi pi-trash hover:text-red-600 cursor-pointer'
+                                onClick={(e) => {
+                                    confirmModalRef.current?.show?.(e, data, `Bạn có chắc muốn xóa ${key} ${data.name}`);
+                                }}
+                            />
+                        </>
+                    )}
             </div>
         );
     };
@@ -96,18 +107,22 @@ function Page() {
                 acceptLabel={'confirm'}
                 rejectLabel={'cancel'}
             />
-            <h3>Quản lý {key}</h3>
 
-            <Button
-                label={`Thêm ${key} mới`}
-                icon='pi pi-plus'
-                size='small'
-                className="my-3"
-                onClick={() => {
-                    formRef.current?.show?.();
-                    setSelected({ type: "create", data: undefined })
-                }}
-            />
+            {cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.admin) &&
+                <>
+                    <Button
+                        label={`Thêm ${key} mới`}
+                        icon='pi pi-plus'
+                        size='small'
+                        className="my-3"
+                        onClick={() => {
+                            formRef.current?.show?.();
+                            setSelected({ type: "create", data: undefined })
+                        }}
+                    />
+                    <h3>Quản lý {key}</h3>
+                </>
+            }
             <div >
 
                 <DataTable

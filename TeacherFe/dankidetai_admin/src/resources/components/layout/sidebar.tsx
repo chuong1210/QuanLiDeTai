@@ -1,24 +1,21 @@
 "use client"
 import React, { useEffect, useState } from 'react'
 import MenuItem from '../UI/MenuItem'
-import ROUTER from '@/assets/configs/routers'
 import Image from 'next/image'
 import LogoImage from "@/resources/image/huit/logo.png"
-import Link from 'next/link'
 import { SIDEBAR_MENU } from '@/assets/configs/sidebar_menu'
 import { roleE } from '@/assets/configs/general'
 import { cookies } from '@/assets/helpers'
 import { ROLE_USER } from '@/assets/configs/request'
 
 export default function Sidebar() {
-    const [roles, setRoles] = useState<roleE[]>(); // Sử dụng useState để lưu trữ roles
+    const [roles, setRoles] = useState<roleE[]>()
     useEffect(() => {
         const loadComponent = async () => {
             setRoles(cookies.get<roleE[]>(ROLE_USER));
         };
         loadComponent();
-    }, []);
-
+    }, [])
     return (
         <div
             className='relative' style={{ zIndex: 100, minWidth: "20vw" }}
