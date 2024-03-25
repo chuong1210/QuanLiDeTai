@@ -15,6 +15,7 @@ export const config = {
     //  matcher: ['/((?!api|_next|.*\\..*).*)']
     // matcher: ['/'],
 };
+const publicRoutes = ["/", "/login", "/signup"];
 
 export function middleware(req: NextRequest) {
     if (req.nextUrl.pathname.indexOf('icon') > -1 || req.nextUrl.pathname.indexOf('chrome') > -1) {
@@ -40,7 +41,7 @@ export function middleware(req: NextRequest) {
 
         // if (
         //   !req.cookies.has(REFRESH_TOKEN) &&!req.cookies.has(ACCESS_TOKEN) 
-        //   && (!req.url.includes(ROUTES.auth.sign_in)&&path!=='sign-in')
+        //   && (!req.url.includes(ROUTES.auth.sign_in)&&path!=='login')
         //  )
         //  {
         //     console.log(123);
@@ -56,7 +57,7 @@ export function middleware(req: NextRequest) {
         ) {
     
         
-        if (req.url.includes(ROUTES.auth.sign_in)&&path==='sign-in') {
+        if (req.url.includes(ROUTES.auth.sign_in)&&path==='login') {
             console.log(777,req.cookies.has(ACCESS_TOKEN));
             return NextResponse.redirect(new URL(`${ROUTES.home.index}`, req.url));
         }

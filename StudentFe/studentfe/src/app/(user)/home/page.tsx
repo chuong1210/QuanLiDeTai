@@ -14,7 +14,7 @@ import {
 } from "@/assets/interface";
 import { PageProps } from "@/assets/types/UI";
 import { CustomImage, Loader } from "@/resources/components/UI";
-// import FullCalendar from "@/resources/components/UI/FullCalendar";
+import FullCalendar from "@/resources/components/UI/FullCalendar";
 import Chart from "@/resources/components/layout/Chart";
 import { format, sub } from "date-fns";
 import moment from "moment";
@@ -292,6 +292,7 @@ const HomePage = ({ params: { _ } }: PageProps) => {
               ))}
             </div>
           )}
+          <FullCalendar />
         </Card>
       </div>
     </div>

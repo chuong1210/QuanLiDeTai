@@ -76,7 +76,7 @@ const Menu = () => {
   return (
     <div
       className="flex flex-column gap-2 w-15rem h-screen relative  "
-      style={{ zIndex: 1000, minWidth: "17rem" }}
+      style={{ minWidth: "17rem" }}
     >
       <ul className="p-2 pt-0 overflow-y-auto h-full">
         <div

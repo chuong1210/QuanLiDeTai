@@ -13,7 +13,7 @@ const ROUTES = {
     topic: {
         group: '/topic/group',
         student_join: '/topic/student_join',
-        register_topic: '/topic/register_topic',
+        register_topic: '/topic/register',
         invite: '/topic/invite',
         job_detail: '/topic/group/job',
         schedule: 'topic/schedule',
@@ -24,7 +24,7 @@ const ROUTES = {
     },
 
     auth: {
-        sign_in: '/sign-in',
+        sign_in: '/login',
     },
     
     profile: {

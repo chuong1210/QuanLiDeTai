@@ -88,12 +88,13 @@ const NotificationPage = ({ params: { id } }: PageProps) => {
             <Loader show={isLoading} />
 
             <div className="flex flex-column gap-5">
-              {response?.data?.map((notification) => (
+              {response?.data?.map((notification, index: number) => (
                 <div
                   key={notification.id}
                   className="flex gap-3 cursor-pointer"
                 >
                   <CustomImage
+                    key={index}
                     src={notification.image?.path}
                     alt="hi"
                     width="100"
@@ -102,6 +103,7 @@ const NotificationPage = ({ params: { id } }: PageProps) => {
 
                   <div className="flex flex-column justify-content-between flex-1">
                     <Link
+                      key={index}
                       href={`${ROUTES.information.notification}/${notification.id}`}
                       className="text-900 font-semibold no-underline hover:text-primary"
                     >

@@ -119,6 +119,9 @@ interface TableProps extends InputProps
     paginator?:string;
      rows?:number;
 }
+interface CalendarChangeParams extends InputProps {
+    value: Date | Date[] | undefined;
+  }
 export type {
     CheckboxProps,
     DropdownProps,
@@ -133,4 +136,5 @@ export type {
     TextAreaProps,
     FileType,
     TableProps,
+    CalendarChangeParams
 };

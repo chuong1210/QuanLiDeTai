@@ -1,4 +1,7 @@
 import React, {
+  ChangeEvent,
+  ChangeEventHandler,
+  FormEvent,
   LegacyRef,
   forwardRef,
   useEffect,
@@ -12,21 +15,17 @@ import { Button } from "primereact/button";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import { da } from "date-fns/locale";
-import { InputDate } from "./InputDate";
-import { Calendar } from "primereact/calendar";
-
-const convertDayOfWeek = (day: string) => {
-  const conversion: any = {
-    Monday: "Mon",
-    Tuesday: "Tue",
-    Wednesday: "Wed",
-    Thursday: "Thu",
-    Friday: "Fri",
-    Saturday: "Sat",
-    Sunday: "Sun",
-  };
-  return conversion[day];
-};
+import { InputDate } from "../form/InputDate";
+import {
+  Calendar,
+  CalendarSelectEvent,
+  CalendarViewChangeEvent,
+} from "primereact/calendar";
+import { ChangeHandler } from "react-hook-form";
+import { CalendarChangeParams } from "@/assets/types/form";
+import { scheduleDataTable } from "@/mocks";
+import { text } from "stream/consumers";
+import { textAlign } from "html2canvas/dist/types/css/property-descriptors/text-align";
 
 const daysOfWeek: daysofWeekType[] = [
   { name: "Mon", dayIndex: 1, displayName: "Thứ 2" },
@@ -85,56 +84,56 @@ const ScheduleTable = forwardRef((props, ref) => {
       Evening: { period: "Buổi", time: "Tối" },
     };
   }, []);
-  const rowsData: TableData[] = useMemo(
-    () => [
-      {
-        day: "04/03/2024",
-        shift: "Afternoon",
-        course: "Lập trình hướng đối tượng",
-        code: "13DHTH03 - 010110196203",
-        session: "4 - 6",
-        room: "A402 - 140 Lê Trọng Tấn",
-        teacher: "Bùi Công Danh",
-      },
-      {
-        day: "20/03/2024",
-        shift: "Afternoon",
-        course: "Lập trình hướng đối tượng",
-        code: "13DHTH03 - 010110196203",
-        session: "4 - 6",
-        room: "A402 - 140 Lê Trọng Tấn",
-        teacher: "Bùi Công Danh",
-      },
-      {
-        day: "24/04/2024",
-        shift: "Afternoon",
-        course: "Tiếng anh 2",
-        code: "13DHTH03 - 010110196203",
-        session: "4 - 6",
-        room: "A102 - 140 Lê Trọng Tấn",
-        teacher: "Ngọc Hiền",
-      },
-      {
-        day: "24/04/2024",
-        shift: "Morning",
-        course: "Tiếng anh 3",
-        code: "13QTKD03 - 010110196203",
-        session: "4 - 6",
-        room: "A102 - 140 Lê Trọng Tấn",
-        teacher: "Phan thị châu trinh",
-      },
-      {
-        day: "24/04/2024",
-        shift: "Morning",
-        course: "Bắn súng",
-        code: "13DHTH03 - 010110196203",
-        session: "4 - 6",
-        room: "A102 - 140 Lê Trọng Tấn",
-        teacher: "Phan thị châu trinh",
-      },
-    ],
-    []
-  );
+  // const rowsData: TableData[] = useMemo(
+  //   () => [
+  //     {
+  //       day: "24/03/2024",
+  //       shift: "Evening",
+  //       course: "Cơ sở dữ liệu",
+  //       code: "13DHTH08 - 010110196112",
+  //       session: "7 - 9",
+  //       room: "F601 - 140 Lê Trọng Tấn",
+  //       teacher: "Trần Trương Tuấn Phát",
+  //     },
+  //     {
+  //       day: "20/03/2024",
+  //       shift: "Afternoon",
+  //       course: "Lập trình hướng đối tượng",
+  //       code: "13DHTH03 - 010110196203",
+  //       session: "4 - 6",
+  //       room: "A402 - 140 Lê Trọng Tấn",
+  //       teacher: "Bùi Công Danh",
+  //     },
+  //     {
+  //       day: "24/04/2024",
+  //       shift: "Afternoon",
+  //       course: "Tiếng anh 2",
+  //       code: "13DHTH03 - 010110196203",
+  //       session: "4 - 6",
+  //       room: "A102 - 140 Lê Trọng Tấn",
+  //       teacher: "Ngọc Hiền",
+  //     },
+  //     {
+  //       day: "24/04/2024",
+  //       shift: "Morning",
+  //       course: "Tiếng anh 3",
+  //       code: "13QTKD03 - 010110196203",
+  //       session: "4 - 6",
+  //       room: "A102 - 140 Lê Trọng Tấn",
+  //       teacher: "Phan thị châu trinh",
+  //     },
+  //     {
+  //       day: "24/02/2024",
+  //       shift: "Morning",
+  //       course: "Bắn súng",
+  //       code: "13DHTH03 - 010110196203",
+  //       session: "4 - 6",
+  //       room: "A102 - 140 Lê Trọng Tấn",
+  //       teacher: "Phan thị châu trinh",
+  //     },
+  //   ],
+  //   []
+  // );
 
   const ColumnScedule = {
     background:
@@ -142,7 +141,7 @@ const ScheduleTable = forwardRef((props, ref) => {
   };
   const headerFirstColumnClass = {
     background: "#ffffce",
-    borderBottom: "2px solid #cad6d8",
+    borderBottom: "1px solid #cad6d8",
     color: " #667580 ",
     marginL: "20px",
     border: "1px solid #ddd",
@@ -184,7 +183,6 @@ const ScheduleTable = forwardRef((props, ref) => {
   const bodyTemplate = (rowData: any, column: any) => {
     if (rowData[column.field]) {
       const { course, teacher, room } = parseData(rowData[column.field]);
-
       return (
         <div
           style={{
@@ -209,7 +207,7 @@ const ScheduleTable = forwardRef((props, ref) => {
             {teacher}
           </div>
           <div
-            className="m-3"
+            className="m-3 h"
             style={{ fontSize: "13px", color: "black", fontWeight: "400" }}
           >
             {room}
@@ -242,10 +240,8 @@ const ScheduleTable = forwardRef((props, ref) => {
     const firstDayOfWeek = new Date();
 
     if (currentDayOfWeek !== 0) {
-      // if it's not Sunday
       firstDayOfWeek.setDate(currentDayOfMonth - currentDayOfWeek);
     } else {
-      // if it's Sunday, set it to last Monday
       firstDayOfWeek.setDate(currentDayOfMonth - 6);
     }
 
@@ -278,10 +274,11 @@ const ScheduleTable = forwardRef((props, ref) => {
 
   // Sử dụng state để lưu trữ lịch học cho tuần hiện tại
   const [currentWeekData, setCurrentWeekData] = useState<TableData[]>([]);
+
   useEffect(() => {
     const getCurrentWeekData = (rowsData: TableData[], startDate: Date) => {
       const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + 6); // kết thúc vào Chủ Nhật của tuần
+      endDate.setDate(startDate.getDate() + 7); // kết thúc vào Chủ Nhật của tuần
 
       return rowsData
         .filter((dataItem) => {
@@ -289,9 +286,9 @@ const ScheduleTable = forwardRef((props, ref) => {
           return itemDate >= startDate && itemDate <= endDate;
         })
         .reduce((weekData, item) => {
-          const dayName = daysOfWeek.find(
-            (d) => parseDate(item.day).getDay() === d.dayIndex
-          )?.name;
+          const dayName =
+            daysOfWeek.find((d) => parseDate(item.day).getDay() === d.dayIndex)
+              ?.name || "Sun";
           if (dayName) {
             weekData[item.shift][
               dayName
@@ -301,16 +298,37 @@ const ScheduleTable = forwardRef((props, ref) => {
         }, JSON.parse(JSON.stringify(scheduleDataTemplate)));
     };
 
-    setCurrentWeekData(getCurrentWeekData(rowsData, firstDayOfWeek));
-  }, [firstDayOfWeek, rowsData, scheduleDataTemplate]);
+    setCurrentWeekData(getCurrentWeekData(scheduleDataTable, firstDayOfWeek));
+  }, [firstDayOfWeek, scheduleDataTemplate]); //rowsdata o day
   const data = Object.values(currentWeekData);
+  // Hàm này tìm ngày đầu tiên của tuần dựa vào ngày được chọn (date)
+  // Chúng ta giả định rằng tuần bắt đầu từ thứ Hai
+  const getFirstDayOfWeekFromDate = (date: Date) => {
+    const dayOfWeek = date.getDay(); // Lấy ra ngày của tuần từ ngày hiện tại (0 là Chủ Nhật, 1 là Thứ Hai, ...)
+    const firstDayOfWeek = new Date(date); // Sao chép đối tượng Date để tránh thay đổi nó
+    if (dayOfWeek !== 0) {
+      firstDayOfWeek.setDate(date.getDate() - dayOfWeek);
+    } else {
+      // Nếu là Chủ Nhật, lùi lại 6 ngày để đến thứ Hai tuần trước
+      firstDayOfWeek.setDate(date.getDate() - 6);
+    }
+    firstDayOfWeek.setHours(0, 0, 0, 0); // Đặt giờ bằng 0 để là ngày đầu tiên của tuần
 
+    return firstDayOfWeek;
+  };
+  const onDateChange = (e: any) => {
+    if (e.value) {
+      setCurrentDay(e.value); // Cập nhật ngày hiện tại
+      const newFirstDayOfWeek = getFirstDayOfWeekFromDate(e.value);
+      setFirstDayOfWeek(newFirstDayOfWeek); // Cập nhật ngày đầu tiên của tuần dựa vào ngày được chọn
+    }
+  };
   return (
     <div className="mt-3">
       <div className="p-d-flex p-jc-between">
         <Button
           size="small"
-          className="p-button-outlined p-mr-2"
+          className="p-button-outlined p-mr-2 "
           onClick={handlePreviousClick}
           label="Trở về"
           outlined
@@ -332,15 +350,10 @@ const ScheduleTable = forwardRef((props, ref) => {
           value={currentDay}
           hourFormat="24"
           dateFormat="dd/mm/yy"
-          showButtonBar={true}
-          iconPos="right"
-          icon="pi pi-calendar  "
-          onChange={(e) => {
-            if (e.target.value) {
-            }
-          }}
-          inputClassName="w-7rem h-3rem ml-2 p-inputtext p-component p-rounded "
-          className="p-mr-2"
+          showIcon
+          onChange={onDateChange}
+          inputClassName="w-7rem h-2rem ml-2 p-inputtext p-component p-rounded "
+          className="p-mr-2 h-2rem mb-1  "
         />
       </div>
       <h3>Thời Khóa Biểu</h3>
@@ -348,7 +361,7 @@ const ScheduleTable = forwardRef((props, ref) => {
       <div ref={ref as LegacyRef<HTMLDivElement>}>
         <DataTable
           // value={formattedData}
-          value={Object.values(currentWeekData)}
+          value={data}
           style={{
             textAlign: "center",
             minWidth: "100%",

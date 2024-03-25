@@ -10,7 +10,7 @@ const ADMIN_MENU = (): MenuItemType[] => {
   return [
     {
       code: "home",
-      label: "menu-home",
+      label: "Trang chủ",
       icon: <FaHouseChimney />,
       parent: "home",
       to: `/${ROUTES.home.index}`,
@@ -19,7 +19,7 @@ const ADMIN_MENU = (): MenuItemType[] => {
     },
     {
       code: "information",
-      label: "menu:information",
+      label: "Thông tin",
       parent: "information",
       icon: <FaBoxesStacked />,
       to: "",
@@ -29,7 +29,7 @@ const ADMIN_MENU = (): MenuItemType[] => {
         {
           code: "notification",
           parent: "information",
-          label: "menu:notification",
+          label: "Thông báo",
           to: `/${ROUTES.information.notification}`,
           permission: PERMISSION.notification.view,
           checkPermission: true,
@@ -38,7 +38,7 @@ const ADMIN_MENU = (): MenuItemType[] => {
     },
     {
       code: "topic",
-      label: "menu:topic",
+      label: "Đề tài",
       parent: "topic",
       icon: <FaBookJournalWhills />,
       permission: "",
@@ -48,14 +48,14 @@ const ADMIN_MENU = (): MenuItemType[] => {
         {
           code: "register_topic",
           parent: "topic",
-          label: "menu:register_topic",
+          label: "Đăng kí đề tài",
           to: `/${ROUTES.topic.register_topic}`,
           checkPermission: false,
         },
         {
           code: "group",
           parent: "topic",
-          label: "menu:group",
+          label: "Nhóm",
           to: `/${ROUTES.topic.group}`,
           permission: PERMISSION.group.view,
           checkPermission: true,
@@ -63,7 +63,7 @@ const ADMIN_MENU = (): MenuItemType[] => {
         {
           code: "invite",
           parent: "topic",
-          label: "menu:invite",
+          label: "Mời vào nhóm",
           to: `/${ROUTES.topic.invite}`,
           permission: PERMISSION.invite.view,
           checkPermission: true,
@@ -71,7 +71,7 @@ const ADMIN_MENU = (): MenuItemType[] => {
         {
           code: "schedule",
           parent: "topic",
-          label: "menu:schedule",
+          label: "Lịch báo cáo",
           to: `/${ROUTES.topic.schedule}`,
           // permission: PERMISSION.schedule.view,
           checkPermission: false,
