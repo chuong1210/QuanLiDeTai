@@ -4,7 +4,7 @@ import { Dropdown } from "@/resources/components/form";
 import { Button } from "primereact/button";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
-import { Paginator } from "primereact/paginator";
+import { Paginator, PaginatorPageChangeEvent } from "primereact/paginator";
 import { useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { FaInfoCircle } from 'react-icons/fa';
@@ -21,22 +21,42 @@ import { useSelector } from "react-redux";
 import { Rootstate } from "@/assets/redux/store";
 import { cookies } from "@/assets/helpers";
 import { ROLE_USER } from "@/assets/configs/request";
+import { MetaType, ParamType } from "@/assets/types/request";
 
 export const key = "ngành"
 function Page() {
-    const fieldss = ["id", "name"]
+    const fieldss = ["name"]
     const [setlected, setSelected] = useState<TypeSelected<DepartmentType>>()
     const formRef = useRef<FormRefType<DepartmentType>>(null);
     const confirmModalRef = useRef<ConfirmModalRefType>(null);
     // const roles = useSelector((state: Rootstate) => state.role.role);
+    const [meta, setMeta] = useState<MetaType>(request.defaultMeta);
+    const paramsRef = useRef<ParamType>({
+        page: meta.currentPage,
+        limit: meta.limit,
+        orderBy: 'id',
+        orderDirection: 'ASC',
+    });
 
     const DeparmentQuery = useQuery<DepartmentType[], AxiosError<ResponseType>>({
         refetchOnWindowFocus: false,
         queryKey: [key, 'list'],
         queryFn: async () => {
-            const response = await request.get<DepartmentType[]>(`${API.department.getAll}`);
-            //console.log(response)
-            const responseData = response.data ?? [];
+            const response = await request.get<DepartmentType[]>(`${API.department.getAll}`, {
+                params: paramsRef.current
+            });
+            let responseData = response.data.result.responses ?? [];
+
+            if (response.data.result.page && response.data.result.totalPages) {
+                setMeta({
+                    currentPage: response.data.result.page,
+                    hasNextPage: response.data.result.page + 1 === response.data.result.totalPages ? false : true,
+                    hasPreviousPage: response.data.result.page - 1 === 0 ? false : true,
+                    limit: paramsRef.current.limit,
+                    totalPages: response.data.result.totalPages,
+                });
+
+            }
             return responseData || [];
         },
     });
@@ -57,23 +77,23 @@ function Page() {
                 }} />
                 {
                     // roles.includes(roleE.admin) && (
-                    cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.admin) && (
-                        <>
-                            <i
-                                className='pi pi-pencil hover:text-primary cursor-pointer'
-                                onClick={() => {
-                                    formRef.current?.show?.(data);
-                                    setSelected({ type: "edit", data: data })
-                                }}
-                            />
-                            <i
-                                className='pi pi-trash hover:text-red-600 cursor-pointer'
-                                onClick={(e) => {
-                                    confirmModalRef.current?.show?.(e, data, `Bạn có chắc muốn xóa ${key} ${data.name}`);
-                                }}
-                            />
-                        </>
-                    )
+                    // cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.giaovu) && (
+                    //     <>
+                    //         <i
+                    //             className='pi pi-pencil hover:text-primary cursor-pointer'
+                    //             onClick={() => {
+                    //                 formRef.current?.show?.(data);
+                    //                 setSelected({ type: "edit", data: data })
+                    //             }}
+                    //         />
+                    //         <i
+                    //             className='pi pi-trash hover:text-red-600 cursor-pointer'
+                    //             onClick={(e) => {
+                    //                 confirmModalRef.current?.show?.(e, data, `Bạn có chắc muốn xóa ${key} ${data.name}`);
+                    //             }}
+                    //         />
+                    //     </>
+                    // )
                 }
             </div>
         );
@@ -88,6 +108,12 @@ function Page() {
             },
         });
     }
+    const onPageChange = (event: PaginatorPageChangeEvent) => {
+        if (paramsRef.current.limit === event.rows && paramsRef.current.page - 1 === event.page) return
+        paramsRef.current = { page: Math.ceil((event.first) / event.rows) + 1, limit: event.rows, orderBy: "id", orderDirection: "ASC", }
+        setMeta(e => ({ ...e, limit: event.rows }))
+        DeparmentQuery.refetch();
+    };
     return (
         <div>
             <Loader show={DeparmentQuery.isFetching || DeparmentMutation.isPending} />
@@ -97,7 +123,7 @@ function Page() {
                 acceptLabel={'confirm'}
                 rejectLabel={'cancel'}
             />
-            {cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.admin) &&
+            {cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.giaovu) &&
                 <>
                     <h3>Quản lý {key}</h3>
                     <Button
@@ -112,7 +138,8 @@ function Page() {
                     />
                 </>
             }
-            <div >
+            <div
+                style={{ width: "100%" }}>
 
                 <DataTable
                     value={DeparmentQuery.data}
@@ -157,8 +184,14 @@ function Page() {
                     />
 
                     <Paginator
-                        className='border-noround p-0'
+                        first={meta.currentPage * meta.limit - 1}
+                        rows={meta.limit}
+                        //pageLinkSize={meta.limit}
+                        totalRecords={meta.limit * meta.totalPages}
+                        rowsPerPageOptions={request.ROW_PER_PAGE}
+                        onPageChange={onPageChange}
                     />
+
                 </div>
             </div>
             <Form

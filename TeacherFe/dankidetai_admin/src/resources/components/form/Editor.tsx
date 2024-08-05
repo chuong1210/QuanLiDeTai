@@ -5,6 +5,7 @@ import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { classNames } from 'primereact/utils';
 import { useEffect, useState } from 'react';
+import { write } from 'fs';
 
 const Editor = ({
     label,
@@ -41,13 +42,21 @@ const Editor = ({
                 )}
 
                 <CKEditor
+
                     editor={ClassicEditor}
                     data={inputValue}
-                    disabled={disabled}
 
+                    disabled={disabled}
                     config={{
                         ...config,
                         placeholder,
+
+                    }}
+                    onReady={(editor) => {
+                        editor.editing.view.change((writer) => {
+                            writer.setStyle("height", "200px", editor.editing.view.document.getRoot()),
+                                row
+                        })
                     }}
                     onChange={(event, editor) => {
                         const data = editor.data.get();

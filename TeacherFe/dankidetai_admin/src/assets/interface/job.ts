@@ -2,7 +2,8 @@ interface JobType extends DefaultResponse {
     from: string;
     due: string;
     sendTo: string;
+    sendFrom: string;
     name: string;
-    isComplete: boolean;
-    detail?: string;
+    details?: string;
+    isCompleted: number;
 }

@@ -14,9 +14,9 @@ const Layout = ({ children }:
     const router = useRouter()
     useEffect(() => {
         // if (!cookies.get(ACCESS_TOKEN) || !localStorage.getItem(ROLE_USER)) {
-        if (!cookies.get(ACCESS_TOKEN)) {
-            router.push(ROUTER.auth.login)
-        }
+        // if (!cookies.get(ACCESS_TOKEN)) {
+        //     router.push(ROUTER.auth.login)
+        // }
     }, [])
     return (
         <div>
@@ -25,7 +25,7 @@ const Layout = ({ children }:
                     <Header />
                     <div className='flex p-3 w-100 overflow-auto' style={{ marginTop: '4rem' }}>
                         <Sidebar />
-                        <div className='' style={{ width: "80vw", marginLeft: "1rem" }}>
+                        <div className='' style={{ marginLeft: "1rem" }}>
                             {children}
                         </div>
                     </div>

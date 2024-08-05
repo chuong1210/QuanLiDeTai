@@ -6,7 +6,7 @@ import { Dropdown } from "@/resources/components/form";
 import { Button } from "primereact/button";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
-import { Paginator } from "primereact/paginator";
+import { Paginator, PaginatorPageChangeEvent } from "primereact/paginator";
 import { useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { FaInfoCircle } from 'react-icons/fa';
@@ -22,7 +22,9 @@ import Confirm from "@/resources/components/UI/Confirm";
 import { useSelector } from "react-redux";
 import { cookies } from "@/assets/helpers";
 import { ROLE_USER } from "@/assets/configs/request";
-export const key = "giáo viên"
+import { MetaType, ParamType } from "@/assets/types/request";
+import FormInsert from "./formInsert";
+export const key = "giảng viên"
 // chờ có file hoàng chỉnh rồi mới làm tiếp
 interface fieldsType {
     field: string;
@@ -36,41 +38,58 @@ export const fields: fieldsType[] = [
     { field: "Số điện thoại", code: "phoneNumber", typeInput: "text" },
     { field: "Học vị", code: "hocVi", typeInput: "null" },
     { field: "Chức vụ", code: "chucVu", typeInput: "null" },
-    { field: "ngành", code: "departmentName", typeInput: "null" },
-    { field: "Chuyên ngành", code: "subjectName", typeInput: "null" }
+    { field: "Ngành", code: "departmentName", typeInput: "null" },
+    // { field: "Chuyên ngành", code: "subjectName", typeInput: "text" },
 ]
 
 function Page() {
 
-    const fieldsDefault = [{
-        maSo: '2001', name: "Trần Văn Thọ",
-        hocVi: 'Tiến sĩ', email: "VanTho@gmail.com",
-        chucVu: "GIÁO VIÊN", departmentName: "Công Nghệ Thông Tin",
-        phoneNumber: "0344197197", subjectName: "Kỹ thuật phần mềm"
-    }];
-
-    const [teacherOnExcel, setTeacherOnExcel] = useState<TeacherType[]>([])
     const [setlected, setSelected] = useState<TypeSelected<TeacherType>>()
     const formRef = useRef<FormRefType<TeacherType>>(null);
     const confirmModalRef = useRef<ConfirmModalRefType>(null);
-    // const roles = useSelector((state: Rootstate) => state.role.role);
-
+    const formInsert = useRef<any>();
+    const [meta, setMeta] = useState<MetaType>(request.defaultMeta);
+    const paramsRef = useRef<ParamType>({
+        page: meta.currentPage,
+        limit: meta.limit,
+        orderBy: 'id',
+        orderDirection: 'ASC',
+    });
 
     const teacherListQuery = useQuery<TeacherType[], AxiosError<ResponseType>>({
         refetchOnWindowFocus: false,
         queryKey: [key, 'list'],
         queryFn: async () => {
-            const response = await request.get<TeacherType[]>(`${API.teachers.getAll}`);
-            let responseData = response.data ?? [];
+            const response = await request.get<TeacherType[]>(`${API.teachers.getAll}`, {
+                params: paramsRef.current
+            });
+            let responseData = response.data.result.responses ?? [];
             if (responseData) {
-                responseData = responseData.map((teacher: any) => {
-                    teacher.hocVi = teacher.hocVi.split(",");
-                    teacher.chucVu = teacher.chucVu.split(",");
-                    if (teacher.subjectName) teacher.subjectName = teacher.subjects.name
+                console.log(paramsRef.current, responseData)
 
+                responseData = responseData.map((teacher: any) => {
+                    // teacher.hocVi = teacher.hocVi.split(",");
+                    // teacher.chucVu = teacher.chucVu.split(",");
+                    if (teacher.subjects) {
+                        teacher.subjectName = teacher.subjects.name
+                        teacher.departmentName = teacher.subjects.departments.name
+                    }
                     return teacher
                 })
             }
+
+            if (response.data.result.page && response.data.result.totalPages) {
+                setMeta({
+                    currentPage: response.data.result.page,
+                    hasNextPage: response.data.result.page + 1 === response.data.result.totalPages ? false : true,
+                    hasPreviousPage: response.data.result.page - 1 === 0 ? false : true,
+                    limit: paramsRef.current.limit,
+                    totalPages: response.data.result.totalPages,
+                });
+
+            }
+            console.log("reload")
+
             return responseData || [];
         },
     });
@@ -94,7 +113,7 @@ function Page() {
                     setSelected({ type: "detail", data: data })
                 }} />
                 {
-                    cookies.get<roleE>(ROLE_USER)?.includes(roleE.admin) && (
+                    cookies.get<roleE>(ROLE_USER)?.includes(roleE.giaovu) && (
                         <>
                             <i
                                 className='pi pi-pencil hover:text-primary cursor-pointer'
@@ -115,23 +134,21 @@ function Page() {
             </div>
         );
     };
-    const onAddteacherExcel = (data: TeacherType[]) => {
-        teacherListMutationInsert.mutate(data, {
-            onSuccess: () => {
-                teacherListQuery.refetch();
-                toast.success("Thêm thành công");
-            },
-        })
-    }
+
     const onRemove = (data: TeacherType) => {
         teacherListMutation.mutate(data, {
             onSuccess: () => {
-                setTeacherOnExcel([])
                 teacherListQuery.refetch();
                 toast.success("Xóa thành công");
             },
         });
     }
+    const onPageChange = (event: PaginatorPageChangeEvent) => {
+        if (paramsRef.current.limit === event.rows && paramsRef.current.page - 1 === event.page) return
+        paramsRef.current = { page: Math.ceil((event.first) / event.rows) + 1, limit: event.rows, orderBy: "id", orderDirection: "ASC", }
+        setMeta(e => ({ ...e, limit: event.rows }))
+        teacherListQuery.refetch();
+    };
     return (
         <div>{teacherListQuery.isFetching || teacherListMutation.isPending && <Loader />}
             <Confirm
@@ -140,94 +157,14 @@ function Page() {
                 acceptLabel={'confirm'}
                 rejectLabel={'cancel'}
             />
+            <h2 className="mb-4">Danh sách {key}</h2>
             {
-                cookies.get<roleE>(ROLE_USER)?.includes(roleE.admin) && (
+                cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.giaovu) && (
                     <>
-
-                        <div className="my-3 border-bottom-2 py-3">
-
-                            <h3>Thực hiện thêm {key} vào hệ thống</h3>
-
-                            <div >
-                                <Button className="my-3" onClick={() => XLSX.handleExportFile(fieldsDefault, "FileteacherExample")}>Export fie mẫu</Button>
-                                <h3>chose file</h3>
-                                <InputFile
-                                    accept='.xlsx ,.xls'
-                                    id="importFile"
-                                    multiple={true}
-                                    onChange={(e) => {
-                                        XLSX.handleImportFile(e, (data) => {
-                                            setTeacherOnExcel(data)
-                                        })
-                                    }}
-                                    onRemove={() => {
-                                        setTeacherOnExcel([])
-                                    }}
-                                    onSubmitFile={() => {
-                                        onAddteacherExcel(teacherOnExcel)
-                                    }}
-                                />
-                            </div>
-                            <div >
-
-                                <DataTable
-                                    value={teacherOnExcel}
-                                    rowHover={true}
-                                    stripedRows={true}
-                                    showGridlines={true}
-                                    emptyMessage={'list_empty'}
-                                >
-
-                                    <Column
-                                        alignHeader='center'
-                                        headerStyle={{
-                                            background: 'var(--bluegray-100)',
-                                            color: 'var(--bluegray-900)',
-                                            whiteSpace: 'nowrap',
-                                        }}
-                                        header={'Lựa chọn'}
-                                        body={(data) => <FaInfoCircle className="hover:text-primary cursor-pointer" onClick={() => {
-                                            formRef.current?.show?.(data);
-                                            setSelected({ type: "detail", data: data })
-                                        }} />}
-                                    />
-
-                                    {fields.map((field, index) => <Column
-                                        key={index}
-                                        alignHeader='center'
-                                        headerStyle={{
-                                            background: 'var(--bluegray-100)',
-                                            color: 'var(--bluegray-900)',
-                                            whiteSpace: 'nowrap',
-                                        }}
-                                        field={field.code}
-                                        header={field.field}
-                                    />)}
-
-
-                                </DataTable>
-                                <div className='flex align-items-center justify-content-between bg-white px-3 py-2'>
-                                    <Dropdown
-                                        id='date_created_filter'
-                                        value={DropdownValue[0].code}
-                                        optionValue='code'
-                                        onChange={(sortCode) => {
-
-                                        }}
-                                        options={DropdownValue}
-                                    />
-
-                                    <Paginator
-                                        className='border-noround p-0'
-                                    />
-
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <h3 >Danh sách {key} hiện tại</h3>
-
+                        <Button onClick={() => {
+                            formInsert.current.show(true);
+                        }}>Thêm {key} excel</Button>
+                        <p></p>
                         <Button
                             label={`Thêm ${key} mới`}
                             icon='pi pi-plus'
@@ -238,7 +175,8 @@ function Page() {
                                 setSelected({ type: "create", data: undefined })
                             }}
                         />
-                    </>)}
+                    </>
+                )}
 
             <div className="my-3">
 
@@ -249,19 +187,17 @@ function Page() {
                     showGridlines={true}
                     emptyMessage={'list_empty'}
                 >
-                    {
-                        teacherOnExcel.length === 0 &&
-                        <Column
-                            alignHeader='center'
-                            headerStyle={{
-                                background: 'var(--bluegray-100)',
-                                color: 'var(--bluegray-900)',
-                                whiteSpace: 'nowrap',
-                            }}
-                            header={'Lựa chọn'}
-                            body={renderActions}
-                        />
-                    }
+
+                    <Column
+                        alignHeader='center'
+                        headerStyle={{
+                            background: 'var(--bluegray-100)',
+                            color: 'var(--bluegray-900)',
+                            whiteSpace: 'nowrap',
+                        }}
+                        header={'Lựa chọn'}
+                        body={renderActions}
+                    />
 
                     {fields.map((field, index) => <Column
                         key={index}
@@ -289,7 +225,12 @@ function Page() {
                     />
 
                     <Paginator
-                        className='border-noround p-0'
+                        first={meta.currentPage * meta.limit - 1}
+                        rows={meta.limit}
+                        //pageLinkSize={meta.limit}
+                        totalRecords={meta.limit * meta.totalPages}
+                        rowsPerPageOptions={request.ROW_PER_PAGE}
+                        onPageChange={onPageChange}
                     />
 
                 </div>
@@ -304,7 +245,12 @@ function Page() {
                         `Thêm ${key} mới` :
                         `Chỉnh sửa thông tin ${key} ${setlected?.data?.name || ""}`}`}
                 ref={formRef} />
-
+            <FormInsert
+                type="detail"
+                title={`Thực hiện thêm ${key} vào hệ thống`}
+                onSuccess={() => { teacherListQuery.refetch() }}
+                ref={formInsert}
+            />
 
         </div>
     )

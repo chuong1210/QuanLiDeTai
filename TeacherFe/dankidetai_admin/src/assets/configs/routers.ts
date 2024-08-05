@@ -1,9 +1,10 @@
 // router trong trang web client
 const ROUTER = {
     auth: {
-        login: "/auth/auth-login"
+        login: "/auth/auth-login",
+        forgotPassword: "/auth/auth-login/forgot-password"
     },
-    infomation: "/infomation",
+    information: "/information",
     home: "/",
     master: {
         department: "/admin/department",

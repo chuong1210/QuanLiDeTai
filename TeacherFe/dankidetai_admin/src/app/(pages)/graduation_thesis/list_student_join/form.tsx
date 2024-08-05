@@ -42,7 +42,8 @@ const Form = forwardRef<FormRefType<StudentType>, FormType<StudentType>>(({ type
 
     const StudentMutation = useMutation<any, AxiosError<ResponseType>, StudentType>({
         mutationFn: (data) => {
-            return type === "edit" ? request.update(API.students.update + `/${data.id}`, { name: data.name }) : request.post(API.students.insert, { name: data.name })
+            return type === "edit" ? request.update(API.students.update + `/${data.id}`, data) :
+                request.post(API.students.insert_from_excel, { students: [data] })
         },
     });
 
@@ -51,12 +52,21 @@ const Form = forwardRef<FormRefType<StudentType>, FormType<StudentType>>(({ type
         refetchOnWindowFocus: false,
         queryKey: ['list-Subject'],
         queryFn: async () => {
-            const response = await request.get<SubjectType[]>(API.subjects.getAll);
-
-            return response.data || [];
+            const response: any = await request.get<SubjectType[]>(API.subjects.getAllNoParams);
+            console.log(response)
+            return response.data.result || [];
         },
     });
+    const DepartmentQuery = useQuery<DepartmentType[], AxiosError<ResponseType>>({
+        enabled: false,
+        refetchOnWindowFocus: false,
+        queryKey: ['list-Department'],
+        queryFn: async () => {
+            const response: any = await request.get<DepartmentType[]>(API.department.getAllNoParams);
 
+            return response.data.result || [];
+        },
+    });
 
     const show = (data?: StudentType) => {
         setVisible(true);
@@ -66,10 +76,16 @@ const Form = forwardRef<FormRefType<StudentType>, FormType<StudentType>>(({ type
             reset(defaultValues);
         }
         SubjectsQuery.refetch()
+        DepartmentQuery.refetch()
 
     };
     const onSubmit = (data: StudentType) => {
-        StudentMutation.mutate(data, {
+        const newData = {
+            ...data,
+            chucVu: "HỌC SINH",
+            user_id: "",
+        }
+        StudentMutation.mutate(newData, {
             onSuccess: (response) => {
                 close();
                 onSuccess?.(response.data);
@@ -110,7 +126,12 @@ const Form = forwardRef<FormRefType<StudentType>, FormType<StudentType>>(({ type
                     </div> :
                     <form className='mt-2 formgrid grid' onSubmit={handleSubmit(onSubmit)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }}>
                         {fields.map(((fieldItem, index) => {
-                            return <div key={index} className='col-6 flex flex-column gap-3'>
+                            if (type === "edit" && fieldItem.code === "maSo") {
+                                fieldItem.typeInput = "disabled"
+                            } if (type === "create" && fieldItem.code === "maSo") {
+                                fieldItem.typeInput = "text"
+                            }
+                            return fieldItem.typeInput === "text" || fieldItem.typeInput === "date" || fieldItem.typeInput === "disabled" ? <div key={index} className='col-6 flex flex-column gap-3'>
                                 <Controller
                                     name={fieldItem.code}
                                     control={control}
@@ -129,21 +150,65 @@ const Form = forwardRef<FormRefType<StudentType>, FormType<StudentType>>(({ type
                                             placeholder={fieldItem.field}
                                             errorMessage={fieldState.error?.message}
                                             onChange={field.onChange}
-                                        /> : <Dropdown
-                                            id='form_data_industry_id'
-                                            options={SubjectsQuery.data?.map((t) => ({ label: t.name, value: t.name }))}
-                                            value={field.value}
+                                        /> : <InputText
+                                            id={`form_data_${field.name}`}
+                                            value={field.value?.toString()}
                                             label={fieldItem.field}
+                                            disabled
                                             placeholder={fieldItem.field}
                                             errorMessage={fieldState.error?.message}
-                                            onChange={(e) => {
-                                                field.onChange({ name: e })
-                                            }}
+                                            onChange={field.onChange}
                                         />
                                     )}
                                 />
-                            </div>
+
+
+
+                            </div> : null
                         }))}
+                        <div className='col-6 flex flex-column gap-3'>
+
+                            <Controller
+                                name="departmentName"
+                                control={control}
+                                render={({ field, fieldState }) => {
+                                    return (
+
+                                        <Dropdown
+                                            id='form_data_industry_id'
+                                            options={DepartmentQuery.data?.map((t) => ({ label: t.name, value: t.name }))}
+                                            value={field.value}
+                                            label={"Khoa"}
+                                            placeholder={"Khoa"}
+                                            errorMessage={fieldState.error?.message}
+                                            onChange={field.onChange}
+                                        />
+                                    )
+                                }
+                                }
+                            />
+                        </div>
+                        <div className='col-6 flex flex-column gap-3'>
+
+                            <Controller
+                                name="subjectName"
+                                control={control}
+                                render={({ field, fieldState }) => {
+                                    return (
+                                        <Dropdown
+                                            id='form_data_industry_id'
+                                            options={SubjectsQuery.data?.map((t) => ({ label: t.name, value: t.name }))}
+                                            value={field.value}
+                                            label={"Ngành"}
+                                            placeholder={"Ngành"}
+                                            errorMessage={fieldState.error?.message}
+                                            onChange={field.onChange}
+                                        />
+                                    )
+                                }
+                                }
+                            />
+                        </div>
                         <div className='flex align-items-center justify-content-end gap-2 absolute bottom-0 left-0 right-0 bg-white p-4'>
                             <Button
                                 label={'cancel'}

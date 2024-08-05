@@ -46,9 +46,11 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
 
     });
 
-    const StudentMutation = useMutation<any, AxiosError<ResponseType>, TeacherType>({
+    const TeacherMutation = useMutation<any, AxiosError<ResponseType>, any>({
         mutationFn: (data) => {
-            return type === "edit" ? request.update(API.teachers.update + `/${data.id}`, { name: data.name }) : request.post(API.teachers.insert, { name: data.name })
+            console.log(data)
+            return type === "edit" ? request.update(API.teachers.update + `/${data.id}`, data) :
+                request.post(API.teachers.insert_from_excel, { teachers: [data] })
         },
     });
 
@@ -57,9 +59,9 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
         refetchOnWindowFocus: false,
         queryKey: ['list-Subjects'],
         queryFn: async () => {
-            const response = await request.get<SubjectType[]>(API.subjects.getAll);
+            const response: any = await request.get<SubjectType[]>(API.subjects.getAllNoParams);
 
-            return response.data || [];
+            return response.data.result || [];
         },
     });
     const DepartmentsQuery = useQuery<DepartmentType[], AxiosError<ResponseType>>({
@@ -67,8 +69,8 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
         refetchOnWindowFocus: false,
         queryKey: ['list-Departments'],
         queryFn: async () => {
-            const response = await request.get<DepartmentType[]>(API.department.getAll);
-            return response.data || [];
+            const response: any = await request.get<DepartmentType[]>(API.department.getAllNoParams);
+            return response.data.result || [];
         },
     });
 
@@ -85,15 +87,20 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
 
     };
     const onSubmit = (data: TeacherType) => {
-        // StudentMutation.mutate(data, {
-        //     onSuccess: (response) => {
-        //         close();
-        //         onSuccess?.(response.data);
-        //         toast.success("Cập nhật thành công");
-        //     },
-        // });
-        console.log(data)
-        toast.success("Cập nhật thành công");
+
+        const newData = {
+            ...data,
+            chucVu: data.chucVu.join(","),
+            hocVi: data.hocVi.join(","),
+            user_id: "",
+        }
+        TeacherMutation.mutate(newData, {
+            onSuccess: (response) => {
+                close();
+                onSuccess?.(response.data);
+                toast.success("Cập nhật thành công");
+            },
+        });
     };
 
     const close = () => {
@@ -114,7 +121,6 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
             className='overflow-hidden'
             contentClassName='mb-8'
             onHide={close}
-            onClick={(e) => { e.preventDefault() }}
         >
             {
                 type === "detail" ?
@@ -138,22 +144,23 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
                                             id={`form_data_${field.name}`}
                                             value={field.value?.toString()}
                                             label={fieldItem.field}
+                                            disabled={field.name === "maSo" && type === "edit"}
                                             placeholder={fieldItem.field}
                                             errorMessage={fieldState.error?.message}
                                             onChange={field.onChange}
                                         /> : fieldItem.typeInput === "date" ? <InputDate
                                             id={`form_data_${field.name}`}
-                                            value={new Date(field.value?.toString() || "19/10/2003")}
+                                            value={new Date(field.value?.toString() || "01/01/0001")}
                                             label={fieldItem.field}
                                             placeholder={fieldItem.field}
                                             errorMessage={fieldState.error?.message}
                                             onChange={field.onChange}
                                         /> : <Dropdown
-                                            id='form_data_industry_id'
+                                            id={`form_data_${field.name}`}
                                             options={SubjectsQuery.data?.map((t) => ({ label: t.name, value: t.name }))}
                                             value={field.value?.toString()}
-                                            label={"Chuyên ngành"}
-                                            placeholder={"Chuyên ngành"}
+                                            label={fieldItem.field}
+                                            placeholder={fieldItem.field}
                                             errorMessage={fieldState.error?.message}
                                             onChange={(e) => {
                                                 field.onChange({ name: e })
@@ -169,7 +176,6 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
                                 name={"chucVu"}
                                 control={control}
                                 render={({ field, fieldState }) => {
-                                    console.log(field.value)
                                     return (
                                         <MultiSelect
                                             id='form_data_chucVu'
@@ -213,7 +219,7 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
                                     <Dropdown
                                         id='form_data_departmentName'
                                         options={DepartmentsQuery.data?.map(t => ({ label: t.name, value: t.name }))}
-                                        //value={field.value}
+                                        value={field.value}
                                         label={"Ngành"}
                                         placeholder={"Ngành"}
                                         errorMessage={fieldState.error?.message}
@@ -231,7 +237,7 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
                                     <Dropdown
                                         id='form_data_subjectName'
                                         options={SubjectsQuery.data?.map((t) => ({ label: t.name, value: t.name }))}
-                                        //value={field.value}
+                                        value={field.value}
                                         label={"Chuyên ngành"}
                                         placeholder={"Chuyên ngành"}
                                         errorMessage={fieldState.error?.message}

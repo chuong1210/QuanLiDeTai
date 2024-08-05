@@ -4,7 +4,7 @@ import { FormRefType, FormType } from '@/assets/types/form';
 import { InputText } from '@/resources/components/form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation } from '@tanstack/react-query';
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
@@ -35,8 +35,10 @@ const Form = forwardRef<FormRefType<DepartmentType>, FormType<DepartmentType>>((
     Form.displayName = `forwardRef${key}`
     const StudentMutation = useMutation<any, AxiosError<ResponseType>, DepartmentType>({
         mutationFn: (data) => {
-            //console.log(data)
-            return type === "edit" ? request.update(API.department.update + `/${data.id}`, { name: data.name }) : request.post(API.department.insert, { name: data.name })
+
+            return type === "edit" ? request.update(`${API.department.update}/4`, JSON.stringify({
+                "name": "Công nghệ thông tin"
+            })) : request.post(API.department.insert, { name: data.name })
         },
     });
     const show = (data?: DepartmentType) => {
@@ -67,6 +69,46 @@ const Form = forwardRef<FormRefType<DepartmentType>, FormType<DepartmentType>>((
         show,
         close
     }));
+
+    // const axios = require('axios');
+    // let dataa = JSON.stringify({
+    //     "name": "Công nghệ thông tin"
+    // });
+
+    // let config = {
+    //     method: 'put',
+    //     maxBodyLength: Infinity,
+    //     url: 'http://localhost:8888/departments/update/4',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //         'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJnaWFvdnUxMjM0NSIsImlhdCI6MTcxMTQ1MTczMywiZXhwIjoxNzExNTM4MTMzfQ.JPV8eGXiRXrkN07-cpX9-sBu0ndBmJuI_C7zlPmQdhk'
+    //     },
+    //     data: dataa
+    // };
+
+    // axios.request(config)
+    //     .then((response: any) => {
+    //         console.log(JSON.stringify(response.data));
+    //     })
+    //     .catch((error: any) => {
+    //         console.log(error);
+    //     });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     return (
         <Dialog

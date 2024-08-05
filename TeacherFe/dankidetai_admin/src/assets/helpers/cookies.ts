@@ -1,6 +1,9 @@
 import { deleteCookie, getCookie, setCookie } from 'cookies-next';
 import { OptionsType } from 'cookies-next/lib/types';
 import { ACCESS_TOKEN, ROLE_USER } from '../configs/request';
+import { request } from './request';
+import API from '../configs/api';
+import axios from 'axios';
 
 const get = <T>(key: string): T | undefined => {
     const value = getCookie(key);
@@ -28,8 +31,13 @@ const remove = (key: string) => {
 };
 
 const logOut = () => {
+    const token = getCookie(ACCESS_TOKEN);
+    axios.post("http://localhost:8888/auth/log-out", {
+        token: token
+    })
     remove(ACCESS_TOKEN);
     remove(ROLE_USER);
+    localStorage.clear()
 };
 
 export { get, logOut, remove, set };

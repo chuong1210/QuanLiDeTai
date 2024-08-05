@@ -3,6 +3,7 @@ import { FaBook, FaBriefcase, FaDatabase } from 'react-icons/fa6';
 import ROUTER from './routers';
 import { FaCog, FaCogs, FaHome, FaInfoCircle } from 'react-icons/fa';
 import { roleE } from './general';
+import { Ribeye } from 'next/font/google';
 
 
 const SIDEBAR_MENU: MenuItemType[] = [
@@ -83,7 +84,7 @@ const SIDEBAR_MENU: MenuItemType[] = [
                         code: 'my_thesis',
                         parent: 'thesis',
                         label: 'đề tài của tôi',
-                        permission: [roleE.giaovien],
+                        permission: [roleE.giaovien, roleE.truongbomon, roleE.truongkhoa],
                         to: ROUTER.graduation_thesis.thesis.my_thesis,
 
                     },

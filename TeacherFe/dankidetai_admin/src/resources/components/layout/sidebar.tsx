@@ -21,10 +21,11 @@ export default function Sidebar() {
             className='relative' style={{ zIndex: 100, minWidth: "20vw" }}
         >
             <div className='fixed flex flex-column gap-2  bg-white h-screen  shadow-2 p-4' style={{ zIndex: 100, minWidth: "20vw" }}>
+                {/* <i className="pi pi-align-justify absolute top-0 " style={{ zIndex: 10000, right: "-2.5rem", color: '#708090', fontSize: "2.5rem" }}></i> */}
                 <div className='flex justify-content-center'>
                     <Image src={LogoImage} alt='' width={100} height={100} priority={true} />
                 </div>
-                <h2 className='text-center'>Giáo viên</h2>
+                <h2 className='text-center'>Giảng viên</h2>
                 <ul className='p-2 overflow-y-auto h-full'>
                     {SIDEBAR_MENU.map((item) => <MenuItem key={item.code} item={item} checkPermission={roles} />)}
                 </ul>

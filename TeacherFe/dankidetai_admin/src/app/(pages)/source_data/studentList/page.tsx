@@ -4,10 +4,10 @@ import { InputDate, InputFile } from "@/resources/components/form";
 import { Loader } from "@/resources/components/UI";
 import { Dropdown } from "@/resources/components/form";
 import { Button } from "primereact/button";
-import { Column } from "primereact/column";
+import { Column, ColumnSortEvent } from "primereact/column";
 import { DataTable } from "primereact/datatable";
-import { Paginator } from "primereact/paginator";
-import { useRef, useState } from "react";
+import { Paginator, PaginatorPageChangeEvent } from "primereact/paginator";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { FaInfoCircle } from 'react-icons/fa';
 import { FormRefType, TypeSelected } from "@/assets/types/form";
@@ -15,12 +15,13 @@ import Form from "./form";
 import * as request from "@/assets/helpers/request"
 import { ConfirmModalRefType } from "@/assets/types/modal";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import API from "@/assets/configs/api";
 import { DropdownValue, roleE } from "@/assets/configs/general";
 import Confirm from "@/resources/components/UI/Confirm";
 import { cookies } from "@/assets/helpers";
 import { ROLE_USER } from "@/assets/configs/request";
+import { MetaType, ParamType } from "@/assets/types/request";
 export const key = "học sinh"
 // chờ có file hoàng chỉnh rồi mới làm tiếp
 interface fieldsType {
@@ -39,21 +40,38 @@ export const fields: fieldsType[] = [
 
 function Page() {
 
-    const [studentOnExcel, setStudentOnExcel] = useState<StudentType[]>([])
     const [setlected, setSelected] = useState<TypeSelected<StudentType>>()
     const formRef = useRef<FormRefType<StudentType>>(null);
-    const confirmModalRef = useRef<ConfirmModalRefType>(null);
+    const [meta, setMeta] = useState<MetaType>(request.defaultMeta);
+    const paramsRef = useRef<ParamType>({
+        page: meta.currentPage,
+        limit: meta.limit,
+        orderBy: 'id',
+        orderDirection: 'ASC',
+    });
 
     const StudentListQuery = useQuery<StudentType[], AxiosError<ResponseType>>({
         refetchOnWindowFocus: false,
         queryKey: [key, 'list'],
         queryFn: async () => {
-            const response = await request.get<StudentType[]>(`${API.students.getAll}`);
-            let responseData = response.data ?? [];
-            if (responseData) {
+            const response = await request.get<StudentType[]>(`${API.students.getAll}`, {
+                params: paramsRef.current
+            });
+            let responseData = response.data.result.responses ?? [];
+            if (responseData.length > 0) {
                 responseData = responseData.map((student: any) => {
                     return { ...student, subjectName: student.subjects.name }
                 })
+            }
+            if (response.data.result.page && response.data.result.totalPages) {
+                setMeta({
+                    currentPage: response.data.result.page,
+                    hasNextPage: response.data.result.page + 1 === response.data.result.totalPages ? false : true,
+                    hasPreviousPage: response.data.result.page - 1 === 0 ? false : true,
+                    limit: paramsRef.current.limit,
+                    totalPages: response.data.result.totalPages,
+                });
+
             }
             return responseData || [];
         },
@@ -73,90 +91,53 @@ function Page() {
                     formRef.current?.show?.(data);
                     setSelected({ type: "detail", data: data })
                 }} />
-                {
-                    cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.admin) && (
-                        <>
-                            <i
-                                className='pi pi-pencil hover:text-primary cursor-pointer'
-                                onClick={() => {
-                                    formRef.current?.show?.(data);
-                                    setSelected({ type: "edit", data: data })
-                                }}
-                            />
-                            <i
-                                className='pi pi-trash hover:text-red-600 cursor-pointer'
-                                onClick={(e) => {
-                                    confirmModalRef.current?.show?.(e, data, `Bạn có chắc muốn xóa ${key} ${data.name}`);
-                                }}
-                            />
-                        </>
-                    )
-                }
+
             </div>
         );
     };
 
-    const onRemove = (data: StudentType) => {
-        StudentListMutation.mutate(data, {
-            onSuccess: () => {
-                setStudentOnExcel([])
-                StudentListQuery.refetch();
-                toast.success("Xóa thành công");
-            },
-        });
-    }
+
+    const onPageChange = (event: PaginatorPageChangeEvent) => {
+        if (paramsRef.current.limit === event.rows && paramsRef.current.page - 1 === event.page) return
+        paramsRef.current = { page: Math.ceil((event.first) / event.rows) + 1, limit: event.rows, orderBy: "id", orderDirection: "ASC", }
+        setMeta(e => ({ ...e, limit: event.rows }))
+        StudentListQuery.refetch();
+    };
+
     return (
         <div>
             {StudentListQuery.isFetching || StudentListMutation.isPending && <Loader />}
-            <Confirm
-                ref={confirmModalRef}
-                onAccept={onRemove}
-                acceptLabel={'confirm'}
-                rejectLabel={'cancel'}
-            />
-            {
-                cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.admin) && <>
-                    <h3>Thực hiện thêm {key} vào đợt đăng kí Khóa luận</h3>
 
-                    <Button
-                        label={`Thêm ${key} mới`}
-                        icon='pi pi-plus'
-                        size='small'
-                        className="my-3"
-                        onClick={() => {
-                            formRef.current?.show?.();
-                            setSelected({ type: "create", data: undefined })
-                        }}
-                    />
-                </>
-            }
+            <h2>Danh sách sinh viên của hệ thống</h2>
 
             <div className="my-3">
 
                 <DataTable
-                    value={(StudentListQuery.data?.length === 0 || StudentListQuery.data === undefined) ? studentOnExcel : StudentListQuery.data}
+
+                    value={StudentListQuery.data}
                     rowHover={true}
                     stripedRows={true}
                     showGridlines={true}
-                    emptyMessage={'list_empty'}
-                >
-                    {
-                        studentOnExcel.length === 0 &&
-                        <Column
-                            alignHeader='center'
-                            headerStyle={{
-                                background: 'var(--bluegray-100)',
-                                color: 'var(--bluegray-900)',
-                                whiteSpace: 'nowrap',
-                            }}
-                            header={'Lựa chọn'}
-                            body={renderActions}
-                        />
-                    }
 
+                    emptyMessage={'Danh sách rỗng'}
+                >
+
+                    <Column
+                        alignHeader='center'
+                        headerStyle={{
+                            background: 'var(--bluegray-100)',
+                            color: 'var(--bluegray-900)',
+                            whiteSpace: 'nowrap',
+                        }}
+                        header={'Lựa chọn'}
+                        body={renderActions}
+                    />
                     {fields.map((field, index) => <Column
                         key={index}
                         alignHeader='center'
+                        sortable
+                        // sortFunction={sortFunction}
+                        //onFilterApplyClick={(e) => { console.log(e) }}
                         headerStyle={{
                             background: 'var(--bluegray-100)',
                             color: 'var(--bluegray-900)',
@@ -178,11 +159,14 @@ function Page() {
                         }}
                         options={DropdownValue}
                     />
-
                     <Paginator
-                        className='border-noround p-0'
+                        first={meta.currentPage * meta.limit - 1}
+                        rows={meta.limit}
+                        //pageLinkSize={meta.limit}
+                        totalRecords={meta.limit * meta.totalPages}
+                        rowsPerPageOptions={request.ROW_PER_PAGE}
+                        onPageChange={onPageChange}
                     />
-
                 </div>
             </div>
             <Form
@@ -195,7 +179,6 @@ function Page() {
                         `Thêm ${key} mới` :
                         `Chỉnh sửa thông tin ${key} ${setlected?.data?.name || ""}`}`}
                 ref={formRef} />
-
 
         </div>
     )

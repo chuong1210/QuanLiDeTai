@@ -1,33 +1,27 @@
 interface MetaType {
-    currentPage?: number;
+    currentPage: number;
     hasNextPage?: boolean;
     hasPreviousPage?: boolean;
     messages?: string[];
-    pageSize?: number;
+    limit: number;
     totalCount?: number;
-    totalPages?: number;
+    totalPages: number;
 }
-
 interface ParamType {
-    id?: number | string;
-    filters?: string;
-    sorts?: string;
-    page?: number;
-    pageSize?: number;
-    isAllDetail?: boolean;
-    facultyId?: string | number;
-    IsGetFaculty?: boolean;
-    removeFacultyId?: boolean;
+    page: number,
+    limit: number,
+    orderBy: string,
+    orderDirection: string
 }
 
 interface ResponseType<dataType = any> {
-    data: dataType | null;
-    extra?: MetaType;
-    messages: string[] | null;
-    message: string | null;
-    exception: string | null;
-    succeeded?: boolean;
-    code?: number;
+    result: {
+        responses: dataType,
+        page?: number,
+        totalPages?: number,
+        message?: string,
+    }
+    code: number;
 }
 
 export type { MetaType, ParamType, ResponseType };

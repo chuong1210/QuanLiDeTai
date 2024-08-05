@@ -1,11 +1,12 @@
-import { ResponseType } from '@/assets/types/request';
+import { MetaType, ResponseType } from '@/assets/types/request';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-import _ from "lodash";
+import _, { isArray } from "lodash";
 import API from '../configs/api';
 import * as cookies from "./cookies"
 import { ACCESS_TOKEN } from '../configs/request';
 import { redirect, useRouter } from 'next/navigation'
 import { NextResponse } from 'next/server';
+import { trimObjectProperties } from './string';
 
 export const request = axios.create({
     baseURL: API.base,
@@ -22,7 +23,7 @@ request.interceptors.request.use(
             config.headers.Authorization = '';
         }
         if (token) {
-            config.headers.Authorization = `${token}`;
+            config.headers.Authorization = `Bearer ${token}`;
         }
         else {
             throw new Error("You need login!")
@@ -36,16 +37,26 @@ request.interceptors.request.use(
 
 request.interceptors.response.use(
     (response) => {
-        // console.log(response)
         return response;
     },
-    (error: AxiosError) => {
+    async (error: any) => {
+        console.log(error)
+        if (error.response.data.code === 9992) {
 
-        return Promise.reject(error);
+            const token = cookies.get(ACCESS_TOKEN);
+            const req = await axios.post(API.base + API.auth.refresh, {
+                token: token
+            })
+            console.log("zo trong get du lieu moi", req)
+            return
+        }
+        throw new Error(error.response.data.message)
+        // return Promise.reject(error);
     },
 );
 
-const get = <T = any>(path: string, configs?: AxiosRequestConfig): Promise<AxiosResponse<T, any>> => {
+
+const get = <T = any>(path: string, configs?: AxiosRequestConfig): Promise<AxiosResponse<ResponseType<T>, any>> => {
     const response = request.get(path, configs);
     return response;
 };
@@ -75,4 +86,15 @@ const remove = (path: string, configs?: AxiosRequestConfig) => {
 
     return response;
 };
-export { get, post, remove, update };
+const defaultMeta: MetaType = {
+    currentPage: 1,
+    hasNextPage: false,
+    hasPreviousPage: false,
+    messages: [],
+    limit: 10,
+    totalCount: 1,
+    totalPages: 1,
+
+};
+const ROW_PER_PAGE = [10, 20, 30]
+export { get, post, remove, update, defaultMeta, ROW_PER_PAGE };

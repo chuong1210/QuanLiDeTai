@@ -75,11 +75,10 @@ const HocViValue: OptionType[] = [
     }
 ]
 enum roleE {
-    giaovu = "ROLE_giaovu",
-    admin = "ROLE_MASTER",
-    giaovien = "ROLE_giaovien",
-    truongkhoa = "ROLE_truongkhoa",
-    truongbomon = "ROLE_HEAD_OF_DEPARTMENT",
+    giaovu = "CATECHISM",
+    giaovien = "TEACHER",
+    truongkhoa = "DEAN",
+    truongbomon = "HEAD_OF_DEPARTMENT",
 }
 
 export { DropdownValue, ChucVuValue, HocViValue, roleE };

@@ -9,7 +9,7 @@ import ProviderQuery from "@/assets/middleware/reactQueryProvider";
 import { ReduxProviders } from "@/assets/middleware/reduxProvider";
 import { ToastContainer } from "react-toastify";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["vietnamese"] });
 
 
 export async function generateMetadata(): Promise<Metadata> {

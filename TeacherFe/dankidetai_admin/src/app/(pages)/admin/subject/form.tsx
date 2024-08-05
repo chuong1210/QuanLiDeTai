@@ -49,9 +49,8 @@ const Form = forwardRef<FormRefType<SubjectType>, FormType<SubjectType>>(({ type
         refetchOnWindowFocus: false,
         queryKey: ["list-Subject"],
         queryFn: async () => {
-            const response = await request.get<DepartmentType[]>(API.department.getAll);
-
-            return response.data || [];
+            const response: any = await request.get<DepartmentType[]>(API.department.getAllNoParams);
+            return response.data.result || [];
         },
     });
 

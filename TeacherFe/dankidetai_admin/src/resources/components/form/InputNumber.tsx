@@ -8,10 +8,10 @@ import { useEffect, useState } from 'react';
 const InputNumber = ({
     id,
     label,
-    value = 1,
+    value = 0,
     placeholder = '',
     blockClassName = '',
-    min = 1,
+    min = 0,
     max,
     row = false,
     required = false,

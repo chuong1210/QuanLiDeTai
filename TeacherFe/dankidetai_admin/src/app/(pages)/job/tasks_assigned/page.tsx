@@ -1,7 +1,10 @@
-import React from 'react'
+"use client"
+
 
 export default function Page() {
-    return (
-        <div>Page job tasks_assigned</div>
+
+    return (<>
+
+    </>
     )
 }

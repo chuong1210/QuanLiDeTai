@@ -15,7 +15,7 @@ export default function Layout(
 
     const element = (role?: roleE) => {
         switch (role) {
-            case roleE.admin: return [admin, truongkhoa, truongbomon, giaovu, giaovien];
+            case roleE.admin: return children;
             case roleE.truongkhoa: return truongkhoa;
             case roleE.giaovu: return giaovu;
             case roleE.giaovien: return giaovien;
@@ -24,6 +24,6 @@ export default function Layout(
         }
     }
     return (
-        <div>{cookies.get<roleE[]>(ROLE_USER)?.map((role) => element(role))}{children}</div>
+        <div>{cookies.get<roleE[]>(ROLE_USER)?.map((role) => element(role))}</div>
     )
 }

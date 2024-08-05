@@ -3,7 +3,7 @@ import { Dropdown } from "@/resources/components/form";
 import { Button } from "primereact/button";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
-import { Paginator } from "primereact/paginator";
+import { Paginator, PaginatorPageChangeEvent } from "primereact/paginator";
 import { useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { FaInfoCircle } from 'react-icons/fa';
@@ -22,6 +22,7 @@ import { useSelector } from "react-redux";
 import { Rootstate } from "@/assets/redux/store";
 import { ROLE_USER } from "@/assets/configs/request";
 import { cookies } from "@/assets/helpers";
+import { MetaType, ParamType } from "@/assets/types/request";
 
 
 interface fieldsType {
@@ -30,7 +31,7 @@ interface fieldsType {
     typeInput: string
 }
 export const fields: fieldsType[] = [
-    { field: "id", code: "id", typeInput: "text" },
+    // { field: "id", code: "id", typeInput: "text" },
     { field: "Tên", code: "name", typeInput: "text" },
     { field: "Ngành", code: "departments.name", typeInput: "text" }
 ]
@@ -40,15 +41,34 @@ function Page() {
     const [setlected, setSelected] = useState<TypeSelected<SubjectType>>()
     const formRef = useRef<FormRefType<SubjectType>>(null);
     const confirmModalRef = useRef<ConfirmModalRefType>(null);
-    const roles = useSelector((state: Rootstate) => state.role.role);
-
+    const [meta, setMeta] = useState<MetaType>(request.defaultMeta);
+    const paramsRef = useRef<ParamType>({
+        page: meta.currentPage,
+        limit: meta.limit,
+        orderBy: 'id',
+        orderDirection: 'ASC',
+    });
 
     const SubjectQuery = useQuery<SubjectType[], AxiosError<ResponseType>>({
         refetchOnWindowFocus: false,
         queryKey: [key, 'list'],
         queryFn: async () => {
-            const response = await request.get<SubjectType[]>(`${API.subjects.getAll}`);
-            return response.data || [];
+            const response = await request.get<SubjectType[]>(`${API.subjects.getAll}`, {
+                params: paramsRef.current
+            });
+            let responseData = response.data.result.responses ?? [];
+            console.log(responseData)
+            if (response.data.result.page && response.data.result.totalPages) {
+                setMeta({
+                    currentPage: response.data.result.page,
+                    hasNextPage: response.data.result.page + 1 === response.data.result.totalPages ? false : true,
+                    hasPreviousPage: response.data.result.page - 1 === 0 ? false : true,
+                    limit: paramsRef.current.limit,
+                    totalPages: response.data.result.totalPages,
+                });
+
+            }
+            return responseData || [];
         },
     });
 
@@ -67,7 +87,7 @@ function Page() {
                     setSelected({ type: "detail", data: data })
                 }} />
                 {/* {roles.includes(roleE.admin) && */}
-                {cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.admin) &&
+                {cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.giaovu) &&
                     (
                         <>
                             <i
@@ -93,11 +113,16 @@ function Page() {
         SubjectMutation.mutate(data, {
             onSuccess: () => {
                 SubjectQuery.refetch();
-
                 toast.success("Xóa thành công");
             },
         });
     }
+    const onPageChange = (event: PaginatorPageChangeEvent) => {
+        if (paramsRef.current.limit === event.rows && paramsRef.current.page - 1 === event.page) return
+        paramsRef.current = { page: Math.ceil((event.first) / event.rows) + 1, limit: event.rows, orderBy: "id", orderDirection: "ASC", }
+        setMeta(e => ({ ...e, limit: event.rows }))
+        SubjectQuery.refetch();
+    };
     return (
         <div>
             {SubjectQuery.isFetching || SubjectMutation.isPending && <Loader />}
@@ -108,7 +133,7 @@ function Page() {
                 rejectLabel={'cancel'}
             />
 
-            {cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.admin) &&
+            {cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.giaovu) &&
                 <>
                     <Button
                         label={`Thêm ${key} mới`}
@@ -170,7 +195,12 @@ function Page() {
                     />
 
                     <Paginator
-                        className='border-noround p-0'
+                        first={meta.currentPage * meta.limit - 1}
+                        rows={meta.limit}
+                        //pageLinkSize={meta.limit}
+                        totalRecords={meta.limit * meta.totalPages}
+                        rowsPerPageOptions={request.ROW_PER_PAGE}
+                        onPageChange={onPageChange}
                     />
                 </div>
             </div>
