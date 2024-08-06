@@ -26,6 +26,7 @@ import { CalendarChangeParams } from "@/assets/types/form";
 import { scheduleDataTable } from "@/mocks";
 import { text } from "stream/consumers";
 import { textAlign } from "html2canvas/dist/types/css/property-descriptors/text-align";
+import { fontSans } from "../../../app/layout";
 
 const daysOfWeek: daysofWeekType[] = [
   { name: "Mon", dayIndex: 1, displayName: "Thứ 2" },
@@ -143,10 +144,10 @@ const ScheduleTable = forwardRef((props, ref) => {
     background: "#ffffce",
     borderBottom: "1px solid #cad6d8",
     color: " #667580 ",
-    marginL: "20px",
     border: "1px solid #ddd",
-    width: "20px",
-    maxWidth: "20px",
+    width: "10px",
+    maxWidth: "2rem",
+    fontSize: "1.3rem",
     fontWeight: "700",
     fontFamily: "Tahoma !important",
   };
@@ -186,7 +187,8 @@ const ScheduleTable = forwardRef((props, ref) => {
       return (
         <div
           style={{
-            backgroundColor: "rgba(54, 144, 241, 0.5)",
+            backgroundColor: "rgb(253, 255, 154)",
+            borderBottomColor: "rgb(237, 175, 0)",
             padding: "10px",
             borderRadius: "7px",
             color: "#667580",
@@ -228,7 +230,7 @@ const ScheduleTable = forwardRef((props, ref) => {
     return (
       <div
         dangerouslySetInnerHTML={{ __html: header }}
-        style={{ textAlign: "center" }}
+        style={{ textAlign: "center", marginLeft: "1.1rem" }}
       />
     );
   };
@@ -325,7 +327,7 @@ const ScheduleTable = forwardRef((props, ref) => {
   };
   return (
     <div className="mt-3">
-      <div className="p-d-flex p-jc-between">
+      <div className="p-d-flex p-jc-between mb-3">
         <Button
           size="small"
           className="p-button-outlined p-mr-2 "
@@ -356,7 +358,6 @@ const ScheduleTable = forwardRef((props, ref) => {
           className="p-mr-2 h-2rem mb-1  "
         />
       </div>
-      <h3>Thời Khóa Biểu</h3>
 
       <div ref={ref as LegacyRef<HTMLDivElement>}>
         <DataTable
@@ -364,7 +365,6 @@ const ScheduleTable = forwardRef((props, ref) => {
           value={data}
           style={{
             textAlign: "center",
-            minWidth: "100%",
           }}
           showGridlines
         >

@@ -1,7 +1,7 @@
 const API = {
     auth: {
         // sign_in: '/account/login',
-        sign_in: '/log-in',
+        sign_in: 'auth/log-in',
 
     },
     file:{
@@ -29,11 +29,9 @@ const API = {
 
         notification: '/notification',
 
-        group: '/group',
-
+        group: '/groups',
         thesis: '/thesis',
-        // register_topic: '/thesis/listThesisRegistration',
-        register_topic: '/subjects/listTopicRegistration',
+        research: '/researches/showAll',
 
 
         invitation: '/invitation',
@@ -53,22 +51,30 @@ const API = {
 
     detail: {
         notification: '/notification/detail',
-        group: '/group/detail',
+        group: '/groups/detail',
         topic: '/thesis/detail',
         job: '/job/detail',
         schedule: '/reportSchedule/detail',
+        research: '/researches/showAll',
+        student:'/student'
     },
 
     post: {
-        register_topic: '/topicRegistration',
+        register_research: 'researches/register',
         google_drive: '/googleDrive',
         change_invite_status: '/invitation/changeStatus',
         change_password: '/update/password',// tu them
 
     },
-    change: //tu them
+    delete:
     {
-        register_topic: '/topicRegistration',
+        cancel_research:'researches/cancel-registration'
+
+    }
+    ,
+    put: 
+    {
+        research: '/researches',
         register_thesis:'/thesisRegistration',
         register_project:'/projectRegistration',
 

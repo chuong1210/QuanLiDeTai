@@ -22,8 +22,6 @@ import { toast } from "react-toastify";
 import { Metadata } from "next";
 import { AuthProvider } from "@/assets/context/AuthProvider";
 
-locale("vi");
-
 addLocale("vi", {
   firstDayOfWeek: 1,
   dayNames: ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"],

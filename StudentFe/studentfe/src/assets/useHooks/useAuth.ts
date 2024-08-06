@@ -9,7 +9,7 @@ const useAuth = () => {
   }
 
   const { auth } = authContext;
-  useDebugValue(auth, auth => auth?.customer ? "Logged In" : "Logged Out");
+  useDebugValue(auth, auth => auth?.userName ? "Logged In" : "Logged Out");
 
   return authContext;
 }

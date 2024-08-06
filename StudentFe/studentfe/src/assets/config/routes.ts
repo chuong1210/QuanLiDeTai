@@ -11,12 +11,13 @@ const ROUTES = {
     },
 
     topic: {
-        group: '/topic/group',
+        // group: '/topic/group',
+        job_detail: '/topic/team/job',
+        group: '/topic/team',
         student_join: '/topic/student_join',
         register_topic: '/topic/register',
         invite: '/topic/invite',
-        job_detail: '/topic/group/job',
-        schedule: 'topic/schedule',
+        schedule: '/topic/schedule',
     },
 
     external: {

@@ -43,7 +43,10 @@ interface SelectFacultyModalRefType {
 interface SelectFacultyModalType  {
     onConfirm: (data: FacultyType | undefined) => void;
 }
-
+interface NotificationCardModalRefType {
+    showModal: () => void;
+    resetModal:()=>void    
+}
 export type {
     ConfirmModalRefType,
     ConfirmModalType,
@@ -52,6 +55,7 @@ export type {
     SelectFacultyModalRefType,
     SelectFacultyModalType,
     ChangePasswordModalRefType,
-    ChangePasswordModalType
+    ChangePasswordModalType,
+    NotificationCardModalRefType
 
 };

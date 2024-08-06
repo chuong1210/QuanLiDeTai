@@ -14,7 +14,12 @@ import { MenuItem } from "../UI/";
 import { Divider } from "primereact/divider";
 import { ADMIN_MENU } from "@/assets/config/menu/admin_menu";
 import { USER_MENU } from "@/assets/config/menu/user_menu";
-import { REFRESH_TOKEN, ACCESS_TOKEN, ROUTES } from "@/assets/config";
+import {
+  REFRESH_TOKEN,
+  ACCESS_TOKEN,
+  ROUTES,
+  DATA_RESULT,
+} from "@/assets/config";
 import { useChangePassword } from "@/assets/useHooks/useChangePassword";
 import { ChangePasswordModal } from "../modal";
 
@@ -28,10 +33,11 @@ const Menu = () => {
   const adminMenu = ADMIN_MENU();
   const pathName = usePathname();
   const userMenu = USER_MENU(pathName);
-  const [auth] = useCookies<AuthType>(ACCESS_TOKEN);
+  const [auth] = useCookies<AuthType>(DATA_RESULT);
   const userModalRef = useRef<OverlayPanel>(null);
   const dispatch = useDispatch();
   const router = useRouter();
+
   const renderItem = (item: MenuItemType) => {
     const onLogoutClick = () => {
       router.push(ROUTES.auth.sign_in);
@@ -91,7 +97,7 @@ const Menu = () => {
           />
           <div className="flex-1">
             <p className="text-sm text-600 pb-1">{"Xin chào"}</p>
-            <p className="text-sm font-semibold">{auth?.customer.Name}</p>
+            <p className="text-sm font-semibold">{auth?.result.Name}</p>
           </div>
 
           <i className="pi pi-angle-down ml-2" />

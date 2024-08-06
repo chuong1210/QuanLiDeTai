@@ -17,6 +17,13 @@ export const headerItems: MenuItemType[] = [
         to: `${ROUTES.information.notification}`,
         checkPermission: true,
       },
+      {
+        code: "information user",
+        parent: "information",
+        label: "Thông tin người dùng",
+        to: `${ROUTES.profile.student}`,
+        checkPermission: true,
+      },
     ],
   },
   {
@@ -34,26 +41,45 @@ export const headerItems: MenuItemType[] = [
         to: `${ROUTES.topic.register_topic}`,
         checkPermission: false,
       },
-      {
-        code: "group",
-        parent: "topic",
-        label: "Nhóm",
-        to: `${ROUTES.topic.group}`,
-        checkPermission: true,
-      },
-      {
-        code: "invite",
-        parent: "topic",
-        label: "Mời vào nhóm",
-        to: `${ROUTES.topic.invite}`,
-        checkPermission: true,
-      },
+
       {
         code: "schedule",
         parent: "topic",
         label: "Lịch báo cáo",
         to: `${ROUTES.topic.schedule}`,
         checkPermission: false,
+      },
+      {
+        separator: true,
+      },
+      {
+        code: "group",
+        parent: "topic",
+        label: "Nhóm",
+        checkPermission: true,
+        items: [
+          {
+            to: `${ROUTES.topic.job_detail}`,
+            code: "group",
+            parent: "topic",
+            label: "Công việc",
+            checkPermission: true,
+          },
+          {
+            to: `${ROUTES.topic.group}`,
+            code: "group",
+            parent: "topic",
+            label: "Xem nhóm",
+            checkPermission: true,
+          },
+          {
+            code: "invite",
+            parent: "topic",
+            label: "Mời vào nhóm",
+            to: `${ROUTES.topic.invite}`,
+            checkPermission: true,
+          },
+        ],
       },
     ],
   },

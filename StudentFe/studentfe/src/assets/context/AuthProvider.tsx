@@ -10,17 +10,15 @@ interface AuthContextProps {
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 const initialAuth: AuthType = {
   aud: "",
-  customer: {
+  result: {
     Id: 0,
     Name: "",
   },
-  exp: 0,
   faculty: {
     Id: 0,
   },
   permission: [],
   type: "",
-  uid: 0,
   userName: "",
 };
 

@@ -33,7 +33,7 @@ const MenuItem = ({ item, permissions }: MenuItemProps) => {
   const params = useSearchParams();
   const active =
     code === params.get("activeItem") || code === params.get("parent");
-  const [isOpenMenu, setIsOpenMenu] = useState(false);
+  const [isOpenMenu, setIsOpenMenu] = useState<boolean>(false);
   const router = useRouter();
   const checkChildPermission = cookies.checkChildPermission(item, permissions);
 

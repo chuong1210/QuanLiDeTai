@@ -21,11 +21,12 @@ import { toast } from "react-toastify";
 import * as yup from "yup";
 import { stringify } from "querystring";
 import { useState } from "react";
-import { loginStudent } from "@/assets/config/apis/studentapi";
 import { ResponseType } from "@/assets/types/httpRequest";
 import { FormStateType } from "@/assets/types/loginform";
 import LoginForm from "@/resources/components/form/LoginForm";
 import { headers } from "next/headers";
+import { AuthType, AuthTypeLogin } from "@/assets/interface";
+import { loginStudent } from "@/assets/config/apiRequests/StudentApiMutation";
 
 const formData: FormStateType = {
   username: "",
@@ -60,46 +61,39 @@ const Page = () => {
   //     });
   //   },
   // });
-
-  const signInMutation: any = useMutation({
+  const signInMutation: any = useMutation<
+    ResponseType<AuthTypeLogin>,
+    Error,
+    FormStateType
+  >({
     mutationFn: (data: FormStateType) => {
-      console.log("username", data.username);
-      console.log("username", data.password);
-
       return loginStudent(data);
     },
   });
 
   const onSubmit = () => {
     signInMutation.mutate(formStateUser, {
-      onSuccess(response: ResponseType) {
+      onSuccess(response: ResponseType<AuthTypeLogin>) {
         try {
-          const accessToken: string = response.data.accessToken;
-          const tokenData: any = jwtDecode(accessToken);
+          const accessToken = response?.result?.accessToken;
+          if (accessToken !== undefined) {
+            const tokenData: any = jwtDecode(accessToken);
+            const base64Url = accessToken.split(".")[1];
+            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+            const jsonPayload = decodeURIComponent(atob(base64));
 
-          console.log("Token value:", response.data.token);
+            cookies.set(ACCESS_TOKEN, accessToken, {
+              expires: new Date(tokenData.exp * 1000),
+            });
+            cookies.set(REFRESH_TOKEN, accessToken, {
+              expires: new Date(tokenData.exp * 1000),
+            });
 
-          console.log("Decoded Token:", tokenData);
+            router.push(ROUTES.home.index);
 
-          const userId = tokenData.sub;
-          const issuedAt = tokenData.iat;
-          const expiration = tokenData.exp;
-
-          const base64Url = accessToken.split(".")[1];
-          const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-          const jsonPayload = decodeURIComponent(atob(base64));
-
-          if (!tokenData) {
-            return;
+            console.log("raw token", !!cookies.get(REFRESH_TOKEN));
           }
-          cookies.set(ACCESS_TOKEN, tokenData, {
-            expires: new Date(tokenData.exp * 1000),
-          });
-          cookies.set(REFRESH_TOKEN, accessToken, {
-            expires: new Date(tokenData.exp * 1000),
-          });
 
-          console.log("Success save cookies");
           // const faculty = JSON.parse(tokenData.faculty);
           // const customer = JSON.parse(tokenData.customer);
 
@@ -119,7 +113,6 @@ const Page = () => {
           //   tokenData.customer = customer;
           // }
 
-          router.push(ROUTES.home.index);
           //  redirect(ROUTES.home.index)
         } catch (error) {}
       },

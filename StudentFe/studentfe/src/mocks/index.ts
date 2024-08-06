@@ -1,6 +1,8 @@
 import { StudentProfileType } from "@/assets/interface/StudentProfile.type";
 import { MenuItemType } from "@/assets/types/menu";
 import { useMemo } from "react";
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { TopicType } from "@/assets/interface";
 
 interface TableData {
     day: string;
@@ -94,3 +96,197 @@ export const scheduleDataTable: TableData[] =
         urlAvatar: "https://wallpaperaccess.com/full/1083811.jpg",
       },
     };
+
+
+    // Dữ liệu ảo cho danh sách giáo viên
+const teachersMock = [
+  {
+    id: 1,
+    name: "Nguyễn Văn A",
+    email: "nguyenvana@example.com",
+    academicTitle: "Tiến sỹ",
+  },
+  {
+    id: 2,
+    name: "Trần Thị B",
+    email: "tranthib@example.com",
+    academicTitle: "Thạc sỹ",
+  },
+];
+
+// Dữ liệu ảo cho đề tài
+const topicsMock = [
+  {
+    id: 1,
+    internalCode: "DT001",
+    name: "Hệ thống thông tin quản lý",
+    minQuantity: 2,
+    maxQuantity: 5,
+    thesisMajors: [{ id: 1, name: "Công nghệ thông tin" }],
+    messages: ["Yêu cầu kỹ năng phân tích thiết kế hệ thống"],
+    isRegister: true,
+    summary: "Nghiên cứu và phát triển một hệ thống thông tin quản lý...",
+    thesisInstructions: teachersMock,
+  },
+  {
+    id: 2,
+    internalCode: "DT002",
+    name: "Phát triển ứng dụng trên nền tảng di động",
+    minQuantity: 3,
+    maxQuantity: 4,
+    thesisMajors: [{ id: 2, name: "Phát triển phần mềm" }],
+    messages: ["Yêu cầu hiểu biết về React Native hoặc Flutter"],
+    isRegister: false, // Chỉ dẫn là đề tài này không thể đăng ký
+    summary: "Tìm hiểu và xây dựng ứng dụng di động cho các doanh nghiệp vừa và nhỏ...",
+    thesisInstructions: [teachersMock[1]], // Giả sử chỉ có 1 giảng viên hướng dẫn
+  },
+];
+
+// Dữ liệu ảo cho phản hồi từ server cho topic detail
+
+
+export const fakeTopicData: TopicType = {
+  id: 1,
+  internalCode: "KHMT-001",
+  name: "Ứng dụng trí tuệ nhân tạo trong dự báo thời tiết",
+  description: "Nghiên cứu và phát triển mô hình dự báo thời tiết dựa trên trí tuệ nhân tạo, ứng dụng công nghệ deep learning và xử lý dữ liệu lớn.",
+  status: "A",
+  isRegister: true,
+  thesisMajors: [
+    {
+      id: 1,
+      name: "Khoa học máy tính"
+    },
+    {
+      id: 2,
+      name: "Công nghệ thông tin"
+    }
+  ],
+  minQuantity: 2,
+  maxQuantity: 4,
+  thesisInstructions: [
+    {
+      id: 1,
+      name: "Nguyễn Văn A",
+      email: "nguyenvanA@example.com",
+      academicTitle: "TS",
+      dateOfBirth: null
+    }
+  ],
+  messages: [
+    "Yêu cầu sinh viên có kiến thức về lập trình Python và machine learning",
+    "Có khả năng xử lý dữ liệu lớn"
+  ]
+};
+
+export const topicDetailMock: TopicType = {
+  id: 1,
+  internalCode: "KHMT-001",
+  name: "Ứng dụng trí tuệ nhân tạo trong dự báo thời tiết",
+  description: "Nghiên cứu và phát triển mô hình dự báo thời tiết dựa trên trí tuệ nhân tạo, ứng dụng công nghệ deep learning và xử lý dữ liệu lớn.",
+  status: "A",
+  isRegister: true,
+  thesisMajors: [
+    {
+      id: 1,
+      name: "Khoa học máy tính"
+    },
+    {
+      id: 2,
+      name: "Công nghệ thông tin"
+    }
+  ],
+  minQuantity: 2,
+  maxQuantity: 4,
+  thesisInstructions: [
+    {
+      id: 1,
+      name: "Nguyễn Văn A",
+      email: "nguyenvanA@example.com",
+      academicTitle: "TS",
+      dateOfBirth: null
+    },
+    {
+      id: 2,
+      name: "Trần Thị B",
+      email: "tranthiB@example.com",
+      academicTitle: "PGS",
+      dateOfBirth: null
+    }
+  ],
+  messages: [
+    "Yêu cầu sinh viên có kiến thức về lập trình Python và machine learning",
+    "Có khả năng xử lý dữ liệu lớn"
+  ],
+  summary: "Đây là một đề tài nghiên cứu về ứng dụng trí tuệ nhân tạo trong dự báo thời tiết. Đề tài này sẽ tập trung vào việc xây dựng một mô hình dự báo thời tiết dựa trên deep learning và xử lý dữ liệu lớn. Các sinh viên tham gia dự án sẽ được tiếp cận với các công nghệ mới nhất trong lĩnh vực trí tuệ nhân tạo, đồng thời được rèn luyện kỹ năng phân tích dữ liệu, xây dựng mô hình và đánh giá hiệu quả của mô hình.",
+
+};
+// topic.mock.ts
+
+export const topicMockData: TopicType[] = [
+  {
+    id: 1,
+    internalCode: "KHMT-001",
+    name: "Ứng dụng trí tuệ nhân tạo trong dự báo thời tiết",
+    description: "Nghiên cứu và phát triển mô hình dự báo thời tiết dựa trên trí tuệ nhân tạo, ứng dụng công nghệ deep learning và xử lý dữ liệu lớn.",
+    status: "A",
+    isRegister: true,
+    thesisMajors: [
+      {
+        id: 1,
+        name: "Khoa học máy tính"
+      },
+      {
+        id: 2,
+        name: "Công nghệ thông tin"
+      }
+    ],
+    minQuantity: 2,
+    maxQuantity: 4,
+    thesisInstructions: [
+      {
+        id: 1,
+        name: "Nguyễn Văn A",
+        email: "nguyenvanA@example.com",
+        academicTitle: "TS",
+        dateOfBirth: null
+      }
+    ],
+    messages: [
+      "Yêu cầu sinh viên có kiến thức về lập trình Python và machine learning",
+      "Có khả năng xử lý dữ liệu lớn"
+    ]
+  },
+  {
+    id: 2,
+    internalCode: "KHMT-002",
+    name: "Phát triển ứng dụng di động hỗ trợ học tập",
+    description: "Nghiên cứu và phát triển ứng dụng di động hỗ trợ học tập, tích hợp các tính năng như: quản lý bài học, giao tiếp với giáo viên, ...",
+    status: "A",
+    isRegister: false,
+    thesisMajors: [
+      {
+        id: 1,
+        name: "Khoa học máy tính"
+      }
+    ],
+    minQuantity: 1,
+    maxQuantity: 3,
+    thesisInstructions: [
+      {
+        id: 2,
+        name: "Trần Thị B",
+        email: "tranthiB@example.com",
+        academicTitle: "PGS",
+        dateOfBirth: null
+      }
+    ],
+    messages: [
+      "Yêu cầu sinh viên có kiến thức về phát triển ứng dụng di động"
+    ]
+  },
+  // Thêm các đối tượng TopicType mock khác vào đây...
+];
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+    res.status(200).json(fakeTopicData);
+}

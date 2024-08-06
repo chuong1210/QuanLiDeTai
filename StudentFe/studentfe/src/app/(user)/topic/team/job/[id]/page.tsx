@@ -1,6 +1,6 @@
 "use client";
 
-import { API, ACCESS_TOKEN } from "@/assets/config";
+import { API, ACCESS_TOKEN, DATA_RESULT } from "@/assets/config";
 import { http } from "@/assets/helpers";
 import { HTML } from "@/assets/helpers/string";
 import {
@@ -50,7 +50,7 @@ const JobPageContext = createContext<JobPageContextType>({
 const JobPage = ({ params, searchParams }: PageProps) => {
   const { id } = params;
   const { topicId, groupId } = searchParams;
-  const [auth] = useCookies<AuthType>(ACCESS_TOKEN);
+  const [auth] = useCookies<AuthType>(DATA_RESULT);
 
   const jobDetail = useGetDetail<JobType>({
     module: "job",
@@ -70,11 +70,11 @@ const JobPage = ({ params, searchParams }: PageProps) => {
 
   const exerciseQuery = useGetList<JobResultType, JobResultParamType>({
     module: "job_result",
-    enabled: !!auth?.customer.Id,
+    enabled: !!auth?.result.Id,
     params: {
       removeFacultyId: true,
       jobId: id,
-      studentId: auth?.customer.Id!,
+      studentId: auth?.result.Id!,
     },
   });
 

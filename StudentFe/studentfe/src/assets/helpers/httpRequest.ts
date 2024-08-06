@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { ROUTES } from '../config/routes';
-import { MetaType, ParamType, ResponseType } from '../types/httpRequest';
+import { MetaResponseType, MetaType, ParamType, ResponseType } from '../types/httpRequest';
 import { REFRESH_TOKEN, ACCESS_TOKEN } from '../config';
 import { cookies } from '.';
 import { AuthType } from '../interface/AuthType.type';
@@ -40,6 +40,7 @@ http.interceptors.request.use(
 
           if (Accesstoken) {
               config.headers.Authorization = `Bearer ${Accesstoken}`;
+
           }
 
           if (!auth) {
@@ -85,10 +86,12 @@ http.interceptors.response.use(
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true; // đánh dấu là đã làm mới token
       try {
-        const newAccessToken = await useRefreshToken(); // Gọi hàm refresh token tại đây
-        if (newAccessToken) {
+const refreshToken = useRefreshToken();
+
+        const { result: { accessToken } } = await refreshToken();
+        if (accessToken) {
           // Nếu có token mới, đặt lại headers và gửi lại request
-          originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+          originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
           // Gửi lại request đầu tiên với access token mới
           return http(originalRequest);
         }
@@ -124,6 +127,12 @@ const get = <T = any>(path: string, configs?: AxiosRequestConfig): Promise<Axios
 
   return response;
 };
+
+const getPaginator = <T = any>(path: string, configs?: AxiosRequestConfig): Promise<AxiosResponse<ResponseType<MetaResponseType<T>>, any>> => {
+  const response = http.get(path, configs);
+
+  return response;
+};
 const post = <T = any>(
   path: string,
   data: any,
@@ -147,6 +156,16 @@ const update = <T = any>(
 
   return response;
 };
+
+const remove = <T = any>(
+  path: string,
+  data: any,
+  configs?: AxiosRequestConfig,
+): Promise<AxiosResponse<ResponseType<T>, any>> => {
+  const response = http.delete(path, { ...configs, data });
+
+  return response;
+};
 const handleSort = (sorts: OptionType | undefined, params: ParamType): string => {
   let result = params.sorts || '';
 
@@ -156,7 +175,9 @@ const handleSort = (sorts: OptionType | undefined, params: ParamType): string =>
 
   const resultSplit = _.split(result, ',').filter((t) => t !== '');
 
+
   const keyIndex = resultSplit.findIndex((t) => t.includes(sorts.name || '...'));
+
   const symbol = sorts.value === 1 ? '' : '-';
   const newValue = `${symbol}${sorts.name}`;
 
@@ -166,7 +187,9 @@ const handleSort = (sorts: OptionType | undefined, params: ParamType): string =>
       resultSplit.push(newValue);
   }
 
+
   result = _.join(resultSplit, ',');
+
 
   return result;
 };
@@ -195,4 +218,4 @@ const handleFilter = (
 const currentPage = (page: number | undefined) => {
   return page ? page - 1 : 0;
 };
-export {post,http,get,update,handleFilter,handleSort,currentPage}
+export {post,http,get,getPaginator,update,remove,handleFilter,handleSort,currentPage}

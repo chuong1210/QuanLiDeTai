@@ -15,6 +15,7 @@ interface MenuItemType {
     onItemClick?: (_item: MenuItemType) => void;
     onSubItemClick?: (_item: MenuItemType) => void;
     command?:(_item: MenuItemType) => void;
+    separator?:boolean
 }
 interface MenuItemProps {
     item: MenuItemType;

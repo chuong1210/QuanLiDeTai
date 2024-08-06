@@ -14,6 +14,10 @@ pnpm dev
 bun dev
 ```
 
+thêm register(boolean) vào topic
+ko có kiểm tra đã có nhóm hay chưa
+resposne trả về 1 kiểu , dto lại đưa lên 1 kiểu
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.

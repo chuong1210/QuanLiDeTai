@@ -8,7 +8,7 @@ import { ChangePasswordModalRefType } from "@/assets/types/modal";
 import { Button } from "primereact/button";
 import { formChangePassword } from "@/assets/types/changePassword";
 import { useMutation } from "@tanstack/react-query";
-import { updatePassword } from "@/assets/config/apis/studentapi";
+import { updatePassword } from "@/assets/config/apiRequests/StudentApiMutation";
 import { toast } from "react-toastify";
 
 const Page = () => {

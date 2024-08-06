@@ -1,9 +1,20 @@
 "use client";
 
-import { API, DEFAULT_PARAMS, ROUTES, ROWS_PER_PAGE } from "@/assets/config";
+import {
+  API,
+  ChangeRegistrationOptions,
+  DEFAULT_META,
+  DEFAULT_PARAMS,
+  ROUTES,
+  ROWS_PER_PAGE,
+} from "@/assets/config";
 import { http } from "@/assets/helpers";
 import { HTML } from "@/assets/helpers/string";
-import { useGetDetail, useGetList } from "@/assets/useHooks/useGet";
+import {
+  useGetDetail,
+  useGetList,
+  useGetListWithPagination,
+} from "@/assets/useHooks/useGet";
 import {
   ChangeRegistration,
   TeacherParamType,
@@ -25,49 +36,71 @@ import { InputText } from "primereact/inputtext";
 import { Paginator, PaginatorPageChangeEvent } from "primereact/paginator";
 import { Panel } from "primereact/panel";
 import { Skeleton } from "primereact/skeleton";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useDebouncedCallback } from "use-debounce";
 import { OptionType } from "@/assets/types/common";
 import {
   fetchAllCourses,
   fetchTopicCourses,
-  registerCourseAPI,
-} from "@/assets/config/apis/studentapi";
+} from "@/assets/config/apiRequests/StudentApiMutation";
 import { FileUpload } from "primereact/fileupload";
 import File from "@/resources/components/form/File";
 import { Toast } from "primereact/toast";
+import { fakeTopicData, topicDetailMock, topicMockData } from "@/mocks";
+import { Checkbox } from "primereact/checkbox";
+import { NotificationCard } from "@/resources/components/modal";
+import { NotificationCardModalRefType } from "@/assets/types/modal";
+import { useRouter } from "next/navigation";
+import { useRegisterTopic } from "@/assets/useHooks/useRegisterTopic";
+import { debug } from "console";
+import TopicDetailPage from "./[id]/page";
+import { MetaResponseType, MetaType } from "@/assets/types/httpRequest";
+import page from "../page";
 
 const RegisterTopicPage = ({ params: { i } }: PageProps) => {
+  const router = useRouter();
+
   const teacherQuery = useGetList<TeacherType, TeacherParamType>({
     module: "teacher",
   });
   const [params, setParams] = useState<TopicParamType>(DEFAULT_PARAMS);
-  const [selected, setSelected] = useState<TopicType>();
+  const [selectedTopic, setSelectedTopic] = useState<TopicType>();
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [meta, setMeta] = useState<MetaType>(DEFAULT_META);
+  const { limit, page, orderBy, orderDirection } = params;
+
+  const [currentPage, setCurrentPage] = useState(meta.currentPage);
+  const [buttonNumbers, setButtonNumbers] = useState<number[]>([]);
+
+  const totalPage = meta.totalPages;
 
   const { response, isFetching } = useGetDetail<TopicType>({
     module: "topic",
-    enabled: !!selected?.id,
+    enabled: !!selectedTopic?.id,
     params: {
-      id: selected?.id,
+      id: selectedTopic?.id,
       isAllDetail: true,
     },
     _onSuccess(_data) {},
   });
 
-  const topicMutation = useMutation<any, AxiosError, { thesisId: number }>({
-    mutationFn: (data: any) => {
-      // return http.post(API.post.register_topic, data);
-      return registerCourseAPI(Topic, data);
-    },
-  });
+  // const topicMutation = useMutation<any, AxiosError, { thesisId: number }>({
+  //   mutationFn: (data: any) => {
+  //     return registerTopicAPI(data);
+  // return http.post(API.post.research, data);
+  //   },
+  // });
 
-  const topicQuery = useGetList<TopicType>({
-    module: "register_topic",
+  const topicQuery = useGetListWithPagination<TopicType, TopicParamType>({
+    module: "research",
     params: {
+      // trống là để select all
       ...params,
-      removeFacultyId: true,
-      isAllDetail: true,
+      page: currentPage,
+      limit: limit,
+      orderBy: orderBy,
+      orderDirection: orderDirection,
     },
   });
 
@@ -81,15 +114,21 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
         keyword
       ),
     }));
-    console.log("value", keyword);
   }, 600);
 
-  const renderActions = (data: TopicType) => {
+  const viewTopic = (data: TopicType) => {
     return (
       <div className="flex justify-content-center gap-3">
         <i
           className="pi pi-eye cursor-pointer hover:text-primary"
-          onClick={() => setSelected(data)}
+          title="Xem chi tiết"
+          onClick={() => {
+            setSelectedTopic(data);
+            setIsModalVisible(true);
+            // router.push(
+            //   `${ROUTES.topic.register_topic}/${selectedTopic?.maDeTai}`
+            // );
+          }}
         />
       </div>
     );
@@ -103,14 +142,6 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
     }));
   };
 
-  const ChangeRegistrationOptions: ChangeRegistration = {
-    all: "All",
-    topic: "Topic",
-    thesis: "Thesis",
-    project: "Project",
-  };
-
-  // Function to convert ChangeRegistration object to options array
   const convertChangeRegistrationToOptions = (
     changeRegistration: ChangeRegistration
   ): OptionType[] => {
@@ -123,40 +154,34 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
 
   const [Topic, setTopic] = useState<string>("All");
 
-  //tu them
-  const fetchCourseQuery = useQuery({
-    queryKey: ["Course", Topic],
-    queryFn: () => {
-      const controller = new AbortController();
-      setTimeout(() => {
-        controller.abort();
-      }, 5000);
-      return fetchTopicCourses(Topic, controller.signal);
-    },
-    retry: 0,
-  });
-  //
+  // const mandatoryTemplate = (rowData: TopicType) => {
+  //   return <Checkbox checked={rowData.status === "A"} disabled />;
+  // };
+
+  // const prerequisiteTemplate = (rowData: TopicType) => {
+  //   return (
+  //     <span style={{ color: rowData.status === "AR" ? "red" : "black" }}>
+  //       {rowData.isRegister}
+  //     </span>
+  //   );
+  // };
 
   return (
-    <div className="flex flex-column gap-4">
+    <div className="flex flex-column gap-4 p-4">
       <div className="flex align-items-center justify-content-between bg-white h-4rem px-3 border-round-lg shadow-3">
-        <p className="text-xl font-semibold">{`Danh sách 
-          đề tài
-        `}</p>
+        <p className="text-xl font-semibold">Danh sách đề tài</p>
       </div>
-      <File />
-      <div className="flex align-items-center gap-3 mb-8 ">
+      <div className="flex align-items-center gap-3 mb-2">
         <InputText
-          placeholder={`${"search"}...`}
+          placeholder="Search..."
           className="w-20rem"
           onChange={(e) => debounceKeyword(e.target.value)}
         />
-
         <Dropdown
           placeholder="Chọn đề tài"
           id="noti_type"
           row={true}
-          label={"Chọn đề tài"}
+          label="Chọn đề tài"
           value={Topic}
           options={options}
           onChange={(e) => {
@@ -165,16 +190,14 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
           }}
         />
       </div>
-
-      <div className="border-round-xl overflow-hidden relative shadow-2">
-        <Loader show={topicQuery.isFetching || teacherQuery.isFetching} />
-
+      <div className="border-round-xl overflow-hidden relative shadow-2 mt-0">
+        {/* <Loader show={topicQuery.isFetching || teacherQuery.isFetching} /> */}
         <DataTable
-          value={topicQuery.response?.data || []}
+          value={topicQuery.data?.result?.responses || []}
           rowHover={true}
           stripedRows={true}
           showGridlines={true}
-          emptyMessage={"Danh sách hiện trống"}
+          emptyMessage="Danh sách hiện trống"
         >
           <Column
             alignHeader="center"
@@ -183,8 +206,8 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
               color: "var(--surface-a)",
               whiteSpace: "nowrap",
             }}
-            header={"Thao tác"}
-            body={renderActions}
+            header="Thao tác"
+            body={viewTopic}
           />
           <Column
             alignHeader="center"
@@ -194,9 +217,9 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
               whiteSpace: "nowrap",
             }}
             field="internalCode"
-            header={"Mã đề tài"}
+            header="Mã đề tài"
+            body={(data: TopicType) => <div>{data.maDeTai}</div>}
           />
-
           <Column
             alignHeader="center"
             headerStyle={{
@@ -205,7 +228,8 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
               whiteSpace: "nowrap",
             }}
             field="name"
-            header={"Tên đề tài"}
+            header="Tên đề tài"
+            body={(data: TopicType) => <div>{data.name}</div>}
           />
           <Column
             alignHeader="center"
@@ -217,7 +241,7 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
             header="Số lượng sinh viên"
             body={(data: TopicType) => (
               <p className="text-center">
-                {data.minQuantity} - {data.maxQuantity}
+                {data.minMembers} - {data.maxMembers}
               </p>
             )}
           />
@@ -230,7 +254,7 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
             }}
             header="Chuyên ngành phù hợp"
             body={(data: TopicType) => (
-              <div>{data.thesisMajors?.map((t) => t.name).join(", ")}</div>
+              <div>{data.subjects?.map((t) => t.name).join(", ")}</div>
             )}
           />
           <Column
@@ -241,152 +265,29 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
               whiteSpace: "nowrap",
             }}
             header="Ghi chú"
-            body={(data: TopicType) => <div>{data.messages?.join(", ")}</div>}
+            body={(data: TopicType) => (
+              <div>{data?.feedbacks?.map((t) => t.message)}</div>
+            )}
           />
         </DataTable>
-
         <div className="flex align-items-center justify-content-between bg-white px-3 py-2">
-          <div></div>
-
           <Paginator
-            // first={http.currentPage(topicQuery.response?.extra?.currentPage)}
-            rows={topicQuery.response?.extra?.pageSize}
-            totalRecords={topicQuery.response?.extra?.totalCount}
+            rows={topicQuery.data?.result?.page}
+            totalRecords={topicQuery.data?.result?.totalpage}
             rowsPerPageOptions={ROWS_PER_PAGE}
             onPageChange={onPageChange}
             className="border-noround p-0"
           />
         </div>
       </div>
-
-      {selected && (
+      {selectedTopic && (
         <div className="bg-white border-round-xl p-3 overflow-hidden shadow-2 relative">
-          <Loader show={isFetching || topicMutation.isPending} />
-
-          <div className="flex flex-column gap-3">
-            <p className="font-bold text-800 text-xl pb-3 text-center">
-              Chi tiết đề tài
-            </p>
-
-            {response?.data?.thesisInstructions &&
-              response?.data?.thesisInstructions.length > 0 && (
-                <Panel
-                  toggleable={true}
-                  collapsed={true}
-                  header="Giảng viên hướng dẫn"
-                  className="shadow-2 border-1 border-300 border-round-xl overflow-hidden"
-                >
-                  <div className="p-3">
-                    {response?.data?.thesisInstructions?.map(
-                      (teacher, index) => (
-                        <>
-                          <div
-                            className="flex flex-column gap-3"
-                            key={teacher.id}
-                          >
-                            <div className="flex align-items-center">
-                              <p className="w-15rem">Tên giáo viên</p>
-                              <p className="text-900 font-semibold">
-                                {teacher?.name}
-                              </p>
-                            </div>
-
-                            <div className="flex align-items-center">
-                              <p className="w-15rem">{"common:email"}</p>
-                              <p className="text-900 font-semibold">
-                                {teacher?.email}
-                              </p>
-                            </div>
-
-                            <div className="flex align-items-center">
-                              <p className="w-15rem">
-                                {"module:field.teacher.academic"}
-                              </p>
-                              <p className="text-900 font-semibold">
-                                {teacher?.academicTitle}
-                              </p>
-                            </div>
-                          </div>
-
-                          {index <
-                            response.data?.thesisInstructions?.length! - 1 && (
-                            <div className="px-8">
-                              <Divider />
-                            </div>
-                          )}
-                        </>
-                      )
-                    )}
-                  </div>
-                </Panel>
-              )}
-
-            <div className="p-3 bg-white border-round-xl shadow-2">
-              <div className="flex align-items-center justify-content-between gap-3">
-                {isFetching ? (
-                  <Skeleton className="flex-1 h-2rem" />
-                ) : (
-                  <p className="flex-1 font-bold text-xl text-800">
-                    {response?.data?.name}
-                  </p>
-                )}
-
-                <Button
-                  label="Đăng ký"
-                  size="small"
-                  visible={selected?.isRegister}
-                  onClick={() => {
-                    topicMutation.mutate(
-                      {
-                        thesisId: selected?.id!,
-                      },
-                      {
-                        onSuccess: () => {
-                          toast.success("Đăng ký đề tài thành công");
-                        },
-                      }
-                    );
-                  }}
-                />
-              </div>
-
-              <Divider align="center">
-                <div className="flex align-items-center gap-2">
-                  <i className="pi pi-comments" />
-                  <p className="font-semibold">Lời mời đầu</p>
-                </div>
-              </Divider>
-
-              {isFetching ? (
-                <Skeleton className="h-10rem" />
-              ) : (
-                <p dangerouslySetInnerHTML={HTML(response?.data?.summary)} />
-              )}
-
-              <Divider align="center">
-                <div className="flex align-items-center gap-2">
-                  <i className="pi pi-question-circle" />
-                  <p className="font-semibold">Về đề tài</p>
-                </div>
-              </Divider>
-
-              {isFetching ? (
-                <Skeleton className="h-3rem" />
-              ) : (
-                <p>
-                  Đề tài phù hợp với sinh viên thuộc chuyên nghành{" "}
-                  {response?.data?.thesisMajors?.map((t) => t.name).join(", ")},
-                  yêu cầu tối thiểu {response?.data?.minQuantity} thành viên và
-                  tối đa {response?.data?.maxQuantity} thành viên tham gia thực
-                  hiện, được hướng dẫn bởi{" "}
-                  {response?.data?.thesisInstructions
-                    ?.map((t) => t.academicTitle + " " + t.name)
-                    .join(", ")}{" "}
-                  với nhiều năm kinh nghiệm giảng dạy và nghiên cứu.
-                </p>
-              )}
-            </div>
-          </div>
+          <TopicDetailPage
+            visible={isModalVisible}
+            setVisible={setIsModalVisible}
+            params={{ id: selectedTopic?.id?.toString() }}
+            topic={selectedTopic}
+          />
         </div>
       )}
     </div>

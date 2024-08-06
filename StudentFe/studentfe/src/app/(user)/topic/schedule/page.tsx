@@ -220,7 +220,7 @@ const SchedulePage = () => {
 
   return (
     <Card title="Lịch phản biện" subTitle="Lịch phản biện diễn ra trong tuần">
-      <div className="flex flex-column gap-3 relative border-round-xl overflow-hidden">
+      {/* <div className="flex flex-column gap-3 relative border-round-xl overflow-hidden">
         <Loader show={isFetching} />
 
         <div className="flex align-items-center justify-content-between">
@@ -420,27 +420,27 @@ const SchedulePage = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
+      <div className="flex flex-column gap-3 relative border-round-xl overflow-hidden mb-5">
+        <div>
+          <Button
+            icon="pi pi-print"
+            size="small"
+            className="ml-2 max-w-7rem w-full"
+            label="In lịch"
+            raised
+            onClick={handleExportClick}
+            severity="info"
+          ></Button>
+          <ScheduleTable ref={scheduleTableRef} />
+        </div>
 
-      <div>
-        <h1>Lịch báo cáo đề tài</h1>
-        <Button
-          icon="pi pi-print"
-          size="small"
-          className="ml-2 max-w-7rem w-full"
-          label="In lịch"
-          raised
-          onClick={handleExportClick}
-          severity="info"
-        ></Button>
-
-        <ScheduleTable ref={scheduleTableRef} />
+        <ScheduleForm
+          title="Thông tin"
+          ref={formRef}
+          onSuccess={(_data) => refetch()}
+        />
       </div>
-      <ScheduleForm
-        title="Thông tin"
-        ref={formRef}
-        onSuccess={(_data) => refetch()}
-      />
     </Card>
   );
 };

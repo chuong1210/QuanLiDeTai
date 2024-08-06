@@ -21,6 +21,7 @@ import { useGetList } from "@/assets/useHooks/useGet";
 import { NotificationParamType, NotificationType } from "@/assets/interface";
 import moment from "moment";
 import { MenuItem } from "primereact/menuitem";
+import { Divider } from "primereact/divider";
 
 const Header = () => {
   const { isLoading, response } = useGetList<
@@ -34,7 +35,7 @@ const Header = () => {
         .format("yyyy-MM-DD")}`,
     },
   });
-
+  //http://localhost:8888/notification?filters=lastModifiedDate%3E%3Dyyyy-07-22
   const router = useRouter();
   const start = (
     <Image
@@ -51,6 +52,7 @@ const Header = () => {
     let menuItem: MenuItem = {
       label: item.label,
       icon: item.icon,
+      separator: item.separator,
 
       // ... chuyển đổi các thuộc tính khác nếu cần
     };
@@ -75,6 +77,7 @@ const Header = () => {
       <Menubar
         start={start}
         model={itemsWithCommands}
+        className="flex justify-content-around"
         menuIcon
         end={
           <Link href={`${ROUTES.information.notification}/`}>

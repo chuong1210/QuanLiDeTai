@@ -1,7 +1,7 @@
 import { useRef, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { formChangePassword } from "@/assets/types/changePassword";
-import { updatePassword } from "@/assets/config/apis/studentapi";
+import { updatePassword } from "@/assets/config/apiRequests/StudentApiMutation";
 import { toast } from "react-toastify";
 import { ChangePasswordModalRefType } from "@/assets/types/modal";
 

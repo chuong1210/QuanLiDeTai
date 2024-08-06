@@ -3,7 +3,7 @@ import { Button } from "primereact/button";
 import { useContext, useEffect, useState } from "react";
 import { JobPageContext } from "../[id]/page";
 import { FileType } from "@/assets/types/form";
-import { ACCESS_TOKEN, MODULE } from "@/assets/config";
+import { ACCESS_TOKEN, DATA_RESULT, MODULE } from "@/assets/config";
 import useCookies from "@/assets/useHooks/useCookies";
 import { AuthType } from "@/assets/interface";
 
@@ -14,7 +14,7 @@ interface YourExerciseProps {
 const YourExercise = ({ onSubmit }: YourExerciseProps) => {
   const { exercise, job, groupId } = useContext(JobPageContext);
   const [_files, setFiles] = useState<FileType[]>(exercise || []);
-  const [auth] = useCookies<AuthType>(ACCESS_TOKEN);
+  const [auth] = useCookies<AuthType>(DATA_RESULT);
 
   useEffect(() => {
     if (exercise) {
@@ -41,7 +41,7 @@ const YourExercise = ({ onSubmit }: YourExerciseProps) => {
 
         <InputFile
           id="form_data_files"
-          folder={`${MODULE.group}/${groupId}/${MODULE.job}/${job?.id}/${auth?.customer.Id}_${auth?.customer.Name}/`}
+          folder={`${MODULE.group}/${groupId}/${MODULE.job}/${job?.id}/${auth?.result.Id}_${auth?.result.Name}/`}
           fileClassName="col-12"
           value={exercise}
           multiple={true}
