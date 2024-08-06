@@ -1,4 +1,5 @@
 import { OptionType } from '@/assets/types/common';
+import { ChangeRegistration } from '../interface';
 
 const GENDER = (): OptionType[] => [
     {
@@ -92,4 +93,11 @@ const THESIS_STATUS = (): any => ({
     D: 'Bản nháp',
 });
 
-export { GENDER, SEMESTER, DATE_FILTER, ACADEMIC, DEGREE, USER_TYPE, THESIS_STATUS };
+const ChangeRegistrationOptions: ChangeRegistration = {
+    all: "All",
+    topic: "Topic",
+    thesis: "Thesis",
+    project: "Project",
+  };
+
+export { GENDER, SEMESTER, DATE_FILTER, ACADEMIC, DEGREE, USER_TYPE, THESIS_STATUS,ChangeRegistrationOptions };

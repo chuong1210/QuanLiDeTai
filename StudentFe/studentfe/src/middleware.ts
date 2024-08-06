@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
-    
     ROUTES,
     ACCESS_TOKEN,
     REFRESH_TOKEN,
@@ -12,9 +11,10 @@ import { AuthType } from '@/assets/interface/AuthType.type';
 
 export const config = {
     matcher: ['/((?!api|_next/static|_next/image|assets|favicon.ico|sw.js).*)'],
-    //  matcher: ['/((?!api|_next|.*\\..*).*)']
-    // matcher: ['/'],
+   
 };
+const publicRoutes = ["/", "/login", "/signup"];
+const privateRoutes = ["/", "/home", "/profile"];
 
 export function middleware(req: NextRequest) {
     if (req.nextUrl.pathname.indexOf('icon') > -1 || req.nextUrl.pathname.indexOf('chrome') > -1) {
@@ -38,30 +38,29 @@ export function middleware(req: NextRequest) {
     // {
      
 
-        // if (
-        //   !req.cookies.has(REFRESH_TOKEN) &&!req.cookies.has(ACCESS_TOKEN) 
-        //   && (!req.url.includes(ROUTES.auth.sign_in)&&path!=='sign-in')
-        //  )
-        //  {
-        //     console.log(123);
-        //     console.log("raw token",!! req.cookies.get(REFRESH_TOKEN));
+        if (
+          !req.cookies.has(REFRESH_TOKEN) &&!req.cookies.has(ACCESS_TOKEN) 
+          && (!req.url.includes(ROUTES.auth.sign_in)&&path!=='sign-in')
+         )
+         {
+            console.log(123);
+            console.log("raw token",!! req.cookies.get(REFRESH_TOKEN));
 
-        //     return NextResponse.redirect(new URL(`${ROUTES.auth.sign_in}`, req.url));
+            return NextResponse.redirect(new URL(`${ROUTES.auth.sign_in}`, req.url));
           
-        // }
+        }
    
         if (
 
             !req.nextUrl.pathname.startsWith('/_next') &&(req.cookies.has(REFRESH_TOKEN) &&req.cookies.has(ACCESS_TOKEN) )&&!req.nextUrl.pathname.startsWith('/home')
         ) {
     
-        
-        if (req.url.includes(ROUTES.auth.sign_in)&&path==='sign-in') {
+        if (req.url.includes(ROUTES.auth.sign_in)) {
             console.log(777,req.cookies.has(ACCESS_TOKEN));
             return NextResponse.redirect(new URL(`${ROUTES.home.index}`, req.url));
         }
 
-         return NextResponse.redirect(new URL(`${ROUTES.home.index}`, req.url));
+        //  return NextResponse.redirect(new URL(`${ROUTES.home.index}`, req.url));
     }
 
 

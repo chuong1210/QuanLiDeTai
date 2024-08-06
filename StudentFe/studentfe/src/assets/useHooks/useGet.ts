@@ -1,6 +1,6 @@
 import { API } from '@/assets/config';
 import { detail, list } from '@/assets/config/keys';
-import { ParamType, ResponseType } from '@/assets/types/httpRequest';
+import { MetaResponseType, ParamType, ResponseType } from '@/assets/types/httpRequest';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useCallback, useEffect } from 'react';
@@ -14,6 +14,12 @@ interface UseGetType<TParam, TData> {
 
 interface UseGetListType<TParam, TData> extends UseGetType<TParam, TData> {
     module: keyof typeof API.list;
+
+}
+
+interface UseGetListTypePaginator<TParam, TData> extends UseGetType<TParam, TData> {
+    module: keyof typeof API.list;
+    _onSuccessPaginator?: (_data: ResponseType<MetaResponseType<TData>>) => void;
 }
 
 interface UseGetDetailType<TParam, TData> extends UseGetType<TParam, TData> {
@@ -69,6 +75,38 @@ const useGetList = <TQueryFnData, TParam = ParamType>({
 
     return { ...query, response: query.data };
 };
+const useGetListWithPagination = <TQueryFnData, TParam = ParamType>({
+    module,
+    params,
+    enabled = true,
+    _onSuccessPaginator = () => {},
+}: UseGetListTypePaginator<TParam, TQueryFnData[]>) => {
+    const query = useQuery<ResponseType<MetaResponseType<TQueryFnData[]>>, AxiosError<ResponseType<MetaResponseType>>>({
+        enabled,
+        refetchOnWindowFocus: false,
+        queryKey: [...list(params)[module], params],
+        queryFn: async () => {
+            const response = await http.getPaginator<ResponseType<MetaResponseType<TQueryFnData[]>>>(API.list[module], { params });
+            return response.data;
+        },
+        select: (data) => ({
+            ...data,
+            meta: data?.extra,
+        }),
+    });
+
+    const onSuccessPaginator = useCallback(() => {
+        if (query.data) {
+            _onSuccessPaginator(query.data);
+        }
+    }, [_onSuccessPaginator, query.data]);
+
+    useEffect(() => {
+        onSuccessPaginator();
+    }, [onSuccessPaginator, query.data]);
+
+    return { ...query, meta: query.data?.extra };
+};
 
 const useGetDetail = <TQueryFnData, TParam = ParamType>({
     module,
@@ -114,7 +152,7 @@ const useGetListMulti = <TData, TQueryFnData, TParam = ParamType>({
                     params: {},
                 });
 
-                return response.data.data || [];
+                return response.data.result || [];
             },
         })),
         combine: (results) => {
@@ -139,4 +177,4 @@ const useGetListMulti = <TData, TQueryFnData, TParam = ParamType>({
     return { ...query };
 };
 
-export { useGetDetail, useGetList, useGetListMulti };
+export { useGetDetail, useGetList, useGetListMulti ,useGetListWithPagination};

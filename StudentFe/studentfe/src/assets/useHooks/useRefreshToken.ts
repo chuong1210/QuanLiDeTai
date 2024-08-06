@@ -1,44 +1,48 @@
-
-import { useCallback, useState } from 'react';
-import { useRouter } from 'next/router';
+import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 import { REFRESH_TOKEN, ACCESS_TOKEN } from '../config';
 import { cookies } from '../helpers';
+
+interface RefreshTokenResponse {
+  result: {
+    accessToken: string;
+    refreshToken?: string;
+  };
+}
+
+const refreshToken = async (): Promise<RefreshTokenResponse> => {
+  const response = await axios.post<RefreshTokenResponse>('/api/refresh-token', {
+    token: cookies.get(REFRESH_TOKEN),
+  });
+  return response.data;
+};
 
 const useRefreshToken = () => {
   const router = useRouter();
 
-  const refresh = useCallback(async () => {
-    try {
-      // Gọi API refresh token và lưu vào cookies
-      const refreshResponse = await axios.post('/api/refresh-token', {
-        refreshToken: cookies.get(REFRESH_TOKEN),
-      });
-      const { accessToken, refreshToken } = refreshResponse.data;
-
-      // Nếu có accessToken mới, cập nhật vào cookies 
+  const mutation = useMutation<RefreshTokenResponse, Error, void>({
+    mutationFn: refreshToken,
+    onSuccess: (data:RefreshTokenResponse) => {
+      const { accessToken, refreshToken } = data.result;
       if (accessToken) {
         cookies.set(ACCESS_TOKEN, accessToken, { path: '/' });
         if (refreshToken) {
           cookies.set(REFRESH_TOKEN, refreshToken, { path: '/' });
         }
-        // Cập nhật Axios default header
         axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-        return accessToken;
       }
-    } catch (error) {
-      // Nếu refresh token thất bại, xử lý logout hoặc điều hướng
-      console.error('Error during refresh token:', error);
-      // Logout user or redirect
-      router.push('/login'); // redirect to login page
-      return null;
-    }
-  }, [router]);
+    },
+    onError: () => {
+      router.push('/login');
+    },
+  });
 
-  return refresh;
+  return mutation.mutateAsync;
 };
 
 export default useRefreshToken;
+
 
 
 // import { http } from '@/assets/helpers';

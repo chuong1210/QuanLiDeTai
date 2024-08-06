@@ -23,7 +23,7 @@ const NotificationTab = () => {
     },
   });
 
-  // const { lng } = useContext(NotificationPageContext);
+  const { tab } = useContext(NotificationPageContext);
 
   return (
     <Card

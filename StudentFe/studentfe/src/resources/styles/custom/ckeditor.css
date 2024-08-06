@@ -11,3 +11,8 @@
     border-top-left-radius: 6px !important;
     border-top-right-radius: 6px !important;
 }
+/* CSS - Bạn có thể thêm đọan code này vào file CSS chính của ứng dụng hoặc một module CSS */
+.your-calendar-container .p-calendar .p-datepicker-trigger {
+    color: green; /* Thay đổi màu của icon */
+    font-size: 0.8em; /* Thay đổi kích thước của icon */
+  }

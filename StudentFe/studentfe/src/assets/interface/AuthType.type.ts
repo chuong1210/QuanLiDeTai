@@ -1,28 +1,27 @@
 interface AuthType {
+
     aud: string;
-    customer: {
+    result: {
         Id: number;
         Name: string;
     };
-    exp: number;
     faculty: {
         Id: number;
     };
     permission: string[];
     type: string;
-    uid: number;
     userName: string;
 
-    // is_graduate:boolean;
-    // createdate:Date;
-    //  modifideddate:Date;
-    //  username: string;
-    //  password:string;
-    //  createdby:AuthType;
-    //  modifiedby:AuthType;
+
 
 
 
 }
 
-export type { AuthType };
+interface AuthTypeLogin {
+     accessToken:string ;
+    refreshToken?:string;
+}
+
+
+export type { AuthType,AuthTypeLogin };

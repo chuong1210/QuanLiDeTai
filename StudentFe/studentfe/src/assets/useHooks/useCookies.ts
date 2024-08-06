@@ -8,7 +8,6 @@ const useCookies = <T>(key: string): [T | undefined, (_key: string, _value: T, _
 
     useEffect(() => {
         const value = cookies.get<T>(key);
-
         _setData(value);
     }, [key]);
 

@@ -11,7 +11,7 @@ const list = (params: any) => ({
     thesis: ['thesis', 'list', params],
     role: ['roles', 'list', params],
     student_join: ['student_joins', 'list', params],
-    register_topic: ['register_topics', 'list', params],
+    research: ['researchs', 'list', params],
     invitation: ['invitations', 'list', params],
     student_by_period: ['student_by_periods', 'list', params],
     job: ['jobs', 'list', params],
@@ -28,6 +28,10 @@ const detail = () => ({
     topic: ['topic', 'detail'],
     job: ['job', 'detail'],
     schedule: ['schedule', 'detail'],
+    student: ['student', 'detail'],
+    research: ['researchs', 'detail'],
+
+
 });
 
 export { list, detail };

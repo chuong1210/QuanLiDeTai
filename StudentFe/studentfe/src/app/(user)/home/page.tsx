@@ -14,7 +14,7 @@ import {
 } from "@/assets/interface";
 import { PageProps } from "@/assets/types/UI";
 import { CustomImage, Loader } from "@/resources/components/UI";
-// import FullCalendar from "@/resources/components/UI/FullCalendar";
+import FullCalendar from "@/resources/components/UI/FullCalendar";
 import Chart from "@/resources/components/layout/Chart";
 import { format, sub } from "date-fns";
 import moment from "moment";
@@ -41,10 +41,10 @@ const HomePage = ({ params: { _ } }: PageProps) => {
 
   const jobQuery = useGetList<JobType, JobParamType>({
     module: "job",
-    enabled: !!groupQuery.response?.data?.thesisDto?.id,
+    enabled: !!groupQuery.response?.result?.thesisDto?.id,
     params: {
       filters: `lastModifiedDate>=${sub(date.CURR_DATE, { days: 7 })}`,
-      thesisId: groupQuery.response?.data?.thesisDto?.id,
+      thesisId: groupQuery.response?.result?.thesisDto?.id,
     },
   });
 
@@ -108,7 +108,7 @@ const HomePage = ({ params: { _ } }: PageProps) => {
 
           <div className="col-6 flex justify-content-end">
             <AvatarGroup>
-              {groupQuery.response?.data?.members?.map((member) => (
+              {groupQuery.response?.result?.members?.map((member) => (
                 <Avatar
                   key={member.student?.id}
                   label={member.student?.name?.[0]}
@@ -159,7 +159,7 @@ const HomePage = ({ params: { _ } }: PageProps) => {
               ) : (
                 <div className=" overflow-auto" style={{ maxHeight: 230 }}>
                   <div className="flex flex-column gap-3">
-                    {jobQuery?.response?.data?.map((job) => (
+                    {jobQuery?.response?.result?.map((job) => (
                       <Panel
                         key={job.id}
                         headerTemplate={(options) =>
@@ -188,7 +188,7 @@ const HomePage = ({ params: { _ } }: PageProps) => {
 
                         <div className="flex align-items-center justify-content-between gap-3 cursor-pointer bg-white border-top-1 border-300 p-3">
                           <Link
-                            href={`${ROUTES.topic.job_detail}/${job.id}?topicId=${groupQuery.response?.data?.thesisDto?.id}&groupId=${groupQuery.response?.data?.id}`}
+                            href={`${ROUTES.topic.job_detail}/${job.id}?topicId=${groupQuery.response?.result?.thesisDto?.id}&groupId=${groupQuery.response?.result?.id}`}
                             className="p-ripple hover:bg-blue-50 hover:underline border-round"
                           >
                             <p className="text-blue-600 font-semibold">
@@ -262,7 +262,7 @@ const HomePage = ({ params: { _ } }: PageProps) => {
             </div>
           ) : (
             <div className="flex flex-column gap-3">
-              {notificationQuery.response?.data?.map((notification) => (
+              {notificationQuery.response?.result?.map((notification) => (
                 <div
                   key={notification.id}
                   className="flex gap-3 cursor-pointer"
@@ -292,6 +292,7 @@ const HomePage = ({ params: { _ } }: PageProps) => {
               ))}
             </div>
           )}
+          <FullCalendar />
         </Card>
       </div>
     </div>

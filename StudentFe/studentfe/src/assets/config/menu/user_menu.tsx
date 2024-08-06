@@ -7,12 +7,6 @@ import {
 } from "react-icons/fa6";
 import { ROUTES } from "../";
 import { FaHome } from "react-icons/fa";
-import { useRef } from "react";
-import { ChangePasswordModalRefType } from "@/assets/types/modal";
-import { toast } from "react-toastify";
-import { formChangePassword } from "@/assets/types/changePassword";
-import { useMutation } from "@tanstack/react-query";
-import { updatePassword } from "../apis/studentapi";
 
 const USER_MENU = (pathName: string): MenuItemType[] => {
   const base: string = "http://localhost:3000";

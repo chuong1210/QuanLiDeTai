@@ -1,3 +1,4 @@
+import { MetaType } from '@/assets/types/httpRequest';
 interface MetaType {
     currentPage?: number;
     hasNextPage?: boolean;
@@ -13,24 +14,49 @@ interface ParamType {
     filters?: string;
     sorts?: string;
     page?: number;
-    pageSize?: number;
+    limit?: number;
     isAllDetail?: boolean;
     facultyId?: string | number;
     isGetFaculty?: boolean;
     removeFacultyId?: boolean;
+    orderBy?:string;
+    orderDirection?:"ASC"|"DESC";
 }
 
-interface ResponseType<dataType = any> {
-    data: dataType | null;
+
+ interface ResponseType<T=any> {
+    code: number;
+    message?: string;
+    result: T |null;
     extra?: MetaType;
     messages: string[] | null;
     message: string | null;
     exception: string | null;
     succeeded?: boolean;
-    code?: number;
-   // accessToken:string  ; //response.data.access_token
-    // token(REFRESH_TOKEN: string, token: any, arg2: { expires: Date; }): unknown;
+
+  }
+  
+ interface MetaResponseType<T=any> extends MetaType {
+  page?: number;
+  totalpage?: number;
+  responses?:any
 
 }
 
-export type { MetaType, ParamType, ResponseType };
+  
+  
+   interface LoginOutput {
+    accessToken: string;
+  }
+  
+  
+   interface LogoutInput {
+    token: string;
+  }
+  
+ 
+  
+   interface IntrospectTokenResponse {
+    isAuthenticated: boolean;
+  }
+export type { MetaType, ParamType, ResponseType,MetaResponseType };

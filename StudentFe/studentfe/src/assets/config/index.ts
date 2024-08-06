@@ -1,4 +1,4 @@
-export * from './apis/api'
+export * from './apiRequests/api'
 export * from './routes'
 export * from './httpRequest'
 export * from './permission'

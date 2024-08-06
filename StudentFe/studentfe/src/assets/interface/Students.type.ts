@@ -1,5 +1,5 @@
 import { ParamType } from '@/assets/types/httpRequest';
-import { GeneralType } from './';
+import { GeneralType, GroupType } from './';
 
 interface StudentType extends GeneralType {
     dateOfBirth?: Date | null;
@@ -8,6 +8,8 @@ interface StudentType extends GeneralType {
     majorId?: string | number;
     studentJoinId?: number;
     status?: string;
+    groupDto?: GroupType;
+
 }
 
 interface StudentParamType extends ParamType {
