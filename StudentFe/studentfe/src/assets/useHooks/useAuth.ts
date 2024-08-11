@@ -1,5 +1,8 @@
-import { useContext, useDebugValue } from "react";
+import { useContext, useDebugValue, useEffect } from "react";
 import AuthContext from "../context/AuthProvider";
+
+import refreshToken from "./useRefreshToken";
+
 
 const useAuth = () => {
   const authContext = useContext(AuthContext);
@@ -15,3 +18,17 @@ const useAuth = () => {
 }
 
 export default useAuth;
+
+
+
+const useAuthCheck = () => {
+  useEffect(() => {
+     refreshToken().then(()=>{
+      
+     });
+    if (!refreshToken) {
+      window.location.href = '/login'; // Chuyển hướng tới trang đăng nhập nếu không có refreshToken
+    }
+  }, []);
+};
+

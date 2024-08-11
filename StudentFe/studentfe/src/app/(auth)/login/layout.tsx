@@ -1,7 +1,8 @@
 import React from "react";
 import Image from "next/image";
 import { PageProps } from "@/assets/types/UI";
-import imageAsset from "@/resources/images/huit/brand.png";
+import imageAsset from "/public/images/huit/brand.png";
+
 const Layout = ({ children }: PageProps) => {
   return (
     <div className="container layer-2">

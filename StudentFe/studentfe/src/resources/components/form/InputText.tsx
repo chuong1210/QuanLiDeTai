@@ -9,6 +9,7 @@ const InputText = ({
   value = "",
   placeholder = "",
   blockClassName = "",
+
   row = false,
   required = false,
   errorMessage,
@@ -39,6 +40,7 @@ const InputText = ({
           </label>
         )}
         <PrimeInputText
+          type=""
           id={id}
           value={inputValue}
           placeholder={placeholder}

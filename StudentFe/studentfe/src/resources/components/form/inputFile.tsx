@@ -148,13 +148,13 @@ const InputFile = memo(
                       file,
                     });
 
-                    if (response.data.data) {
+                    if (response.data.result) {
                       setFiles((prev) => {
                         onChange({
-                          files: [...prev, response.data.data!],
+                          files: [...prev, response.data.result!],
                         });
 
-                        return [...prev, response.data.data!];
+                        return [...prev, response.data.result!];
                       });
                     }
                   } catch (error: any) {}
@@ -167,14 +167,14 @@ const InputFile = memo(
                   },
                   {
                     onSuccess(response) {
-                      if (response.data.data) {
+                      if (response.data.result) {
                         onChange({
-                          file: response.data.data!,
-                          files: [response.data.data!],
+                          file: response.data.result!,
+                          files: [response.data.result!],
                         });
 
-                        setFiles([response.data.data]);
-                        setDefaultFile(response.data.data);
+                        setFiles([response.data.result]);
+                        setDefaultFile(response.data.result);
                       }
                     },
                   }

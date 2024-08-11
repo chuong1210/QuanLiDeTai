@@ -4,6 +4,7 @@ import { ACCESS_TOKEN, REFRESH_TOKEN} from '@/assets/config';
 import { MenuItemType } from '@/assets/types/menu';
 import { deleteCookie, getCookie, setCookie } from 'cookies-next';
 import { OptionsType } from 'cookies-next/lib/types';
+import { jwtDecode } from 'jwt-decode';
 
 const get = <T>(key: string): T | undefined => {
     const value = getCookie(key);
@@ -34,7 +35,15 @@ const logOut = () => {
     remove(REFRESH_TOKEN);
     remove(ACCESS_TOKEN);
 };
-
+const isTokenExpired = (token: string | undefined) => {
+    if (!token) return true;
+    try {
+        const decodedToken: any = jwtDecode(token);
+        return decodedToken.exp < Date.now() / 1000;
+    } catch (error) {
+        return true;
+    }
+};
 const checkPermission = (permission: string, permissions: string[]): boolean => {
     if (!permissions || !permissions.includes(permission)) {
         return false;
@@ -51,4 +60,4 @@ const checkChildPermission = (item: MenuItemType, permissions: string[]): boolea
     return false;
 };
 
-export { checkChildPermission, checkPermission, get, logOut, remove, set };
+export { checkChildPermission, checkPermission, get, logOut, remove, set,isTokenExpired };

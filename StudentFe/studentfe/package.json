@@ -42,6 +42,7 @@
     "react-to-print": "^2.15.1",
     "react-toastify": "^10.0.4",
     "redux-logger": "^3.0.6",
+    "styled-components": "^6.1.12",
     "use-debounce": "^10.0.0",
     "v8": "^0.1.0",
     "xlsx": "^0.18.5"

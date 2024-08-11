@@ -7,7 +7,7 @@ import { Button } from "primereact/button";
 import HeadlessTippy from "@tippyjs/react/headless";
 import { useRouter } from "next/navigation";
 import { API, ROUTES } from "@/assets/config";
-import imageAsset from "@/resources/images/huit/logo.png";
+import imageAsset from "/public/images/huit/logo.png";
 
 import { Breadcrumb } from "../UI";
 import { FaHome } from "react-icons/fa";
@@ -22,6 +22,9 @@ import { NotificationParamType, NotificationType } from "@/assets/interface";
 import moment from "moment";
 import { MenuItem } from "primereact/menuitem";
 import { Divider } from "primereact/divider";
+import { Tooltip } from "primereact/tooltip";
+import { Badge } from "primereact/badge";
+import { position } from "html2canvas/dist/types/css/property-descriptors/position";
 
 const Header = () => {
   const { isLoading, response } = useGetList<
@@ -74,17 +77,58 @@ const Header = () => {
 
   return (
     <header style={{ zIndex: "1000" }}>
-      <Menubar
-        start={start}
-        model={itemsWithCommands}
-        className="flex justify-content-around"
-        menuIcon
-        end={
-          <Link href={`${ROUTES.information.notification}/`}>
-            <Button label="Thông báo" rounded size="small" icon="pi pi-bell" />
-          </Link>
-        }
-      />
+      <div style={{ marginLeft: "1rem", marginRight: "1rem" }}>
+        <Menubar
+          start={start}
+          model={itemsWithCommands}
+          className="flex justify-content-around"
+          menuIcon
+          end={
+            <Link href={`${ROUTES.information.notification}/`}>
+              <Tooltip target=".custom-target-icon" />
+              {/* <i
+                className="custom-target-icon pi pi-envelope p-text-secondary p-overlay-badge"
+                data-pr-tooltip="No notifications"
+                data-pr-position="right"
+                data-pr-at="right+5 top"
+                data-pr-my="left center-2"
+                style={{
+                  fontSize: "2rem",
+                  cursor: "pointer",
+                  marginRight: "5rem",
+                }}
+              >
+                <Badge severity="danger"></Badge>
+              </i> */}
+
+              <Button
+                label="Thông báo"
+                rounded
+                size="small"
+                className="p-button-rounded p-button-primary custom-target-icon mr-4 "
+                icon="pi pi-envelope"
+                data-pr-tooltip="No notifications"
+                data-pr-position="right"
+                data-pr-at="right+5 top"
+                data-pr-my="left center-2"
+              />
+
+              <Badge
+                size={"normal"}
+                value="2"
+                style={{
+                  position: "absolute",
+                  marginTop: "0",
+                  right: "18px",
+                  transition: "all 0.4s ease",
+                  marginRight: "1.5rem",
+                }}
+                severity="warning"
+              ></Badge>
+            </Link>
+          }
+        />
+      </div>
     </header>
   );
 };

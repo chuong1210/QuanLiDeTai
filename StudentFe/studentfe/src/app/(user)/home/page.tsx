@@ -1,7 +1,7 @@
 "use client";
 
-import { ROUTES } from "@/assets/config";
-import { date } from "@/assets/helpers";
+import { ACCESS_TOKEN, ROUTES } from "@/assets/config";
+import { cookies, date } from "@/assets/helpers";
 import { HTML } from "@/assets/helpers/string";
 import { useGetDetail, useGetList } from "@/assets/useHooks/useGet";
 import {
@@ -28,6 +28,8 @@ import { Ripple } from "primereact/ripple";
 import { Skeleton } from "primereact/skeleton";
 import { classNames } from "primereact/utils";
 import _ from "lodash";
+import { refreshTokenApi } from "@/assets/config/apiRequests/StudentApiMutation";
+import { GroupTable } from "../topic/team/_tab";
 
 const HomePage = ({ params: { _ } }: PageProps) => {
   const groupQuery = useGetDetail<GroupType, GroupParamType>({
@@ -85,6 +87,13 @@ const HomePage = ({ params: { _ } }: PageProps) => {
       </div>
     );
   };
+  const buttonClick = async () => {
+    const refreshResponse = await refreshTokenApi();
+
+    await cookies.set(ACCESS_TOKEN, refreshResponse?.result?.accessToken);
+
+    console.log(cookies.get(ACCESS_TOKEN) + "2");
+  };
 
   return (
     <div className="flex gap-3">
@@ -98,6 +107,8 @@ const HomePage = ({ params: { _ } }: PageProps) => {
       />
 
       <div className="flex-1">
+        <Button onClick={buttonClick} />
+
         <div className="flex align-items-center justify-content-between">
           <div className="col-6">
             {/* <span className='p-input-icon-left'>

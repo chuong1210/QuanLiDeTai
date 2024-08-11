@@ -9,6 +9,8 @@ const Dropdown = ({
   id,
   label,
   value,
+  highlightOnSelect,
+  checkmark,
   options,
   placeholder = "",
   blockClassName = "",
@@ -16,6 +18,7 @@ const Dropdown = ({
   optionValue = "value",
   emptyMessage = "No results found",
   errorMessage,
+  className,
   disabled = false,
   showClear = false,
   onChange = () => {},
@@ -45,12 +48,17 @@ const Dropdown = ({
           showClear={showClear}
           emptyMessage={emptyMessage}
           inputId={id}
+          checked={checkmark}
           disabled={disabled}
           options={options}
           value={selected}
           optionValue={optionValue}
           placeholder={placeholder}
-          className={classNames("w-full", { "p-invalid": !!errorMessage })}
+          className={classNames(
+            "w-full",
+            { "p-invalid": !!errorMessage },
+            className
+          )}
           onChange={(e) => {
             onChange(e.value);
             setSelected(e.value);

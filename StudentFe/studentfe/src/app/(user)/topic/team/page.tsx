@@ -3,8 +3,13 @@
 import { ROUTES, ROWS_PER_PAGE } from "@/assets/config";
 import { DATE_FILTER } from "@/assets/config/info";
 import { cookies, http } from "@/assets/helpers";
-import { useGetDetail, useGetList } from "@/assets//useHooks/useGet";
 import {
+  useGetDetail,
+  useGetList,
+  useGetListWithPagination,
+} from "@/assets//useHooks/useGet";
+import {
+  AuthType,
   GroupParamType,
   GroupType,
   StudentParamType,
@@ -12,7 +17,7 @@ import {
 } from "@/assets/interface";
 import { PageProps } from "@/assets/types/UI";
 import { MetaType } from "@/assets/types/httpRequest";
-import { DEFAULT_META } from "@/assets/config/httpRequest";
+import { DEFAULT_META, DEFAULT_PARAMS } from "@/assets/config/httpRequest";
 import { Loader } from "@/resources/components/UI";
 import { Dropdown } from "@/resources/components/form/Dropdown";
 import Link from "next/link";
@@ -20,36 +25,61 @@ import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { InputText } from "primereact/inputtext";
 import { Paginator, PaginatorPageChangeEvent } from "primereact/paginator";
-import { useState } from "react";
+import { Fragment, useEffect, useState } from "react";
+import { Button } from "primereact/button";
+import { Tag } from "primereact/tag";
+import { AvatarGroup } from "primereact/avatargroup";
+import { Avatar } from "primereact/avatar";
 
 const GroupPage = ({ params: { lng } }: PageProps) => {
   const [meta, setMeta] = useState<MetaType>(DEFAULT_META);
+  const [params, setParams] = useState<GroupParamType>(DEFAULT_PARAMS);
+  const [currentPage, setCurrentPage] = useState(meta.currentPage);
+  const [user, setUser] = useState<AuthType | null>(null);
+  const [filter, setFilter] = useState<string | null>(null);
 
-  const [params, setParams] = useState<GroupParamType>({
-    page: meta.currentPage,
-    limit: meta.pageSize,
-    sorts: "-DateCreated",
-    isGetGroupMe: true,
-  });
-  const studentId = cookies.get("id") + "";
+  const { limit, page, orderBy, orderDirection } = params;
+  let hasGroup: boolean = false;
 
-  const studentQuery = useGetDetail<StudentType>({
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
+    }
+  }, []);
+  // Log the user data to the console
+  const idStudent: string = user?.students?.maSo ?? "";
+  const studentQuery = useGetDetail<StudentType, StudentParamType>({
     module: "student",
-    params: { id: studentId },
-    enabled: !!studentId,
+    params: { maSo: idStudent },
+    enabled: !!user,
     // _onSuccess: (data) => {
     //   if (data.data?.id) {
     //     setHasGroup(true);
     //   }
     // },
   });
-  const groupQuery = useGetList<GroupType>({
+  const groupQuery = useGetListWithPagination<GroupType>({
     module: "group",
-    params,
-    _onSuccess: (data) => {},
+    params: {
+      ...params,
+      page: currentPage,
+      limit: limit,
+      orderBy: orderBy,
+      orderDirection: orderDirection,
+    },
+    _onSuccess: (data) => {
+      data.result;
+    },
   });
-  //http://localhost:8888/group?page=1&pageSize=10&sorts=-DateCreated&isGetGroupMe=true
-
+  const Groups: GroupType[] = groupQuery.data?.result?.responses;
+  hasGroup = (Groups ?? []).some((group) =>
+    group.students?.some((stu) => stu.maSo === idStudent)
+  );
   const onPageChange = (e: PaginatorPageChangeEvent) => {
     setParams((prev) => ({
       ...prev,
@@ -67,90 +97,212 @@ const GroupPage = ({ params: { lng } }: PageProps) => {
       </div>
     );
   };
+  const statusBodyTemplate = (rowData: GroupType) => {
+    const hasMembers = (rowData.students?.length ?? 0) > 0;
+    const statusColor = hasMembers ? "success" : "danger"; // Màu xanh nếu có thành viên, màu đỏ nếu không có
+
+    return (
+      <Tag
+        value={hasMembers ? "Có thành viên" : "Không có thành viên"}
+        severity={statusColor}
+      />
+    );
+  };
+
+  const renderUsers = (rowData: GroupType) => {
+    const studentCount = rowData.students?.length ?? 0; // Sử dụng optional chaining và nullish coalescing để đảm bảo không có lỗi
+    return (
+      <AvatarGroup className="center">
+        {Array.from({ length: studentCount }).map((_, index) => (
+          <Avatar key={index} icon="pi pi-user" className="mr-2" />
+        ))}
+        <Avatar label={`+${studentCount}`} />
+      </AvatarGroup>
+    );
+  };
+  const handleFilter = (status: string | null) => {
+    setFilter(status);
+  };
 
   return (
-    <div className="flex flex-column gap-4">
-      <div className="flex align-items-center justify-content-between bg-white p-3 border-round-lg shadow-3">
-        <p className="text-xl font-semibold">Danh sách nhóm</p>
-        {!studentQuery.data?.result?.groupDto?.id && (
-          <Link href={`${ROUTES.topic.group}/create`}>
-            <button className="p-button p-component">Tạo nhóm</button>
-          </Link>
-        )}
-      </div>
+    <>
+      {/* studentQuery.data?.result?.groupDto?.id */}
+      {!hasGroup ? (
+        <div className="flex flex-column gap-4">
+          <div className="flex align-items-center justify-content-between bg-white p-3 border-round-lg shadow-3">
+            <p className="text-xl font-semibold">Danh sách nhóm</p>
+            {!hasGroup && (
+              <Fragment>
+                <Link
+                  href={`${ROUTES.topic.group}/create?studentId=${studentQuery.data?.result?.maSo}&hasGroup=${hasGroup}`}
+                >
+                  {" "}
+                  <Button className="p-button p-component p-2">Tạo nhóm</Button>
+                </Link>
+                <Link href={ROUTES.topic.group}>
+                  <Button className="p-button p-component p-2">
+                    Tham gia nhóm
+                  </Button>
+                </Link>
+              </Fragment>
+            )}
+          </div>
 
-      <div className="flex align-items-center justify-content-between">
-        <InputText placeholder={`${"search"}...`} className="w-20rem" />
-      </div>
+          <div className="flex align-items-center justify-content-between">
+            <InputText placeholder={`${"search"}...`} className="w-20rem" />
+          </div>
 
-      <div className="border-round-xl overflow-hidden relative shadow-5">
-        {/* <Loader show={groupQuery.isFetching} /> */}
+          <div className="border-round-xl overflow-hidden relative shadow-5">
+            <Loader show={groupQuery.isFetching} />
 
-        <DataTable value={groupQuery.response?.result || []}>
-          <Column
-            alignHeader="center"
-            headerStyle={{
-              background: "var(--primary-color)",
-              color: "var(--surface-a)",
-            }}
-            header={"Action"}
-            body={renderActions}
-          />
-          <Column
-            alignHeader="center"
-            headerStyle={{
-              background: "var(--primary-color)",
-              color: "var(--surface-a)",
-            }}
-            field="name"
-            header="Tên group"
-          />
-          <Column
-            alignHeader="center"
-            headerStyle={{
-              background: "var(--primary-color)",
-              color: "var(--surface-a)",
-            }}
-            field="countMember"
-            header={"Số lượng người trong group"}
-          />
-        </DataTable>
+            <div className="flex gap-2 mb-4">
+              <Button
+                className={`p-button ${
+                  filter === null ? "p-button-primary" : ""
+                }`}
+                onClick={() => handleFilter(null)}
+                severity="success"
+                outlined
+              >
+                View all
+              </Button>
+              <Button
+                className={`p-button ${
+                  filter === "hasMembers" ? "p-button-primary" : ""
+                }`}
+                onClick={() => handleFilter("hasMembers")}
+                severity="info"
+                outlined
+              >
+                Has Members
+              </Button>
+              <Button
+                className={`p-button ${
+                  filter === "noMembers" ? "p-button-primary" : ""
+                }`}
+                onClick={() => handleFilter("noMembers")}
+                severity="danger"
+                outlined
+              >
+                No Members
+              </Button>
+            </div>
 
-        <div className="flex align-items-center justify-content-between bg-white px-3 py-2">
-          <Dropdown
-            id="date_created_filter"
-            value="date_decrease"
-            optionValue="code"
-            onChange={(sortCode) => {
-              //  console.log(JSON.stringify(params) + "before");
+            <DataTable
+              showGridlines
+              value={
+                groupQuery.data?.result?.responses.filter(
+                  (group: GroupType) => {
+                    if (filter === null) return true;
+                    if (filter === "hasMembers") {
+                      return (group.students?.length ?? 0) > 0; // Lọc những nhóm có thành viên
+                    } else if (filter === "noMembers") {
+                      return (group.students?.length ?? 0) === 0; // Lọc những nhóm không có thành viên
+                    }
+                    return true;
+                  }
+                ) || []
+              }
+              className="p-datatable-sm"
+              style={{ padding: "10px" }}
+            >
+              <Column
+                alignHeader="center"
+                header={"Thao tác"}
+                body={renderActions}
+                bodyStyle={{
+                  padding: " 10px 16px" /* Adjust as necessary */,
+                  textAlign: "center" /* Centers the text */,
+                  verticalAlign: "middle" /* Vertically centers the text */,
+                }}
+                headerStyle={{
+                  // borderRight: "1px solid #d8d8d8",
+                  background: "var(--primary-color)",
+                  color: "var(--surface-a)",
+                  margin: "0px",
+                }}
+                // bodyStyle={{ borderRight: "1px solid #d8d8d8" }}
+              />
+              <Column
+                header="Tình trạng"
+                alignHeader="center"
+                headerStyle={{
+                  background: "var(--primary-color)",
+                  color: "var(--surface-a)",
+                }}
+                body={statusBodyTemplate}
+                style={{ textAlign: "center" }}
+              />
+              <Column
+                alignHeader="center"
+                headerStyle={{
+                  background: "var(--primary-color)",
+                  color: "var(--surface-a)",
+                }}
+                field="id"
+                header="Mã nhóm"
+                style={{ textAlign: "center" }}
+              />
+              <Column
+                alignHeader="center"
+                headerStyle={{
+                  borderRight: "1px solid #d8d8d8",
+                  background: "var(--primary-color)",
+                  color: "var(--surface-a)",
+                }}
+                field="students"
+                header="Số lượng người trong group"
+                body={renderUsers}
+                style={{ textAlign: "center" }}
+                bodyStyle={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              />
+            </DataTable>
 
-              //  console.log(sortCode + "sort"); date_increasesort
+            <div className="flex align-items-center justify-content-between bg-white px-3 py-2">
+              <Dropdown
+                id="date_created_filter"
+                value="date_decrease"
+                optionValue="code"
+                onChange={(sortCode) => {
+                  const filter = DATE_FILTER().find((t) => t.code === sortCode); //@chuongvo1012 DATE_FILTER
+                  setParams((prev) => {
+                    return {
+                      ...prev,
+                      sorts: http.handleSort(filter, prev),
+                      //http://localhost:8888/groups?page=1&pageSize=10&sorts=-DateCreated&isGetGroupMe=true
+                    };
+                  });
+                }}
+                options={DATE_FILTER()}
+              />
 
-              const filter = DATE_FILTER().find((t) => t.code === sortCode); //@chuongvo1012 DATE_FILTER
-              //  console.log(filter); object date_filter
-              setParams((prev) => {
-                return {
-                  ...prev,
-                  sorts: http.handleSort(filter, prev),
-                  //http://localhost:8888/groups?page=1&pageSize=10&sorts=-DateCreated&isGetGroupMe=true
-                };
-              });
-              /// console.log(JSON.stringify(params) + "after");
-            }}
-            options={DATE_FILTER()}
-          />
-
-          <Paginator
-            first={http.currentPage(meta.currentPage)}
-            rows={meta.pageSize}
-            totalRecords={meta.totalCount}
-            rowsPerPageOptions={ROWS_PER_PAGE}
-            onPageChange={onPageChange}
-            className="border-noround p-0"
-          />
+              <Paginator
+                first={http.currentPage(meta.currentPage)}
+                rows={meta.pageSize}
+                totalRecords={meta.totalCount}
+                rowsPerPageOptions={ROWS_PER_PAGE}
+                onPageChange={onPageChange}
+                className="border-noround p-0"
+              />
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      ) : (
+        <div>
+          <p>Bạn đã có nhóm</p>
+
+          <Link
+            href={`${ROUTES.topic.group}/${studentQuery.data?.result?.groupDto?.id}`}
+          >
+            <Button className="p-button p-component p-2">Xem nhóm</Button>
+          </Link>
+        </div>
+      )}
+    </>
   );
 };
 

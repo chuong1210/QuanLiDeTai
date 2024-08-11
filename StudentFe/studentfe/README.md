@@ -14,9 +14,14 @@ pnpm dev
 bun dev
 ```
 
-thêm register(boolean) vào topic
-ko có kiểm tra đã có nhóm hay chưa
+thêm property register(boolean) vào đề tài
+ko có kiểm tra sinh viên đã có nhóm hay chưa để check khi đăng ký và gửi lời mời
 resposne trả về 1 kiểu , dto lại đưa lên 1 kiểu
+showall showallnoparams bi dư
+mã số sv bị dư
+property trả về lúc anh lúc việt
+điều chỉnh lại file webconfig
+gửi thêm tg expired của 2 token
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 

@@ -21,9 +21,10 @@ import {
   registerTopicAPI,
 } from "@/assets/config/apiRequests/StudentApiMutation";
 import { ResponseType } from "@/assets/types/httpRequest";
-import { useRegisterTopic } from "@/assets/useHooks/useRegisterTopic";
+import { useRegisterTopic } from "@/assets/useHooks/useNotificationModal";
 import { NotificationCard } from "@/resources/components/modal";
 import { useState } from "react";
+import { Tooltip } from "primereact/tooltip";
 interface TopicDetailModalProps extends PageProps {
   visible: boolean;
   setVisible: (visible: boolean) => void;
@@ -37,10 +38,22 @@ const TopicDetailPage = ({
 }: TopicDetailModalProps) => {
   const [showNotificationModal, setShowNotificationModal] =
     useState<boolean>(false);
+  const [message, setMessage] = useState<string>("");
   let isSelectedTopic: boolean = false;
   // Lấy dữ liệu từ localStorage
-  const storedTopics = JSON.parse(localStorage.getItem("topics") ?? "") || "";
+  let storedTopics = []; // Initialize as an empty array
 
+  if (localStorage.getItem("topics")) {
+    try {
+      storedTopics = JSON.parse(localStorage.getItem("topics") ?? "");
+    } catch (error) {
+      console.error("Error parsing topics from localStorage:", error);
+      // Optionally, clear the invalid data:
+      // localStorage.removeItem("topics");
+    }
+  }
+
+  // ... rest of your code
   const { id } = _params;
   // const isSelectedTopic: boolean = storedTopics.some((t) => t.id === id);
   if (storedTopics === id) {
@@ -73,15 +86,6 @@ const TopicDetailPage = ({
       return cancelTopicAPI(newData);
     },
   });
-  const handleRegisterSuccess = () => {
-    topic.isRegister = true;
-    setVisible(false);
-    setShowNotificationModal(true);
-
-    setTimeout(() => {
-      setShowNotificationModal(false);
-    }, 3000);
-  };
 
   return (
     <Dialog
@@ -91,241 +95,279 @@ const TopicDetailPage = ({
       onHide={() => setVisible(false)}
     >
       <div className="pr-2">
-        <NotificationCard
-          ref={notificationModalRef}
-          //visible={showNotificationModal}
-        />
+        <NotificationCard ref={notificationModalRef} message={message} />
         {/* <Loader show={isFetching || topicMutation.isPending} /> */}
-        <Loader show={false} />
 
-        <div className="flex flex-column gap-3">
-          <Panel
-            toggleable={true}
-            collapsed={true}
-            header={"thesis lecture"}
-            className="shadow-2 border-1 border-300 border-round-xl overflow-hidden"
-          >
-            <div className="flex flex-column gap-3 p-3">
-              <div className="flex align-items-center">
-                <p className="w-15rem">{"Giáo viên"}</p>
-                <p className="text-900 font-semibold">
-                  {response?.result?.teachers?.length}
-                </p>
-              </div>
-
-              <div className="flex align-items-center">
-                <p className="w-15rem">{"Email"}</p>
-                <p className="text-900 font-semibold">
-                  {response?.result?.teachers?.map((t) => t.email)}
-                </p>
-              </div>
-
-              <div className="flex align-items-center">
-                <p className="w-15rem">{"Phone number"}</p>
-                <p className="text-900 font-semibold">
-                  {response?.result?.teachers?.map((t) => t.phoneNumber)}
-                </p>
-              </div>
-
-              <div className="flex align-items-center">
-                <p className="w-15rem">{"Học thuật giáo viên"}</p>
-                <p className="text-900 font-semibold">
-                  {response?.result?.teachers?.map((t) => t.academicTitle)}
-                </p>
-              </div>
-            </div>
-          </Panel>
-
-          {response?.result?.teachers &&
-            response?.result?.teachers.length > 0 && (
-              <Panel
-                toggleable={true}
-                collapsed={true}
-                header="Giảng viên hướng dẫn"
-                className="shadow-2 border-1 border-300 border-round-xl overflow-hidden"
-              >
-                <div className="p-3">
-                  {response?.result?.teachers?.map((teacher, index) => (
-                    <>
-                      <div className="flex flex-column gap-3" key={teacher.id}>
-                        <div className="flex align-items-center">
-                          <p className="w-15rem">{"Tên giáo viên"}</p>
-                          <p className="text-900 font-semibold">
-                            {teacher?.name}
-                          </p>
-                        </div>
-
-                        <div className="flex align-items-center">
-                          <p className="w-15rem">{"Email"}</p>
-                          <p className="text-900 font-semibold">
-                            {teacher?.email}
-                          </p>
-                        </div>
-
-                        <div className="flex align-items-center">
-                          <p className="w-15rem">{"Phone number"}</p>
-                          <p className="text-900 font-semibold">
-                            {teacher?.phoneNumber}
-                          </p>
-                        </div>
-
-                        <div className="flex align-items-center">
-                          <p className="w-15rem">{"Học thuật của giáo viên"}</p>
-                          <p className="text-900 font-semibold">
-                            {teacher?.academicTitle}
-                          </p>
-                        </div>
-                      </div>
-
-                      {index < response.result?.teachers?.length! - 1 && (
-                        <div className="px-8">
-                          <Divider />
-                        </div>
-                      )}
-                    </>
-                  ))}
+        {isFetching ? (
+          // Hiển thị Skeleton khi đang loading
+          <div className="flex flex-column gap-3">
+            <Skeleton height="3rem" width="100%" />
+            <Skeleton height="10rem" width="100%" />
+            <Skeleton height="3rem" width="100%" />
+          </div>
+        ) : (
+          <div className="flex flex-column gap-3">
+            <Panel
+              toggleable={true}
+              collapsed={true}
+              header={"thesis lecture"}
+              className="shadow-2 border-1 border-300 border-round-xl overflow-hidden"
+            >
+              <div className="flex flex-column gap-3 p-3">
+                <div className="flex align-items-center">
+                  <p className="w-15rem">{"Giáo viên"}</p>
+                  <p className="text-900 font-semibold">
+                    {response?.result?.teachers?.length}
+                  </p>
                 </div>
-              </Panel>
-            )}
 
-          {response?.result?.teachers &&
-            response.result?.teachers?.length > 0 && (
-              <Panel
-                toggleable={true}
-                collapsed={true}
-                header="Giảng viên phản biện"
-                className="shadow-2 border-1 border-300 border-round-xl overflow-hidden"
-              >
-                <div className="p-3">
-                  {response?.result?.teachers?.map((teacher, index) => (
-                    <>
-                      <div className="flex flex-column gap-3" key={teacher.id}>
-                        <div className="flex align-items-center">
-                          <p className="w-15rem">{"Tên giáo viên"}</p>
-                          <p className="text-900 font-semibold">
-                            {teacher?.name}
-                          </p>
-                        </div>
-
-                        <div className="flex align-items-center">
-                          <p className="w-15rem">{"Email"}</p>
-                          <p className="text-900 font-semibold">
-                            {teacher?.email}
-                          </p>
-                        </div>
-
-                        <div className="flex align-items-center">
-                          <p className="w-15rem">{"Phone number"}</p>
-                          <p className="text-900 font-semibold">
-                            {teacher?.phoneNumber}
-                          </p>
-                        </div>
-
-                        <div className="flex align-items-center">
-                          <p className="w-15rem">{"Học thuật của giáo viên"}</p>
-                          <p className="text-900 font-semibold">
-                            {teacher?.academicTitle}
-                          </p>
-                        </div>
-                      </div>
-
-                      {index < response.result?.teachers?.length! - 1 && (
-                        <div className="px-8">
-                          <Divider />
-                        </div>
-                      )}
-                    </>
-                  ))}
+                <div className="flex align-items-center">
+                  <p className="w-15rem">{"Email"}</p>
+                  <p className="text-900 font-semibold">
+                    {response?.result?.teachers?.map((t) => t.email)}
+                  </p>
                 </div>
-              </Panel>
-            )}
 
-          <div className="p-3 bg-white border-round-xl shadow-2">
-            <div className="flex align-items-center justify-content-between gap-3">
-              {isFetching ? (
-                <Skeleton className="flex-1 h-2rem" />
-              ) : (
-                <p className="flex-1 font-bold text-xl text-800">
-                  {response?.result?.name}
-                </p>
+                <div className="flex align-items-center">
+                  <p className="w-15rem">{"Phone number"}</p>
+                  <p className="text-900 font-semibold">
+                    {response?.result?.teachers?.map((t) => t.phoneNumber)}
+                  </p>
+                </div>
+
+                <div className="flex align-items-center">
+                  <p className="w-15rem">{"Học thuật giáo viên"}</p>
+                  <p className="text-900 font-semibold">
+                    {response?.result?.teachers?.map((t) => t.academicTitle)}
+                  </p>
+                </div>
+              </div>
+            </Panel>
+
+            {response?.result?.teachers &&
+              response?.result?.teachers.length > 0 && (
+                <Panel
+                  toggleable={true}
+                  collapsed={true}
+                  header="Giảng viên hướng dẫn"
+                  className="shadow-2 border-1 border-300 border-round-xl overflow-hidden"
+                >
+                  <div className="p-3">
+                    {response?.result?.teachers?.map((teacher, index) => (
+                      <>
+                        <div
+                          className="flex flex-column gap-3"
+                          key={teacher.id}
+                        >
+                          <div className="flex align-items-center">
+                            <p className="w-15rem">{"Tên giáo viên"}</p>
+                            <p className="text-900 font-semibold">
+                              {teacher?.name}
+                            </p>
+                          </div>
+
+                          <div className="flex align-items-center">
+                            <p className="w-15rem">{"Email"}</p>
+                            <p className="text-900 font-semibold">
+                              {teacher?.email}
+                            </p>
+                          </div>
+
+                          <div className="flex align-items-center">
+                            <p className="w-15rem">{"Phone number"}</p>
+                            <p className="text-900 font-semibold">
+                              {teacher?.phoneNumber}
+                            </p>
+                          </div>
+
+                          <div className="flex align-items-center">
+                            <p className="w-15rem">
+                              {"Học thuật của giáo viên"}
+                            </p>
+                            <p className="text-900 font-semibold">
+                              {teacher?.academicTitle}
+                            </p>
+                          </div>
+                        </div>
+
+                        {index < response.result?.teachers?.length! - 1 && (
+                          <div className="px-8">
+                            <Divider />
+                          </div>
+                        )}
+                      </>
+                    ))}
+                  </div>
+                </Panel>
               )}
 
-              <Button
-                label="Đăng ký"
-                size="small"
-                onClick={() => {
-                  topicRegister.mutate(topic, {
-                    onSuccess: () => {
-                      topic.isRegister = true;
-                      // notificationModalRef.current?.showModal();
-                      onNotification();
-                      // router.push(
-                      //   `${ROUTES.topic.register_topic}?activeItem=register_topic&openMenu=false&parent=thesis`
-                      // );
-                      // Lưu dữ liệu vào localStorage
-                      topic.isRegister = true;
-                      localStorage.setItem("topics", JSON.stringify(topic.id));
-                    },
-                  });
-                }}
-              />
-              {storedTopics === id ? (
-                <Button
-                  label="Hủy đăng ký"
-                  size="small"
-                  onClick={() => {
-                    topicCancel.mutate(topic, {
-                      onSuccess: () => {
-                        toast.success("Hủy đề tài thành công");
-                        topic.isRegister = false;
-                        // localStorage.removeItem("topics");
-                        localStorage.setItem("topics", JSON.stringify(0));
+            {response?.result?.teachers &&
+              response.result?.teachers?.length > 0 && (
+                <Panel
+                  toggleable={true}
+                  collapsed={true}
+                  header="Giảng viên phản biện"
+                  className="shadow-2 border-1 border-300 border-round-xl overflow-hidden"
+                >
+                  <div className="p-3">
+                    {response?.result?.teachers?.map((teacher, index) => (
+                      <>
+                        <div
+                          className="flex flex-column gap-3"
+                          key={teacher.id}
+                        >
+                          <div className="flex align-items-center">
+                            <p className="w-15rem">{"Tên giáo viên"}</p>
+                            <p className="text-900 font-semibold">
+                              {teacher?.name}
+                            </p>
+                          </div>
 
-                        setVisible(false);
-                      },
-                    });
-                  }}
-                />
-              ) : null}
+                          <div className="flex align-items-center">
+                            <p className="w-15rem">{"Email"}</p>
+                            <p className="text-900 font-semibold">
+                              {teacher?.email}
+                            </p>
+                          </div>
+
+                          <div className="flex align-items-center">
+                            <p className="w-15rem">{"Phone number"}</p>
+                            <p className="text-900 font-semibold">
+                              {teacher?.phoneNumber}
+                            </p>
+                          </div>
+
+                          <div className="flex align-items-center">
+                            <p className="w-15rem">
+                              {"Học thuật của giáo viên"}
+                            </p>
+                            <p className="text-900 font-semibold">
+                              {teacher?.academicTitle}
+                            </p>
+                          </div>
+                        </div>
+
+                        {index < response.result?.teachers?.length! - 1 && (
+                          <div className="px-8">
+                            <Divider />
+                          </div>
+                        )}
+                      </>
+                    ))}
+                  </div>
+                </Panel>
+              )}
+
+            <div className="p-3 bg-white border-round-xl shadow-2">
+              <div className="flex align-items-center justify-content-between gap-3">
+                {isFetching ? (
+                  <Skeleton className="flex-1 h-2rem" />
+                ) : (
+                  <p className="flex-1 font-bold text-xl text-800">
+                    {response?.result?.name}
+                  </p>
+                )}
+
+                {storedTopics === id ? (
+                  <>
+                    <Tooltip target=".cancle" mouseTrack mouseTrackLeft={10} />
+                    <Button
+                      tooltipOptions={{ showDelay: 1000, hideDelay: 300 }}
+                      label="Hủy đăng ký"
+                      className="cancle"
+                      size="small"
+                      loading={topicCancel.isPending}
+                      onClick={() => {
+                        topicCancel.mutate(topic, {
+                          onSuccess: (data) => {
+                            setMessage(data.message ?? "");
+                            topic.isRegister = false;
+
+                            // localStorage.removeItem("topics");
+                            // setVisible(false);
+                            onNotification();
+
+                            localStorage.setItem("topics", JSON.stringify(0));
+                          },
+                        });
+                      }}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <Tooltip
+                      target=".register"
+                      mouseTrack
+                      mouseTrackLeft={10}
+                    />
+                    <Button
+                      tooltipOptions={{ showDelay: 1000, hideDelay: 300 }}
+                      label="Đăng ký"
+                      className="register"
+                      size="small"
+                      loading={topicRegister.isPending}
+                      onClick={() => {
+                        topicRegister.mutate(topic, {
+                          onSuccess: (data) => {
+                            setMessage(data.message ?? "");
+
+                            // notificationModalRef.current?.showModal();
+                            onNotification();
+                            // router.push(
+                            //   `${ROUTES.topic.register_topic}?activeItem=register_topic&openMenu=false&parent=thesis`
+                            // );
+                            // Lưu dữ liệu vào localStorage
+                            topic.isRegister = true;
+                            localStorage.setItem(
+                              "topics",
+                              JSON.stringify(topic.id)
+                            );
+                          },
+                        });
+                      }}
+                    />
+                  </>
+                )}
+              </div>
+
+              <Divider align="center">
+                <div className="flex align-items-center gap-2">
+                  <i className="pi pi-comments" />
+                  <p className="font-semibold">Lời mời đầu</p>
+                </div>
+              </Divider>
+
+              {isFetching ? (
+                <Skeleton className="h-10rem" />
+              ) : (
+                <p dangerouslySetInnerHTML={HTML(response?.result?.notes)} />
+              )}
+
+              <Divider align="center">
+                <div className="flex align-items-center gap-2">
+                  <i className="pi pi-question-circle" />
+                  <p className="font-semibold">Về đề tài</p>
+                </div>
+              </Divider>
+
+              {isFetching ? (
+                <Skeleton className="h-3rem" />
+              ) : (
+                <p>
+                  Đề tài phù hợp với sinh viên thuộc chuyên nghành{" "}
+                  {response?.result?.subjects?.map((t) => t.name).join(", ")},
+                  yêu cầu tối thiểu {response?.result?.minMembers} thành viên và
+                  tối đa {response?.result?.maxMembers} thành viên tham gia thực
+                  hiện, được hướng dẫn bởi{" "}
+                  {response?.result?.teachers
+                    ?.map((t) => t.academicTitle + " " + t.name)
+                    .join(", ")}{" "}
+                  với nhiều năm kinh nghiệm giảng dạy và nghiên cứu.
+                </p>
+              )}
             </div>
-
-            <Divider align="center">
-              <div className="flex align-items-center gap-2">
-                <i className="pi pi-comments" />
-                <p className="font-semibold">Lời mời đầu</p>
-              </div>
-            </Divider>
-
-            {isFetching ? (
-              <Skeleton className="h-10rem" />
-            ) : (
-              <p dangerouslySetInnerHTML={HTML(response?.result?.notes)} />
-            )}
-
-            <Divider align="center">
-              <div className="flex align-items-center gap-2">
-                <i className="pi pi-question-circle" />
-                <p className="font-semibold">Về đề tài</p>
-              </div>
-            </Divider>
-
-            {isFetching ? (
-              <Skeleton className="h-3rem" />
-            ) : (
-              <p>
-                Đề tài phù hợp với sinh viên thuộc chuyên nghành{" "}
-                {response?.result?.subjects?.map((t) => t.name).join(", ")}, yêu
-                cầu tối thiểu {response?.result?.minMembers} thành viên và tối
-                đa {response?.result?.maxMembers} thành viên tham gia thực hiện,
-                được hướng dẫn bởi{" "}
-                {response?.result?.teachers
-                  ?.map((t) => t.academicTitle + " " + t.name)
-                  .join(", ")}{" "}
-                với nhiều năm kinh nghiệm giảng dạy và nghiên cứu.
-              </p>
-            )}
           </div>
-        </div>
+        )}
       </div>
     </Dialog>
   );

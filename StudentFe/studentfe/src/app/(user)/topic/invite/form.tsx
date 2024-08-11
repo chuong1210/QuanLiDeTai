@@ -24,6 +24,7 @@ interface InviteFormRefType {
 interface InviteFormType {
   title: string;
   onSuccess?: (faculty: StudentType) => void;
+  onUpdateStudent?: (studentJoinId: number) => void; // thêm mới
 }
 
 const defaultValues: InviteType = {
@@ -38,7 +39,7 @@ const schema = () =>
   });
 
 const InviteForm = forwardRef<InviteFormRefType, InviteFormType>(
-  ({ title, onSuccess }, ref) => {
+  ({ title, onSuccess, onUpdateStudent }, ref) => {
     const [visible, setVisible] = useState(false);
 
     const { control, handleSubmit, reset, getValues } = useForm({
@@ -85,7 +86,8 @@ const InviteForm = forwardRef<InviteFormRefType, InviteFormType>(
         {
           onSuccess: (response) => {
             close();
-            onSuccess?.(response.data);
+            onSuccess?.(response.data); //  onSuccess?: (studentJoinId: number) => void; nó sẽ là cái này nếu ko sửa
+            onUpdateStudent?.(response.data);
             toast.success("Cập nhật thành công");
           },
         }

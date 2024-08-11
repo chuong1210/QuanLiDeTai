@@ -36,6 +36,18 @@ a {
     margin: 0 auto;
 }
 
+  .highlighted-row td {
+    background-color: rgb(128, 186, 184);
+
+    transform: scale(1.09); /* Apply scaling to individual cells */
+    transition: transform 0.2s ease;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Optional shadow */
+    overflow: hidden;
+  }
+  
+  .highlighted-row {
+    z-index: 1; /* Ensure the highlighted row is on top */
+  }
 .list-none {
     list-style-type: none;
     padding: 0;

@@ -1,5 +1,5 @@
 import { ROUTES } from "@/assets/config";
-import GroupBackgroundImg from "@/resources/images/team/img_group_bg.jpg";
+import GroupBackgroundImg from "/public/images/team/img_group_bg.jpg";
 import moment from "moment";
 import Link from "next/link";
 import { Avatar } from "primereact/avatar";
@@ -23,7 +23,7 @@ const NewsTab = () => {
       >
         <div className="flex-1"></div>
         <div className="text-white">
-          <p className="font-bold text-3xl mb-2">{topic?.groupDto?.name}</p>
+          <p className="font-bold text-3xl mb-2">{topic?.groups?.name}</p>
           <p
             className="font-semibold text-xl overflow-hidden"
             style={{ whiteSpace: "nowrap", textOverflow: "ellipsis" }}

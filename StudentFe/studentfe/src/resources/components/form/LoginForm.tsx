@@ -6,6 +6,7 @@ import { FormStateType } from "@/assets/types/loginform";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Password } from "./Password";
+import { FloatLabel } from "primereact/floatlabel";
 
 const schema = yup.object({
   userName: yup.string().required("Vui lòng nhập tên đăng nhập"),
@@ -33,18 +34,21 @@ const LoginForm = (props: LoginProps) => {
           name="userName"
           control={control}
           render={({ field, formState }) => (
-            <InputText
-              id="account"
-              label="Tài khoản"
-              placeholder={"Tài khoản"}
-              errorMessage={formState.errors.userName?.message}
-              value={formStateUser.username}
-              onChange={(e) => {
-                field.onChange(e);
-                handleChange("username")(e);
-              }}
-              onBlur={field.onBlur}
-            />
+            <FloatLabel>
+              <InputText
+                id="account"
+                // label="Tài khoản"
+                placeholder={"Tài khoản"}
+                errorMessage={formState.errors.userName?.message}
+                value={formStateUser.username}
+                onChange={(e) => {
+                  field.onChange(e);
+                  handleChange("username")(e);
+                }}
+                onBlur={field.onBlur}
+              />{" "}
+              <label htmlFor="account">Username</label>
+            </FloatLabel>
           )}
         />
 
@@ -52,18 +56,20 @@ const LoginForm = (props: LoginProps) => {
           name="password"
           control={control}
           render={({ field, formState }) => (
-            <Password
-              id="password"
-              label={"Mật khẩu"}
-              placeholder={"Mật khẩu"}
-              errorMessage={formState.errors.password?.message}
-              value={formStateUser.password}
-              onChange={(e) => {
-                field.onChange(e);
-                handleChange("password")(e);
-              }}
-              onBlur={field.onBlur}
-            />
+            <FloatLabel>
+              <Password
+                id="password"
+                placeholder={"Mật khẩu"}
+                errorMessage={formState.errors.password?.message}
+                value={formStateUser.password}
+                onChange={(e) => {
+                  field.onChange(e);
+                  handleChange("password")(e);
+                }}
+                onBlur={field.onBlur}
+              />
+              <label htmlFor="password">Password</label>
+            </FloatLabel>
           )}
         />
 
