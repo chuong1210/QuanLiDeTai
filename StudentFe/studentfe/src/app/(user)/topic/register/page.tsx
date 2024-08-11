@@ -17,6 +17,7 @@ import {
 } from "@/assets/useHooks/useGet";
 import {
   ChangeRegistration,
+  MajorType,
   TeacherParamType,
   TeacherType,
   TopicParamType,
@@ -52,11 +53,13 @@ import { Checkbox } from "primereact/checkbox";
 import { NotificationCard } from "@/resources/components/modal";
 import { NotificationCardModalRefType } from "@/assets/types/modal";
 import { useRouter } from "next/navigation";
-import { useRegisterTopic } from "@/assets/useHooks/useRegisterTopic";
+import { useRegisterTopic } from "@/assets/useHooks/useNotificationModal";
 import { debug } from "console";
 import TopicDetailPage from "./[id]/page";
 import { MetaResponseType, MetaType } from "@/assets/types/httpRequest";
 import page from "../page";
+import { FacultyDutyType } from "@/assets/interface/FacultyDuty";
+import { FacultyType } from "@/assets/interface/Faculty";
 
 const RegisterTopicPage = ({ params: { i } }: PageProps) => {
   const router = useRouter();
@@ -64,6 +67,10 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
   const teacherQuery = useGetList<TeacherType, TeacherParamType>({
     module: "teacher",
   });
+  const facultyQuery = useGetList<FacultyType>({
+    module: "faculty",
+  });
+
   const [params, setParams] = useState<TopicParamType>(DEFAULT_PARAMS);
   const [selectedTopic, setSelectedTopic] = useState<TopicType>();
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -141,7 +148,6 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
       currentPage: e.first + 1,
     }));
   };
-
   const convertChangeRegistrationToOptions = (
     changeRegistration: ChangeRegistration
   ): OptionType[] => {
@@ -150,9 +156,15 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
       value: key,
     }));
   };
-  const options = convertChangeRegistrationToOptions(ChangeRegistrationOptions);
+  const facultyNameValues: FacultyType[] = facultyQuery.data?.result ?? [];
 
-  const [Topic, setTopic] = useState<string>("All");
+  const optionsFaculty: OptionType[] = facultyNameValues.map((faculty) => ({
+    label: faculty.name,
+    value: faculty.id,
+  }));
+
+  const options = convertChangeRegistrationToOptions(ChangeRegistrationOptions);
+  const [topic, setTopic] = useState<string>(options[0]?.name ?? "");
 
   // const mandatoryTemplate = (rowData: TopicType) => {
   //   return <Checkbox checked={rowData.status === "A"} disabled />;
@@ -182,11 +194,12 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
           id="noti_type"
           row={true}
           label="Chọn đề tài"
-          value={Topic}
-          options={options}
+          value={topic}
+          checkmark={true}
+          className="w-full md:w-14rem"
+          options={optionsFaculty}
           onChange={(e) => {
             setTopic(e);
-            toast.success("Topic " + Topic);
           }}
         />
       </div>
@@ -265,9 +278,7 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
               whiteSpace: "nowrap",
             }}
             header="Ghi chú"
-            body={(data: TopicType) => (
-              <div>{data?.feedbacks?.map((t) => t.message)}</div>
-            )}
+            body={(data: TopicType) => <div>{data?.notes}</div>}
           />
         </DataTable>
         <div className="flex align-items-center justify-content-between bg-white px-3 py-2">

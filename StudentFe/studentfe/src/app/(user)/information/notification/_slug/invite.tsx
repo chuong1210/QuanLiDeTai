@@ -31,8 +31,8 @@ const InviteTab = () => {
     <div className="relative overflow-hidden p-3 border-round-xl bg-white shadow-2 flex flex-column gap-3">
       <Loader show={inviteQuery.isFetching || recallInviteMutate.isPending} />
 
-      {inviteQuery.response?.data && inviteQuery.response.data.length > 0
-        ? inviteQuery.response?.data.map((invite) => (
+      {inviteQuery.response?.result && inviteQuery.response.result.length > 0
+        ? inviteQuery.response?.result.map((invite) => (
             <div
               key={invite.id}
               className="border-1 border-300 border-round-xl p-3 flex flex-column gap-3"

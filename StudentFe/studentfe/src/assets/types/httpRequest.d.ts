@@ -45,14 +45,7 @@ interface ParamType {
 
   
   
-   interface LoginOutput {
-    accessToken: string;
-  }
-  
-  
-   interface LogoutInput {
-    token: string;
-  }
+ 
   
  
   

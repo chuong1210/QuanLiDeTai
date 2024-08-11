@@ -1,18 +1,27 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { ROUTES } from '../config/routes';
 import { MetaResponseType, MetaType, ParamType, ResponseType } from '../types/httpRequest';
-import { REFRESH_TOKEN, ACCESS_TOKEN } from '../config';
+import { REFRESH_TOKEN, ACCESS_TOKEN, API } from '../config';
 import { cookies } from '.';
-import { AuthType } from '../interface/AuthType.type';
+import { AuthType, AuthTypeLogin } from '../interface/AuthType.type';
 import { OptionType } from '../types/common';
 import _ from 'lodash';
-import useRefreshToken from '../useHooks/useRefreshToken';
-const baseUrl = ROUTES.base;
 
+import { refreshTokenApi } from '../config/apiRequests/StudentApiMutation';
+import UseRefreshToken from '../useHooks/useRefreshToken';
+import { AuthTypeRefreshToken } from '@/assets/interface';
+import refreshToken from '../useHooks/useRefreshToken';
+const baseUrl = ROUTES.base;
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
+let refreshPromise: Promise<string | null> | null = null;
 class Http {
   instance: AxiosInstance
   constructor() {
+    
     this.instance = axios.create({
+  withCredentials :true,
+
       baseURL: baseUrl,
       // timeout: 10000,
       headers: {
@@ -22,103 +31,162 @@ class Http {
   }
 }
 
-// eslint-disable-next-line react-hooks/rules-of-hooks
 
 
 
 const http = new Http().instance
-
+const abc= new Http().instance
 http.interceptors.request.use(
   (config) => {
-      while (true) {
-          const Accesstoken = cookies.get(ACCESS_TOKEN);
-          const auth = cookies.get<AuthType>(REFRESH_TOKEN );
+    const accessToken = cookies.get(ACCESS_TOKEN);
+    const refreshToken = cookies.get(REFRESH_TOKEN);
+    // if (!!accessToken && cookies.isTokenExpired(JSON.stringify(accessToken))) {
+        
+    //   cookies.logOut();
 
-          if (!config.headers.Authorization) {
-              config.headers.Authorization = '';
-          }
 
-          if (Accesstoken) {
-              config.headers.Authorization = `Bearer ${Accesstoken}`;
+    //   }
 
-          }
-
-          if (!auth) {
-              break;
-          }
-
-          if (!config.data && (config.method === 'put' || config.method === 'post' || config.method === 'delete')) {
-              config.data = {};
-          }
-
-          if (!config.params && config.method === 'get') {
-              config.params = {};
-          }
-
-          if (config.params && config.params.removeFacultyId) {
-              delete config.params.removeFacultyId;
-
-              break;
-          }
-
-          if (config.method === 'get') {
-              // config.params.facultyId = auth?.faculty?.Id;
-          }
-
-          if (config.method === 'put' || config.method === 'post' || config.method === 'delete') {
-              // config.data.facultyId = auth?.faculty.Id;
-          }
-
-          break;
-      }
-
-      return config;
-  },
-  (error) => {
-      return Promise.reject(error);
-  },
-);
-
-http.interceptors.response.use(
-  response => response,
-  async error => {
-    const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true; // đánh dấu là đã làm mới token
-      try {
-const refreshToken = useRefreshToken();
-
-        const { result: { accessToken } } = await refreshToken();
-        if (accessToken) {
-          // Nếu có token mới, đặt lại headers và gửi lại request
-          originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
-          // Gửi lại request đầu tiên với access token mới
-          return http(originalRequest);
-        }
-      } catch (refreshError) {
-        // Xử lý lỗi làm mới token ở đây
-        return Promise.reject(refreshError);
+    if(!isRefreshing)
+    {
+      if (accessToken && !config.headers.Authorization) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
       }
     }
-    // Đối với các lỗi khác, tiếp tục từ chối Promise.
-    return Promise.reject(error);
-  }
+ 
+   
+
+    // Additional checks if needed
+    if (!config.data && ['put', 'post', 'delete'].includes(config.method ?? "")) {
+      config.data = {};
+    }
+    
+    if (config.params && config.params.removeFacultyId) {
+      delete config.params.removeFacultyId;
+    }
+    console.log('Config before request (http):', config);
+
+    return config;
+  },
+  (error) => Promise.reject(error)
 );
+
+const refreshTokenMeth=async (data:string) : Promise<ResponseType<AuthTypeLogin> | null>=>
+{
+
+  const refreshTokenRes = await http.post(`${API.auth.refresh}`, {
+    token: data,
+  },{
+    withCredentials: true, 
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
+
+return  refreshTokenRes.data;
+
+}
+
+
+// Response Interceptor
+// http.interceptors.response.use(
+//   (response) => response,
+//   async (error) => {
+//     const originalRequest = error.config;
+    
+//     // Check for 401 error and if it hasn't been retried yet
+//     if (error.response && error.response.status === 401 && !originalRequest._retry) {
+//       originalRequest._retry = true;
+
+//       try {
+//         const oldToken: AuthTypeRefreshToken = {
+//           token: cookies.get(ACCESS_TOKEN)
+//         };
+//           const responsRefresh=await refreshTokenMeth(oldToken.token ?? "")
+//         const newAccessToken = await responsRefresh?.result?.accessToken;
+//         console.log(newAccessToken+"new")
+
+//         if (newAccessToken) {
+//           await cookies.set(ACCESS_TOKEN, newAccessToken);
+//           originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+          
+//           // Retry the original request with the new token
+//           return http(originalRequest);
+//         }
+//       } catch (refreshError) {
+//         return Promise.reject(refreshError);
+//       }
+//     }
+    
+//     return Promise.reject(error);
+//   }
+// );
+// Response Interceptor
+http.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Check for 401 error
+    if (error.response && error.response.status === 401) {
+    
+      if (!isRefreshing) {
+        isRefreshing = true;
+        refreshPromise = new Promise(async (resolve, reject) => {
+          try {
+            const oldToken: AuthTypeRefreshToken = {
+              token: cookies.get(REFRESH_TOKEN),
+            };
+            const responseRefresh: AxiosResponse<ResponseType<AuthTypeLogin>> = await http.post(`${API.auth.refresh}`, {
+              token: oldToken.token ?? '',
+             }
+          ,{
+              headers: {
+                  // Authorization:`Bearer ${accessToken}`//  có là lỗi
+              }
+          }
+          ) 
+            const newAccessToken = responseRefresh.data.result?.accessToken;
+
+            if (newAccessToken) {
+              await cookies.set(REFRESH_TOKEN, newAccessToken);
+
+              resolve(newAccessToken);
+            } else {
+              reject(error);
+            }
+          } catch (refreshError) {
+            reject(refreshError);
+          } finally {
+            isRefreshing = false;
+            refreshPromise = null;
+          }
+        });
+      }
+
+
+
+// Trong interceptor response:
+if (refreshPromise) {
+  return refreshPromise.then((newAccessToken) => {
+    if (newAccessToken) {
+      originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+      return http(originalRequest);
+    }
+    return Promise.reject(error);
+  });
+} else {
+  return Promise.reject(error);
+}
+  }
+}
+);
+
 //tu them
 //http.defaults.headers.common.Authorization =cookies.get(ACCESS_TOKEN);
 
 
 //
-
-http.interceptors.response.use(
-  (response) => {
-      return response;
-      // return response && response.data?response.data:response;
-  },
-  (error: AxiosError) => {
-      return Promise.reject(error);
-  },
-);
 
 
 

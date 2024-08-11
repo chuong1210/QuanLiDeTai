@@ -30,6 +30,8 @@ const detail = () => ({
     schedule: ['schedule', 'detail'],
     student: ['student', 'detail'],
     research: ['researchs', 'detail'],
+    user: ['users', 'detail'],
+
 
 
 });

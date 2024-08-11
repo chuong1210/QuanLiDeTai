@@ -1,154 +1,109 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
-    ROUTES,
-    ACCESS_TOKEN,
-    REFRESH_TOKEN,
-    API,
+  ROUTES,
+  ACCESS_TOKEN,
+  REFRESH_TOKEN,
+  API,
 } from '@/assets/config';
-import { AuthType } from '@/assets/interface/AuthType.type';
-
+import { cookies } from './assets/helpers';
 
 
 export const config = {
-    matcher: ['/((?!api|_next/static|_next/image|assets|favicon.ico|sw.js).*)'],
-   
+  matcher: ['/((?!api|_next/static|_next/image|assets|favicon.ico|sw.js).*)'],
 };
+
 const publicRoutes = ["/", "/login", "/signup"];
-const privateRoutes = ["/", "/home", "/profile"];
+const privateRoutes = ["/", "/home", "/team"];
 
-export function middleware(req: NextRequest) {
-    if (req.nextUrl.pathname.indexOf('icon') > -1 || req.nextUrl.pathname.indexOf('chrome') > -1) {
-        return NextResponse.next();
-    }
 
-    // try {
-    //     let auth: AuthType = JSON.parse(req.cookies.get(ACCESS_TOKEN)?.value || '');
 
-    //     if (auth && auth.type !== 'student') {
-    //         req.cookies.clear();
-    //     }
-    // } catch (error) {
-    //     console.log('Error parsing JSON:', error);
-    // }
-    const path = req.nextUrl.pathname;
+export async function middleware(req: NextRequest) {
+  const accessToken = req.cookies.get(ACCESS_TOKEN)?.value;
+  const refreshToken = req.cookies.get(REFRESH_TOKEN)?.value;
+  const isLoginPage = req.nextUrl.pathname.startsWith('/login');
 
-   
-   
-    // if(!req.nextUrl.pathname.startsWith(ROUTES.auth.sign_in)) // && !req.url.includes(ROUTES.auth.sign_in)
-    // {
-     
+  // Trường hợp chưa đăng nhập và không phải trang login
+  if (!accessToken &&!isLoginPage) {
+    return NextResponse.redirect(new URL(`${ROUTES.auth.sign_in}`, req.url));
+  }
 
-        if (
-          !req.cookies.has(REFRESH_TOKEN) &&!req.cookies.has(ACCESS_TOKEN) 
-          && (!req.url.includes(ROUTES.auth.sign_in)&&path!=='sign-in')
-         )
-         {
-            console.log(123);
-            console.log("raw token",!! req.cookies.get(REFRESH_TOKEN));
+  // Trường hợp đã đăng nhập và truy cập trang login
+  if (accessToken  && isLoginPage) {
+    return NextResponse.redirect(new URL(`${ROUTES.home.index}`, req.url));
+  }
+  if (!accessToken &&refreshToken&& cookies.isTokenExpired(accessToken))
+  {  
+     const response = NextResponse.redirect(new URL(`${ROUTES.auth.sign_in}`, req.url));
+          response.cookies.delete(ACCESS_TOKEN);
+          response.cookies.delete(REFRESH_TOKEN);
+          return response;
 
-            return NextResponse.redirect(new URL(`${ROUTES.auth.sign_in}`, req.url));
-          
-        }
-   
-        if (
-
-            !req.nextUrl.pathname.startsWith('/_next') &&(req.cookies.has(REFRESH_TOKEN) &&req.cookies.has(ACCESS_TOKEN) )&&!req.nextUrl.pathname.startsWith('/home')
-        ) {
+  }
+    // // Kiểm tra access token hết hạn
+    // if (accessToken && cookies.isTokenExpired(accessToken)) {
+    //     try {
+    //       // Thử refresh token
+    //       const response = await fetch('/api/refresh-token', {
+    //         method: 'POST',
+    //         headers: {
+    //           'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({ token: refreshToken }),
+    //       });
     
-        if (req.url.includes(ROUTES.auth.sign_in)) {
-            console.log(777,req.cookies.has(ACCESS_TOKEN));
-            return NextResponse.redirect(new URL(`${ROUTES.home.index}`, req.url));
-        }
-
-        //  return NextResponse.redirect(new URL(`${ROUTES.home.index}`, req.url));
-    }
-
-
-    
-    // if ( !req.nextUrl.pathname.startsWith('/_next')  ) {
-
-    //     // let response = NextResponse.redirect(new URL(`/${ROUTES.auth.sign_in}${req.nextUrl.pathname}`, req.url));
-    //     let response = NextResponse.redirect(new URL(`/${ROUTES.auth.sign_in}`, req.url));
-
-    //     if (req.cookies.has(REFRESH_TOKEN)|| req.cookies.get(ACCESS_TOKEN)) {
-    //         console.log(234);
-
-    //         response = NextResponse.redirect(new URL(`/${ROUTES.home.index}${req.nextUrl.pathname}`, req.url));
-
+    //       if (response.ok) {
+    //         // Refresh token thành công, tiếp tục request
+    //         return NextResponse.next();
+    //       } else {
+    //         // Refresh token không hợp lệ, đăng xuất
+    //         throw new Error('Refresh token invalid');
+    //       }
+    //     } catch (error) {
+    //       // Xóa cookie và chuyển hướng đến trang đăng nhập
+    //       console.error('Error refreshing token:', error);
+    //       const response = NextResponse.redirect(new URL(`${ROUTES.auth.sign_in}`, req.url));
+    //       response.cookies.delete(ACCESS_TOKEN);
+    //       response.cookies.delete(REFRESH_TOKEN);
+    //       return response;
     //     }
-
-    //     return response;
-    // }
-
-    if (req.headers.has('referer')) {
-        const refererUrl = new URL(req.headers.get('referer')!);
-        const response = NextResponse.next();
-
-      
-        return response;
-    }
-
-    // return NextResponse.next();
+    //   }
+    
+  // Các trường hợp khác, tiếp tục request
+  return NextResponse.next();
 }
+// export function middleware(req: NextRequest) {
+//     const hasAccessToken = req.cookies.has(ACCESS_TOKEN);
+//     const hasRefreshToken = req.cookies.has(REFRESH_TOKEN);
+  
+//     if (!hasAccessToken && !hasRefreshToken && !req.nextUrl.pathname.startsWith('/login')) {
+//       return NextResponse.redirect(new URL(`${ROUTES.auth.sign_in}`, req.url));
+//     }
+  
+//     if (hasAccessToken && hasRefreshToken && req.nextUrl.pathname.startsWith('/login')) {
+//       return NextResponse.redirect(new URL(`${ROUTES.home.index}`, req.url));
+//     }
+  
+//     return NextResponse.next();
+//   }
+
 /////////////////////////////////----------
 
 
-// export function middleware(request: NextRequest) {
-//     // Kiểm tra xem có token đăng nhập không
-// console.log(request.cookies.has(ACCESS_TOKENN))
-// const { pathname } = request.nextUrl
-
-//     if (request.cookies.has(ACCESS_TOKEN)) {
-//     //  const targetUrl = new URL("/home", request.nextUrl.origin);
-//       console.log(2234);
-//     //    return NextResponse.rewrite(targetUrl);
-//        return NextResponse.redirect(new URL(ROUTES.home.index,request.url));
-//     } 
-//     else   if(!request.cookies.has(ACCESS_TOKEN)) {
-//       const targetUrl = new URL(ROUTES.auth.sign_in, request.nextUrl.origin);
-//       // console.log("path name",request.url) path name http://localhost:3000/sign-in
-//      // let response = NextResponse.redirect(new URL(`/${ROUTES.auth.sign_in}`, request.url));
-//       console.log(123);
-//         return NextResponse.redirect(targetUrl);
-//       // request.nextUrl.pathname="/home"
-//       // return NextResponse.redirect(request.nextUrl);
-//       // return NextResponse.rewrite(targetUrl);
-
-
-//     }
-//     if(request.nextUrl.pathname.startsWith(ROUTES.home.index))
-//     {
-//       console.log("path name",request.nextUrl.pathname.startsWith(ROUTES.home.index))
-
-//     }
-
-//         if (request.headers.has('referer')) {
-//         const refererUrl = new URL(request.headers.get('referer')!);
+//     if (req.headers.has('referer')) {
+//         const refererUrl = new URL(req.headers.get('referer')!);
 //         const response = NextResponse.next();
 
       
 //         return response;
 //     }
+// const isPublicRoute = publicRoutes.includes(path);
+// const isPrivateRoute = privateRoutes.includes(path);
 
-
-//   //   const requestHeaders = new Headers(request.headers)
-//   // requestHeaders.set('x-hello-from-middleware1', 'hello')
- 
-//   // // You can also set request headers in NextResponse.rewrite
-//   // const response = NextResponse.next({
-//   //   request: {
-//   //     // New request headers
-//   //     headers: requestHeaders,
-//   //   },
-//   // })
- 
-//   // // Set a new response header `x-hello-from-middleware2`
-//   // response.headers.set('x-hello-from-middleware2', 'hello')
+// if (!accessToken && !refreshToken) {
+//     if (isPrivateRoute) {
+//         return NextResponse.redirect(new URL(ROUTES.auth.sign_in, req.url));
+//     }
+// } else if (accessToken && isPublicRoute) {
+//     // If logged in and accessing a public route, redirect to home
+//     return NextResponse.redirect(new URL(ROUTES.home.index, req.url));
 // }
-
-// export const config = {
-//     // matcher: ['/((?!api|_next/static|_next/image|assets|favicon.ico|sw.js).*)'],
-//    matcher: ["/"],
-
-// };
-

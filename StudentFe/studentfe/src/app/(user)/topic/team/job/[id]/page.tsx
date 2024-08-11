@@ -121,9 +121,9 @@ const JobPage = ({ params, searchParams }: PageProps) => {
 
   const jobPageValue: JobPageContextType = {
     groupId,
-    job: jobDetail.response?.data,
-    comments: exchangeQuery.response?.data || [],
-    exercise: exerciseQuery.response?.data?.[0]?.files || [],
+    job: jobDetail.response?.result,
+    comments: exchangeQuery.response?.result || [],
+    exercise: exerciseQuery.response?.result?.[0]?.files || [],
   };
 
   return (
@@ -154,7 +154,7 @@ const JobPage = ({ params, searchParams }: PageProps) => {
 
               <InputFile
                 id="form_data_files"
-                value={jobDetail?.response?.data?.files || []}
+                value={jobDetail?.response?.result?.files || []}
                 multiple={true}
                 disabled={true}
                 hasDefault={false}

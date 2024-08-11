@@ -32,7 +32,7 @@ const Menu = () => {
   } = useChangePassword();
   const adminMenu = ADMIN_MENU();
   const pathName = usePathname();
-  const userMenu = USER_MENU(pathName);
+  const userMenu = USER_MENU(pathName ?? "");
   const [auth] = useCookies<AuthType>(DATA_RESULT);
   const userModalRef = useRef<OverlayPanel>(null);
   const dispatch = useDispatch();
@@ -81,7 +81,7 @@ const Menu = () => {
 
   return (
     <div
-      className="flex flex-column gap-2 w-15rem h-screen relative  "
+      className="flex flex-column gap-2 w-15rem h-screen relative   "
       style={{ minWidth: "17rem" }}
     >
       <ul className="p-2 pt-0 overflow-y-auto h-full">

@@ -8,6 +8,7 @@ interface GroupType extends GeneralType {
     members?: {
         student?: StudentType;
     }[];
+    students?: StudentType[];
     thesisDto?: TopicType;
 }
 

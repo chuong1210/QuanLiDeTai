@@ -1,5 +1,6 @@
-/** @type {import('next').NextConfig} */
+import path from "path";
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   //   reactStrictMode: true,
   //   env: {
@@ -19,6 +20,5 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 };
-
 export default nextConfig;
 // Trong file next.config.js

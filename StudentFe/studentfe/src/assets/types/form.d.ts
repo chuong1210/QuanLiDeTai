@@ -25,8 +25,10 @@ interface InputTextProps extends InputProps {}
 interface InputPasswordProps extends InputProps {}
 
 interface CheckboxProps extends InputProps {
-    value?: boolean;
-    onChange?: (_e: CheckboxChangeEvent) => void;
+    value: boolean;
+    // onChange: (_e: CheckboxChangeEvent) => void;
+    onChange?: () => void;
+
 }
 
 
@@ -35,6 +37,9 @@ interface DropdownProps extends InputProps {
     optionValue?: string;
     emptyMessage?: string;
     showClear?: boolean;
+    highlightOnSelect?:boolean,
+    checkmark?:boolean,
+    className?:string,
     onChange?: (_e: string) => void;
 }
 

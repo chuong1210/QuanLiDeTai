@@ -2,11 +2,11 @@ import { cookies, http } from '@/assets/helpers';
 import { StudentType } from '@/assets/interface/Students.type'
 import { API } from './api';
 import { headers } from 'next/headers';
-import { REFRESH_TOKEN } from '../httpRequest';
+import { ACCESS_TOKEN, REFRESH_TOKEN } from '../httpRequest';
 import { FormStateType } from '@/assets/types/loginform';
-import { AuthTypeLogin, TopicParamType, TopicType } from '@/assets/interface';
+import { AuthTypeLogin, AuthTypeRefreshToken, TopicParamType, TopicType } from '@/assets/interface';
 import { formChangePassword } from '@/assets/types/changePassword';
-import { AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { ResponseType } from '@/assets/types/httpRequest';
 
 
@@ -59,6 +59,32 @@ export const fetchAllCourses = async () => {
    
   };
 
+  export const registerGroup = async (studentJoinId:string[] | string) => {
+    await http.post(`${API.post.register_group}`, 
+      {
+        studentId:studentJoinId
+      }
+    );
+      
+     };
+   
+  
+  export const refreshTokenApi = async (oldTokendata?:AuthTypeRefreshToken): Promise<ResponseType<AuthTypeLogin> | null> => {
+      const refreshToken = cookies.get(ACCESS_TOKEN);
+      console.log("refreshToken"+refreshToken)
+      if (!refreshToken) {
+        return null; // Or throw an error if refresh token is missing
+      }
+  
+      const response = await http.post(API.auth.refresh, {
+        token: refreshToken,
+      });
+      // const response = await http.post(API.auth.refresh, oldTokendata);
+      // console.log(response.data)
+      return response.data;
+
+      
+    } 
 
 // export const updateStudent = (id: number | string, student: StudentType) => http.put<StudentType>(`students/${id}`, student)
 

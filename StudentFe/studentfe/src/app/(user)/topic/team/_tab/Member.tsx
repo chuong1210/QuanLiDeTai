@@ -21,7 +21,7 @@ const MemberTab = () => {
             className="bg-primary text-white border-circle"
             size="normal"
           />
-          <p>{topic?.lecturerThesis?.name}</p>
+          <p>{topic?.subjects?.map((name) => name.name)}</p>
         </div>
       </div>
 
@@ -31,12 +31,12 @@ const MemberTab = () => {
             Thành viên
           </p>
           <p className="text-blue-500 font-semibold">
-            {topic?.groupDto?.countMember} thành viên
+            {topic?.groups?.countMember} thành viên
           </p>
         </div>
 
         <div className="flex flex-column pt-3">
-          {topic?.groupDto?.members?.map((member) => (
+          {topic?.groups?.members?.map((member) => (
             <div key={member.student?.id}>
               <div className="flex align-items-center gap-3 pl-3">
                 <Avatar

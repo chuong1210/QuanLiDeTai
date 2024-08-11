@@ -25,8 +25,22 @@ import { ResponseType } from "@/assets/types/httpRequest";
 import { FormStateType } from "@/assets/types/loginform";
 import LoginForm from "@/resources/components/form/LoginForm";
 import { headers } from "next/headers";
-import { AuthType, AuthTypeLogin } from "@/assets/interface";
-import { loginStudent } from "@/assets/config/apiRequests/StudentApiMutation";
+import {
+  AuthType,
+  AuthTypeLogin,
+  AuthTypeParamType,
+  StudentType,
+} from "@/assets/interface";
+import {
+  loginStudent,
+  refreshTokenApi,
+} from "@/assets/config/apiRequests/StudentApiMutation";
+import {
+  useGetDetail,
+  useGetListWithPagination,
+} from "@/assets/useHooks/useGet";
+import { request } from "http";
+import { NextRequest } from "next/server";
 
 const formData: FormStateType = {
   username: "",
@@ -40,27 +54,20 @@ const schema = yup.object({
 });
 
 const Page = () => {
+  let NextRequest: NextRequest;
+  let id: string = formData.username;
   const router = useRouter();
   // const { control, handleSubmit, formState } = useForm({
   //   resolver: yupResolver(schema),
   // });
   const [formStateUser, setFormState] = useState<FormStateType>(formData);
-
+  const [userName, setUserName] = useState<string>("");
   const handleChange =
     (name: keyof FormStateType) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setFormState((prev) => ({ ...prev, [name]: event.target.value }));
     };
-  // const signInMutation = useMutation({
-  //   mutationFn: (data: any) => {
-  //     return http.post(API.auth.sign_in, {
-  //       // userName: data.userName,
-  //       // password: data.password,
-  //       username,
-  //       password,
-  //     });
-  //   },
-  // });
+
   const signInMutation: any = useMutation<
     ResponseType<AuthTypeLogin>,
     Error,
@@ -71,54 +78,42 @@ const Page = () => {
     },
   });
 
+  const userQuery = useGetDetail<AuthType, AuthTypeParamType>({
+    // nên dùng use context
+    module: "user",
+    params: { userName: userName }, // Assuming 'id' is available after successful login
+    enabled: !!cookies.get(ACCESS_TOKEN), // Only fetch if logged in
+  });
   const onSubmit = () => {
     signInMutation.mutate(formStateUser, {
       onSuccess(response: ResponseType<AuthTypeLogin>) {
         try {
           const accessToken = response?.result?.accessToken;
-          if (accessToken !== undefined) {
-            const tokenData: any = jwtDecode(accessToken);
-            const base64Url = accessToken.split(".")[1];
-            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-            const jsonPayload = decodeURIComponent(atob(base64));
 
+          if (accessToken) {
+            const tokenData = jwtDecode(accessToken);
+            const expirationDate = tokenData.exp
+              ? new Date(tokenData.exp * 1000)
+              : new Date(Date.now() + 3600 * 1000);
             cookies.set(ACCESS_TOKEN, accessToken, {
-              expires: new Date(tokenData.exp * 1000),
+              expires: expirationDate,
             });
-            cookies.set(REFRESH_TOKEN, accessToken, {
-              expires: new Date(tokenData.exp * 1000),
-            });
+            cookies.set(REFRESH_TOKEN, accessToken);
 
             router.push(ROUTES.home.index);
-
-            console.log("raw token", !!cookies.get(REFRESH_TOKEN));
+            setUserName(formStateUser.username);
           }
-
-          // const faculty = JSON.parse(tokenData.faculty);
-          // const customer = JSON.parse(tokenData.customer);
-
-          // if (!tokenData) {
-          //   return;
-          // }
-
           // if (tokenData.type !== "student") {
           //   toast.error("request:invalid_user");
           //   return;
           // }
-
-          // if (userId) {
-          //   tokenData.userId = userId;
-          // }
-          // if (customer) {
-          //   tokenData.customer = customer;
-          // }
-
-          //  redirect(ROUTES.home.index)
         } catch (error) {}
       },
     });
   };
-
+  if (userQuery.isSuccess && userQuery.data) {
+    localStorage.setItem("user", JSON.stringify(userQuery.data.result));
+  }
   return (
     <div className="flex align-items-center justify-content-center h-full w-full p-0">
       <div className="flex flex-wrap shadow-2 w-full border-round-2xl overflow-hidden">

@@ -26,13 +26,13 @@ const ResultTab = () => {
   });
 
   useEffect(() => {
-    if (pointQuery.response?.data) {
+    if (pointQuery.response?.result) {
       let result: any[] = [];
       let _teacherI: string[] = [];
       let _teacherR: string[] = [];
       let _teacherC: string[] = [];
 
-      pointQuery.response?.data.forEach((t) => {
+      pointQuery.response?.result.forEach((t) => {
         _teacherI = [];
         _teacherR = [];
         _teacherC = [];
@@ -67,7 +67,7 @@ const ResultTab = () => {
       setTeacherR(_teacherR);
       setTeacherC(_teacherC);
     }
-  }, [pointQuery.response?.data]);
+  }, [pointQuery.response?.result]);
 
   return (
     <div className="flex flex-column gap-3 bg-white border-round shadow-1 p-3">
