@@ -14,6 +14,7 @@ import Link from "next/link";
 import ROUTER from "@/assets/configs/routers";
 import { splitString } from "@/assets/helpers/string";
 import { jwtDecode } from "jwt-decode"
+
 import * as request from "@/assets/helpers/request"
 const schema = () =>
     yup.object({
@@ -58,10 +59,15 @@ export default function FormLogin() {
                     //cookies.set(REFERSH_TOKEN, response.data.result.refreshToken)
                     cookies.set(ROLE_USER, arr, { expires: new Date(decoded.exp * 1000) })
                     //response.data.result.allRoles
-                    const res: any = await request.get("http://localhost:8888/users/showOne", {
-                        params: { userName: decoded.username }
-                    })
+                    // const res: any = await request.get("http://localhost:8888/users/getMyInfo", {
+                    //     headers:{
+                    //         auth
+                    //     },
+                    //     params: { userName: decoded.username }
+                    // })
+                    const res: any = await request.get("/users/getMyInfo")
                     const info: UserLoginType = res.data.result
+                    // console.log(info)
                     localStorage.setItem(INFO_USER, JSON.stringify(info))
                     return router.push("/admin");
                 } catch (error) {

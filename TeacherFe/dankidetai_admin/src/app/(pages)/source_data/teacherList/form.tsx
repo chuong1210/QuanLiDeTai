@@ -21,19 +21,19 @@ import { MultiSelect } from '@/resources/components/form/MultiSelect';
 
 
 const defaultValues: TeacherType = {
-    maSo: '', name: "",
+    code: '', name: "",
     email: "", phoneNumber: "",
     subjectName: "",
     departmentName: "",
-    chucVu: [], hocVi: []
+    position: [], degree: ""
 }
 const schema = yup.object({
-    maSo: yup.string().required(),
+    code: yup.string().required(),
     name: yup.string().required(),
     email: yup.string().email().required(),
     phoneNumber: yup.string().min(8).max(11).required(),
-    hocVi: yup.array().required(),
-    chucVu: yup.array().required(),
+    degree: yup.string().required(),
+    position: yup.array().required(),
     departmentName: yup.string().required(),
     subjectName: yup.string().required()
 
@@ -49,7 +49,7 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
     const TeacherMutation = useMutation<any, AxiosError<ResponseType>, any>({
         mutationFn: (data) => {
             console.log(data)
-            return type === "edit" ? request.update(API.teachers.update + `/${data.id}`, data) :
+            return type === "edit" ? request.update(API.teachers.update, data) :
                 request.post(API.teachers.insert_from_excel, { teachers: [data] })
         },
     });
@@ -90,10 +90,10 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
 
         const newData = {
             ...data,
-            chucVu: data.chucVu.join(","),
-            hocVi: data.hocVi.join(","),
-            user_id: "",
+            //position: data.position.join(",")
+            user_id: data.id
         }
+        //console.log(newData)
         TeacherMutation.mutate(newData, {
             onSuccess: (response) => {
                 close();
@@ -144,7 +144,7 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
                                             id={`form_data_${field.name}`}
                                             value={field.value?.toString()}
                                             label={fieldItem.field}
-                                            disabled={field.name === "maSo" && type === "edit"}
+                                            disabled={field.name === "code" && type === "edit"}
                                             placeholder={fieldItem.field}
                                             errorMessage={fieldState.error?.message}
                                             onChange={field.onChange}
@@ -173,12 +173,12 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
                         {/* chức vụ drop */}
                         <div className='col-6 flex flex-column gap-3'>
                             <Controller
-                                name={"chucVu"}
+                                name={"position"}
                                 control={control}
                                 render={({ field, fieldState }) => {
                                     return (
                                         <MultiSelect
-                                            id='form_data_chucVu'
+                                            id='form_data_position'
                                             options={ChucVuValue}
                                             value={field.value && Array.isArray(field.value) ? field.value : undefined}
                                             label={"Chức vụ"}
@@ -195,13 +195,13 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
                         {/* học vị drop */}
                         <div className='col-6 flex flex-column gap-3'>
                             <Controller
-                                name={"hocVi"}
+                                name={"degree"}
                                 control={control}
                                 render={({ field, fieldState }) => (
-                                    <MultiSelect
-                                        id='form_data_hocVi'
+                                    <Dropdown
+                                        id='form_data_degree'
                                         options={HocViValue}
-                                        value={field.value && Array.isArray(field.value) ? field.value : undefined}
+                                        value={field.value}
                                         label={"Học Vị"}
                                         placeholder={"Học Vị"}
                                         errorMessage={fieldState.error?.message}

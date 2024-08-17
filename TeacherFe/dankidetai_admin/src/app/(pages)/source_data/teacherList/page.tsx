@@ -28,17 +28,17 @@ export const key = "giảng viên"
 // chờ có file hoàng chỉnh rồi mới làm tiếp
 interface fieldsType {
     field: string;
-    code: 'maSo' | "name" | "hocVi" | "email" | "phoneNumber" | "subjectName" | "chucVu" | 'departmentName';
+    code: 'code' | "name" | "degree" | "email" | "phoneNumber" | "subjectName" | "position" | 'departmentName';
     typeInput: string
 }
 export const fields: fieldsType[] = [
-    { field: "msgv", code: "maSo", typeInput: "text" },
+    { field: "msgv", code: "code", typeInput: "text" },
     { field: "Tên", code: "name", typeInput: "text" },
     { field: "Email", code: "email", typeInput: "text" },
     { field: "Số điện thoại", code: "phoneNumber", typeInput: "text" },
-    { field: "Học vị", code: "hocVi", typeInput: "null" },
-    { field: "Chức vụ", code: "chucVu", typeInput: "null" },
-    { field: "Ngành", code: "departmentName", typeInput: "null" },
+    { field: "Học vị", code: "degree", typeInput: "null" },
+    { field: "Chức vụ", code: "position", typeInput: "null" },
+    { field: "Bộ môn", code: "subjectName", typeInput: "null" },
     // { field: "Chuyên ngành", code: "subjectName", typeInput: "text" },
 ]
 
@@ -65,11 +65,10 @@ function Page() {
             });
             let responseData = response.data.result.responses ?? [];
             if (responseData) {
-                console.log(paramsRef.current, responseData)
 
                 responseData = responseData.map((teacher: any) => {
-                    // teacher.hocVi = teacher.hocVi.split(",");
-                    // teacher.chucVu = teacher.chucVu.split(",");
+                    //teacher.degree = teacher.degree.split(",");
+                    teacher.position = teacher.position.join(" ,");
                     if (teacher.subjects) {
                         teacher.subjectName = teacher.subjects.name
                         teacher.departmentName = teacher.subjects.departments.name
@@ -88,7 +87,7 @@ function Page() {
                 });
 
             }
-            console.log("reload")
+            // console.log("reload", responseData)
 
             return responseData || [];
         },
@@ -99,11 +98,11 @@ function Page() {
             return request.remove(`${API.teachers.delete}`, { data: [data.id] });
         },
     });
-    const teacherListMutationInsert = useMutation<any, AxiosError<ResponseType>, TeacherType[]>({
-        mutationFn: (data) => {
-            return request.post(`${API.teachers.insert}`, { teachers: data });
-        },
-    });
+    // const teacherListMutationInsert = useMutation<any, AxiosError<ResponseType>, TeacherType[]>({
+    //     mutationFn: (data) => {
+    //         return request.post(`${API.teachers.insert}`, { teachers: data });
+    //     },
+    // });
 
     const renderActions = (data: TeacherType) => {
         return (
@@ -115,13 +114,13 @@ function Page() {
                 {
                     cookies.get<roleE>(ROLE_USER)?.includes(roleE.giaovu) && (
                         <>
-                            <i
+                            {/* <i
                                 className='pi pi-pencil hover:text-primary cursor-pointer'
                                 onClick={() => {
                                     formRef.current?.show?.(data);
                                     setSelected({ type: "edit", data: data })
                                 }}
-                            />
+                            /> */}
                             <i
                                 className='pi pi-trash hover:text-red-600 cursor-pointer'
                                 onClick={(e) => {

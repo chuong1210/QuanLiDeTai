@@ -83,7 +83,7 @@ const Form = forwardRef<FormRefType<StudentType>, FormType<StudentType>>(({ type
         const newData = {
             ...data,
             chucVu: "HỌC SINH",
-            user_id: "",
+            code: data.maSo
         }
         StudentMutation.mutate(newData, {
             onSuccess: (response) => {

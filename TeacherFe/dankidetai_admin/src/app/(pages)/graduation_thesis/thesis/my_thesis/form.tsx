@@ -14,20 +14,42 @@ import { toast } from 'react-toastify';
 import { MultiSelect } from '@/resources/components/form/MultiSelect';
 import { FormRefType, FormType } from '@/assets/types/form';
 import { Dialog } from 'primereact/dialog';
-
+export interface ResearchParams {
+    name: string;
+    note: string;
+    minMembers: number;
+    maxMembers: number;
+    instructorsIds: string[];
+    detail: string;
+    stage: number;
+    schoolYear: string;
+}
+const defaultValues: ResearchParams = {
+    name: "",
+    minMembers: 1,
+    note: "",
+    maxMembers: 3,
+    instructorsIds: [],
+    detail: "",
+    stage: 1,
+    schoolYear: "2024-2025"
+}
 const schema = yup.object({
     name: yup.string().required(),
+    note: yup.string(),
+
     minMembers: yup.number().required().min(1),
     maxMembers: yup.number().required().moreThan(yup.ref("minMembers")),
-    subjectsID: yup.array().required(),
-    gvhd: yup.array().required(),
-    students: yup.array().test('check-students', 'Invalid number of students', function (value) {
-        const { minMembers, maxMembers } = this.parent;
-        //return //!value || (value.length >= minMembers && value.length <= maxMembers);
-        if (value && value?.length > 0) {
-            return (value.length >= minMembers && value.length <= maxMembers);
-        } else { return true }
-    }),
+    instructorsIds: yup.array().required(),
+    // students: yup.array().test('check-students', 'Invalid number of students', function (value) {
+    //     const { minMembers, maxMembers } = this.parent;
+    //     //return //!value || (value.length >= minMembers && value.length <= maxMembers);
+    //     if (value && value?.length > 0) {
+    //         return (value.length >= minMembers && value.length <= maxMembers);
+    //     } else { return true }
+    // }),
+    stage: yup.number().required(),
+    schoolYear: yup.string().required(),
     detail: yup.string().required(),
 })
 
@@ -36,33 +58,20 @@ const Form = forwardRef<FormRefType<ReSearchType>, FormType<ReSearchType>>(({ ty
     const [visible, setVisible] = useState(false);
     const { control, handleSubmit, reset, setValue, getValues } = useForm({
         resolver: yupResolver(schema),
-        //defaultValues: defaultValues
+        defaultValues: defaultValues
 
     });
-    const TeacherMutation = useMutation<any, AxiosError<ResponseType>, any>({
+    const ReSearchMutation = useMutation<any, AxiosError<ResponseType>, any>({
         mutationFn: (dataa) => {
-            //console.log(dataa)
+            console.log(dataa)
             if (type === "edit") {
                 return request.update(API.reSearch.update + `/${data?.id}`, dataa)
             } else {
-                return request.post(API.reSearch.insert, dataa)
+                return request.post(API.reSearch.insert, { researches: [dataa] })
             }
         },
     });
-    const StudentListQuery = useQuery<StudentType[], AxiosError<ResponseType>>({
-        refetchOnWindowFocus: false,
-        enabled: false,
 
-        queryKey: ['list-Students'],
-        queryFn: async () => {
-
-            const response: any = await request.get<StudentType[]>(`${API.students.getAllNoParams}`);
-            // //console.log("student list", response)
-            let responseData = response.data ?? [];
-            //console.log("  queryKey: ['list-Students'],", responseData.result)
-            return responseData.result || [];
-        },
-    });
 
     const TeacherQuery = useQuery<TeacherType[], AxiosError<ResponseType>>({
         refetchOnWindowFocus: false,
@@ -75,45 +84,16 @@ const Form = forwardRef<FormRefType<ReSearchType>, FormType<ReSearchType>>(({ ty
         },
     });
 
-    const SubjectsQuery = useQuery<SubjectType[], AxiosError<ResponseType>>({
-        enabled: false,
-        refetchOnWindowFocus: false,
-        queryKey: ['list-Subjects'],
-        queryFn: async () => {
-            const response: any = await request.get<SubjectType[]>(API.subjects.getAllNoParams);
-            let responseData = response.data.result.responses ?? [];
 
-            // //console.log("subject list", response)
-            return response.data.result || [];
-        },
-    })
-    const show = (data?: ReSearchType) => {
+    const show = async (data?: ReSearchType) => {
         setVisible(true);
         if (data) {
-            const valueReset: {
-                students?: any[] | undefined;
-                name: string;
-                minMembers: number;
-                maxMembers: number;
-                subjectsID: any[];
-                gvhd: any[];
-                detail: string;
-            } = {
-                //students:[data]
-                name: data.name,
-                minMembers: data.minMembers,
-                maxMembers: data.maxMembers,
-                subjectsID: data.subjects.map(item => item.id),
-                gvhd: data.teachers.map(item => item.id),
-                detail: data.detail
-            }
-            reset(valueReset);
+            const req: any = await request.get<ResearchParams>(API.reSearch.showone + data.id);
+            reset(req.data.result);
         } else {
-            // reset(defaultValues);
+            reset(defaultValues);
 
         }
-        SubjectsQuery.refetch()
-        StudentListQuery.refetch()
         TeacherQuery.refetch()
 
     };
@@ -121,34 +101,32 @@ const Form = forwardRef<FormRefType<ReSearchType>, FormType<ReSearchType>>(({ ty
 
     const onSubmit = (data: {
         students?: string[] | undefined;
-        detail: string;
+        detail?: string;
         name: string;
         minMembers: number;
         maxMembers: number;
-        subjectsID: string[];
-        gvhd: string[];
+        note?: string;
+        stage: number;
+        schoolYear: string;
+        instructorsIds: string[];
     }) => {
-        const datareq = {
-            ...data,
-            gvhd: data.gvhd[0],
-            namHoc: "2023-2024",
-            dotDangKy: "1",
-            isApproved: "0",
-            gvpb: data.gvhd[1],//temp
 
-            // hih
-            maDeTai: "",
-            oldDetail: "",
-            notes: "",
-
+        const req = {
+            name: data.name,
+            detail: data.detail,
+            notes: data.note,
+            maxMembers: data.maxMembers,
+            minMembers: data.minMembers,
+            instructorsIds: data.instructorsIds,
+            thesisAdvisorId: "",
+            stage: data.stage,
+            schoolYear: data.schoolYear,
         }
-        //console.log(datareq)
-        TeacherMutation.mutate(datareq, {
+        ReSearchMutation.mutate(req, {
             onSuccess: (response: any) => {
                 close();
                 onSuccess?.(response.data);
                 toast.success("Tạo thành công");
-
             },
         })
 
@@ -191,28 +169,27 @@ const Form = forwardRef<FormRefType<ReSearchType>, FormType<ReSearchType>>(({ ty
                 </div>
                 <div className='col-6 flex flex-column gap-3 mb-2'>
                     <Controller
-                        name={"subjectsID"}
+                        name={"note"}
                         control={control}
-                        render={({ field, fieldState }) => <MultiSelect
+                        render={({ field, fieldState }) => <InputText
                             id={`form_data_${field.name}`}
-                            value={field.value ? field.value : undefined}
-                            options={SubjectsQuery.data?.map((t) => ({ label: t.name, value: t.id }))}
-                            label={"Chuyên ngành yêu cầu"}
-                            placeholder={"Chuyên ngành yêu cầu"}
+                            value={field.value?.toString()}
+                            label={"Note"}
+                            placeholder={"Note"}
                             errorMessage={fieldState.error?.message}
                             onChange={field.onChange}
                         />}
-
                     />
+
                 </div>
                 <div className='col-6 flex flex-column gap-3 mb-2'>
                     <Controller
-                        name={'gvhd'}
+                        name={'instructorsIds'}
                         control={control}
                         render={({ field, fieldState }) => <MultiSelect
                             id={`form_data_${field.name}`}
                             value={field.value ? field.value : undefined}
-                            options={TeacherQuery.data?.map((t) => ({ label: `${t.name},msgv:${t.maSo}`, value: t.id }))}
+                            options={TeacherQuery.data?.map((t) => ({ label: `${t.name},msgv:${t.code}`, value: t.id }))}
                             label={"Giảng viên phụ trợ"}
                             placeholder={"Giảng viên phụ trợ"}
                             errorMessage={fieldState.error?.message}
@@ -250,20 +227,32 @@ const Form = forwardRef<FormRefType<ReSearchType>, FormType<ReSearchType>>(({ ty
                     />
                 </div>
 
-                <div className='col-9 flex flex-column gap-3 mb-2'>
+                <div className='col-2 flex flex-column gap-3 mb-2 mr-6'>
                     <Controller
-                        name={"students"}
+                        name={"schoolYear"}
                         control={control}
-                        render={({ field, fieldState }) => <MultiSelect
+                        render={({ field, fieldState }) => <InputText
                             id={`form_data_${field.name}`}
-                            label={"Chọn sinh viên cho đề tài"}
-                            placeholder={"Chọn sinh viên cho đề tài"}
-                            options={StudentListQuery.data?.map((t) => ({ label: `${t.name},mssv:${t.maSo}`, value: t.id }))}
-                            errorMessage={fieldState.error?.message}
                             value={field.value}
+                            label={"Năm học"}
+                            placeholder={"Năm học"}
+                            errorMessage={fieldState.error?.message}
                             onChange={field.onChange}
                         />}
-
+                    />
+                </div>
+                <div className='col-2 flex flex-column gap-3 mb-2'>
+                    <Controller
+                        name={'stage'}
+                        control={control}
+                        render={({ field, fieldState }) => <InputNumber
+                            id={`form_data_${field.name}`}
+                            value={field.value}
+                            label={"Đợt"}
+                            placeholder={"Đợt"}
+                            errorMessage={fieldState.error?.message}
+                            onChange={field.onChange}
+                        />}
                     />
                 </div>
 
@@ -292,7 +281,7 @@ const Form = forwardRef<FormRefType<ReSearchType>, FormType<ReSearchType>>(({ ty
                             close();
                         }}
                     />
-                    <Button label={'save'} icon='pi pi-save' />
+                    <Button type='submit' label={'save'} icon='pi pi-save' />
                 </div>
             </form>
         </Dialog>

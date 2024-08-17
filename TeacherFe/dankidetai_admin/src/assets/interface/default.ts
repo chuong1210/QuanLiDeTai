@@ -1,4 +1,4 @@
 interface DefaultResponse {
 
-    id?: number;
+    id?: string;
 }

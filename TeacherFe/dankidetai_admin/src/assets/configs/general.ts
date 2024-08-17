@@ -44,16 +44,16 @@ const ChucVuValue: OptionType[] = [
 ]
 const HocViValue: OptionType[] = [
     {
-        label: "SG",
-        value: "SG",
-        name: "SG",
-        code: "SG"
+        label: "Giáo Sư",
+        value: "Giáo Sư",
+        name: "Giáo Sư",
+        code: "Giáo Sư"
     },
     {
-        label: "PGS",
-        value: "PGS",
-        name: "PGS",
-        code: "PGS"
+        label: "Phó Giáo Sư",
+        value: "Phó Giáo Sư",
+        name: "Phó Giáo Sư",
+        code: "Phó Giáo Sư"
     },
     {
         label: "Tiến sĩ",

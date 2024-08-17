@@ -55,7 +55,7 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
             delete item.STT;
             return trimObjectProperties({
                 ...item,
-                maSo: item.maSo.toString(),
+                code: item.maSo.toString(),
                 chucVu: "HỌC SINH",
                 user_id: "",
             })

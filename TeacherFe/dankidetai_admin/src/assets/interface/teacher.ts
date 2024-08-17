@@ -1,10 +1,10 @@
 interface TeacherType extends DefaultResponse {
-    maSo: string;
+    code: string;
     name: string;
     email: string;
     phoneNumber: string;
-    hocVi: string[];
-    chucVu: string[];
+    degree: string;
+    position: string[];
     departmentName: string;
     subjectName: string;
 }

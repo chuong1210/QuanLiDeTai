@@ -43,7 +43,7 @@ export default function Layout(
 
     const element = (role?: roleE) => {
         switch (role) {
-            case roleE.admin: return [admin, truongkhoa, truongbomon, giaovu, giaovien];
+            // case roleE.admin: return [admin, truongkhoa, truongbomon, giaovu, giaovien];
             case roleE.truongkhoa: return truongkhoa;
             case roleE.giaovu: return giaovu;
             case roleE.giaovien: return giaovien;

@@ -9,20 +9,27 @@ interface ThesisType extends DefaultResponse {
     oldDetails?: string;
     Group?: any;
 }
+interface Icomment {
+    ID: string;
+    NameTeacher: string;
+    CreateAt: string;
+    message: string;
+}
 interface ReSearchType extends DefaultResponse {
     name: string;
-    maDeTai: string;
+    code: string;
     detail: string;
     oldDetail: string;
     notes: string;
     maxMembers: number;
     minMembers: number;
-    gvhd: string;
+    instructorsIds: string[];
     gvpb: string;
-    dotDangKy: string;
-    namHoc: string;
+    stage: string;
+    schoolYear: string;
     isApproved: number;
     teachers: TeacherType[];
     subjects: SubjectType[];
-    feedbacks: any[];
+    feedbacks: Icomment[];
+    status: "PA" | "AP" | "AS" | "DE"
 }

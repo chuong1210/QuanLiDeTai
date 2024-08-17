@@ -53,7 +53,7 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
                 due: dateToString(data.taskEnd),
                 sendTo: data.nameTeacher,// neame teacher == msgv
                 sendFrom: accout || "",
-                name: "Ra đề tài sinh viên",
+                name: data.nameJob,
                 details: data.details,
                 isCompleted: 0
             }
@@ -61,7 +61,6 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
             JobAssignment.mutate(newData, {
                 onSuccess: (response) => {
                     close();
-                    console.log(response)
                     onSuccess?.(response.data);
                     toast.success("Lưu mới thành công");
                 },
@@ -72,7 +71,8 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
 
     };
 
-    const show = (data?: string) => {
+    const show = (data: string) => {
+        reset({ nameJob: data })
         setVisible(true);
     };
 
@@ -106,7 +106,7 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
                                 control={control}
                                 render={({ field, fieldState }) => <InputText
                                     id={`form_data_${field.name}`}
-                                    value={"Ra đề tài sinh viên"}
+                                    value={field.value?.toString()}
                                     label={"Tên nhiệm vụ"}
                                     disabled
                                     placeholder={"Tên nhiệm vụ"}

@@ -10,33 +10,72 @@ import { Tag } from "primereact/tag";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { request } from "@/assets/helpers/request";
+import * as request from "@/assets/helpers/request"
 import API from "@/assets/configs/api";
+import FormInsert from "./formInsert";
+import { MetaType, ParamType } from "@/assets/types/request";
+import { Paginator, PaginatorPageChangeEvent } from "primereact/paginator";
 export const key = "dề tài"
-
+interface fieldsType {
+  field: string;
+  code: 'note' | "name" | "minMembers" | "maxMembers" | "stage" | "schoolYear" | "detail";
+  typeInput: string
+}
+export const fields: fieldsType[] = [
+  { field: "note", code: "note", typeInput: "text" },
+  { field: "Tên đề tài", code: "name", typeInput: "text" },
+  { field: "Thành viên tối thiểu", code: "minMembers", typeInput: "text" },
+  { field: "Thành viên tối đa", code: "maxMembers", typeInput: "text" },
+  { field: "Đợt", code: "stage", typeInput: "text" },
+  { field: "Năm học", code: "schoolYear", typeInput: "text" },
+  { field: "Chi tiết", code: "detail", typeInput: "text" }
+]
 export default function Page() {
   const [setlected, setSelected] = useState<TypeSelected<ReSearchType>>()
   const formRef = useRef<FormRefType<ReSearchType>>(null);
+  const formInsert = useRef<any>();
   const confirmModalRef = useRef<ConfirmModalRefType>(null);
-  const ListResearchListQuery = useQuery<ReSearchType[], AxiosError<ResponseType>>({
 
+  const [meta, setMeta] = useState<MetaType>(request.defaultMeta);
+  const paramsRef = useRef<ParamType>({
+    page: meta.currentPage,
+    limit: meta.limit,
+    orderBy: 'id',
+    orderDirection: 'ASC',
+  });
+
+  const ListResearchListQuery = useQuery<ReSearchType[], AxiosError<ResponseType>>({
     queryKey: ['list-Research'],
     queryFn: async () => {
+      const response: any = await request.get<ReSearchType[]>(API.reSearch.showall, {
+        params: paramsRef.current
+      });
+      let responseData = response.data.result.responses ?? [];
 
-      const response: any = await request.get<ReSearchType[]>(`${API.reSearch.showall}?page=1&limit=100&orderBy=id&orderDirection=ASC`);
-      console.log("Research list", response)
-      let responseData = response.data ?? [];
-      //console.log("  queryKey: ['list-Students'],", responseData.result)
-      return responseData.result.responses || [];
+      if (response.data.result.page && response.data.result.totalPages) {
+        setMeta({
+          currentPage: response.data.result.page,
+          hasNextPage: response.data.result.page + 1 === response.data.result.totalPages ? false : true,
+          hasPreviousPage: response.data.result.page - 1 === 0 ? false : true,
+          limit: paramsRef.current.limit,
+          totalPages: response.data.result.totalPages,
+        });
+
+      }
+      return responseData || [];
+
     },
   });
+  const onPageChange = (event: PaginatorPageChangeEvent) => {
+    if (paramsRef.current.limit === event.rows && paramsRef.current.page - 1 === event.page) return
+    paramsRef.current = { page: Math.ceil((event.first) / event.rows) + 1, limit: event.rows, orderBy: "id", orderDirection: "ASC", }
+    setMeta(e => ({ ...e, limit: event.rows }))
+    ListResearchListQuery.refetch();
+  };
+
   const itemTemplate = (thesis: ReSearchType, index: number) => {
-    let status = "Approved"
-    if (thesis.isApproved === 0) {
-      status = "Not Approve"
-    }
     return (
-      <div className="col-12" key={thesis.maDeTai} style={{ padding: '8px 0' }}>
+      <div className="col-12" key={index} style={{ padding: '8px 0' }}>
         <div className={`flex flex-column xl:flex-row xl:align-items-start p-4 gap-4 border-round ${index !== 0 ? 'border-top-1 surface-border' : ''}`} style={{ backgroundColor: 'white', border: '1px solid #ccc', position: 'relative' }}>
           <div className="flex flex-column align-items-center sm:align-items-start gap-3 col-8">
             <div
@@ -49,21 +88,25 @@ export default function Page() {
             </div>
             <div className="flex align-items-center gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin khác */}
               <span className="flex align-items-center gap-2">
-                <span className="font-semibold">{thesis.maDeTai}</span>
+                <span className="font-semibold">Mã đề tài: {thesis.code}</span>
               </span>
-              <Tag value={status} severity={status === 'Not Approve' ? 'danger' : 'success'}></Tag>
+              <Tag value={thesis.status} severity={thesis.status === "DE" || thesis.status === "PA" ? 'danger' : 'success'}></Tag>
             </div>
+            <div className="flex align-items-center gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin khác */}
+              <span className="font-semibold">Nhóm chuyên ngành:</span> {thesis.subjects.map(item => item.name + " ")}
+            </div>
+
           </div>
           <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-2 gap-3 col-4" style={{ minHeight: "120px" }}>
             <div className="flex flex-column align-items-center sm:align-items-start gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin giảng viên và nhóm chuyên ngành */}
               <div className="flex align-items-center gap-3">
-                <span className="font-semibold">Giảng viên:</span> {thesis.teachers.map(item => item.name + ",")}
+                {/* <span className="font-semibold">Giảng viên:</span> {thesis.teachers.map(item => item.name + ",")} */}
               </div>
               <div className="flex align-items-center gap-3">
-                <span className="font-semibold">Số lượng TV:</span> {thesis.minMembers}-{thesis.maxMembers}
+                {/* <span className="font-semibold">Số lượng TV:</span> {thesis.minMembers}-{thesis.maxMembers} */}
               </div>
               <div className="flex align-items-center gap-3">
-                <span className="font-semibold">Nhóm chuyên ngành:</span> {thesis.subjects.map(item => item.name + ",")}
+                {/* <span className="font-semibold">Nhóm chuyên ngành:</span> {thesis.subjects.map(item => item.name + ",")} */}
               </div>
             </div>
             <div className="flex gap-2 sm:gap-1" style={{ position: 'absolute', bottom: '16px', right: '16px' }}>
@@ -78,10 +121,7 @@ export default function Page() {
       </div >
     );
   };
-
-
   const listTemplate = (items: ReSearchType[]) => {
-    console.log(items)
     if (!items || items.length === 0) return null;
 
     let list = items.map((thesis, index) => {
@@ -105,14 +145,20 @@ export default function Page() {
         label={`Thêm ${key} mới`}
         icon='pi pi-plus'
         size='small'
-        className="my-3"
+        className="my-3 mx-1"
         onClick={() => {
           formRef.current?.show?.();
           setSelected({ type: "create", data: undefined })
         }}
       />
-      <div className="my-3">
-      </div>
+      <Button onClick={() => {
+        formInsert.current.show(true);
+      }}
+        label={`Thêm ${key} mới excel`}
+        icon='pi pi-plus'
+        size='small'
+        className="my-3 mx-1"
+      />
       <Form
         type={setlected?.type || "detail"}
         data={setlected?.data}
@@ -128,7 +174,20 @@ export default function Page() {
         {ListResearchListQuery.data &&
           listTemplate(ListResearchListQuery.data)
         }
-
+        <Paginator
+          first={meta.currentPage * meta.limit - 1}
+          rows={meta.limit}
+          //pageLinkSize={meta.limit}
+          totalRecords={meta.limit * meta.totalPages}
+          rowsPerPageOptions={request.ROW_PER_PAGE}
+          onPageChange={onPageChange}
+        />
+        <FormInsert
+          type="detail"
+          title="Thực hiện thêm đề tài vào hệ thống"
+          onSuccess={() => { ListResearchListQuery.refetch() }}
+          ref={formInsert}
+        />
       </div>
     </div>
   )

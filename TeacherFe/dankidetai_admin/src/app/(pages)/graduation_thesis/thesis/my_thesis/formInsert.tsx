@@ -16,98 +16,53 @@ import { Column } from 'primereact/column';
 import { FaInfoCircle } from 'react-icons/fa';
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
 import { MetaType } from '@/assets/types/request';
-import { trimObjectProperties } from '@/assets/helpers/string';
 import { Loader } from '@/resources/components/UI';
+import { trimObjectProperties } from '@/assets/helpers/string';
+import { ResearchParams } from './form';
 
 const fieldsDefault = [{
-    maSo: '200112', name: "Trần Văn Thọ",
-    email: "vinhhien12z@gmail.com", phoneNumber: "0344197279",
-    hocVi: 'Thạc sĩ',
-    subjectName: "Kỹ thuật phần mềm",
-    departmentName: "Công nghệ thông tin"
+    name: '', note: "",
+    minMembers: 1, maxMembers: 4,
+    stage: 1, schoolYear: "",
+    detail: ""
 }];
 
-/*
-{
-    "teachers":[
-        {
-            "maSo" : "99932192222",
-            "name" : "Trần Văn Thọ",
-            "hocVi" : "Thạc sĩ",
-            "email" : "tranvantho@huit.edu.vn",
-            "phoneNumber" : "09123456789", 
-            "chucVu" : "GIÁNG VIÊN",
-            "user_id" : "",
-            "departmentName" : "Công nghệ thông tin",
-            "subjectName" : "Kỹ thuật phần mềm"
-        },
-        {
-            "maSo" : "99993123333",
-            "name" : "Đặng Trần Khánh",
-            "hocVi" : "Phó Giáo Sư",
-            "email" : "dangtrankhanh@huit.edu.vn",
-            "phoneNumber" : "09123456789",
-            "chucVu" : "GIÁNG VIÊN",
-            "user_id" : "",
-            "departmentName" : "Công nghệ thông tin",
-            "subjectName" : "Khoa học dữ liệu & Trí tuệ nhân tạo"
-        }
-    ]
-}
-
-
-*/
 const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, ref) => {
     const [visible, setVisible] = useState(false);
-    const [teachertOnExcel, setTeachertOnExcel] = useState<TeacherType[]>([])
-    const [meta, setMeta] = useState<MetaType>(request.defaultMeta);
+    const [studentOnExcel, setStudentOnExcel] = useState<ResearchParams[]>([])
 
-    const show = (data?: TeacherType) => {
+    const show = (data?: ResearchParams) => {
         setVisible(true);
     };
 
 
     const close = () => {
         setVisible(false);
-        setTeachertOnExcel([])
+        setStudentOnExcel([])
     };
 
     useImperativeHandle(ref, () => ({
         show,
         close
     }));
-    const TeacherListMutationInsert = useMutation<any, AxiosError<ResponseType>, TeacherType[]>({
+    const ReSearchListMutationInsert = useMutation<any, AxiosError<ResponseType>, ResearchParams[]>({
         mutationFn: (data) => {
-            //console.log(data)
-            return request.post(`${API.teachers.insert_from_excel}`, { teachers: data });
+            return request.post(API.reSearch.insert, { researches: data })
         },
     });
-
-
-
-
-    const onAddTeacherExcel = (data: TeacherType[]) => {
-        const newData = data.map((item: any) => {
-            delete item.STT;
-            return trimObjectProperties({
-                ...item,
-                degree: item.hocVi,
-                code: item.maSo.toString().trim(),
-                phoneNumber: item.phoneNumber.toString(),
-                position: [item.chucVu]
-
-            })
+    const onAddReSearchExcel = (data: ResearchParams[]) => {
+        const newData = data.map((item: ResearchParams) => {
+            return { ...item, instructorsIds: [] }
         })
-        console.log(newData)
-        TeacherListMutationInsert.mutate(newData, {
+        ReSearchListMutationInsert.mutate(newData, {
             onSuccess: (data) => {
+                //StudentListQuery.refetch();
                 close();
                 onSuccess?.(data);
                 toast.success("Thêm thành công");
             },
         })
     }
-
     return (
         <Dialog
             header={title}
@@ -117,13 +72,12 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
             contentClassName='mb-8'
             onHide={close}
         >
-
-            {TeacherListMutationInsert.isPending && <Loader />}
+            {ReSearchListMutationInsert.isPending && <Loader />}
             <>
 
                 <h3>Thực hiện thêm {key} vào đợt đăng kí Khóa luận</h3>
                 <div >
-                    <Button className="my-3" onClick={() => XLSX.handleExportFile(fieldsDefault, "FilestudentExample")}>Export fie mẫu</Button>
+                    <Button className="my-3" onClick={() => XLSX.handleExportFile(fieldsDefault, "FileReSearch")}>Export fie mẫu</Button>
                     <h3>chose file</h3>
                     <InputFile
                         accept='.xlsx ,.xls'
@@ -131,19 +85,19 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
                         multiple={true}
                         onChange={(e) => {
                             XLSX.handleImportFile(e, (data) => {
-                                setTeachertOnExcel(data.map((item: any) => { return { ...item, chucVu: "GIẢNG VIÊN" } }))
+                                setStudentOnExcel(data)
                             })
                         }}
                         onRemove={() => {
-                            setTeachertOnExcel([])
+                            setStudentOnExcel([])
                         }}
                         onSubmitFile={() => {
-                            onAddTeacherExcel(teachertOnExcel)
+                            onAddReSearchExcel(studentOnExcel)
                         }}
                     />
                 </div>
                 <DataTable
-                    value={teachertOnExcel}
+                    value={studentOnExcel}
                     rowHover={true}
                     stripedRows={true}
                     showGridlines={true}
@@ -165,6 +119,7 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
 
 
                 </DataTable>
+
             </>
         </Dialog>
     )

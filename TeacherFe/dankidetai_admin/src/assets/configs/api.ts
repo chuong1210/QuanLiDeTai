@@ -17,7 +17,7 @@ const API = {
         getAllNoParams: "/subjects/showAll-no-params"
     },
     students: {
-        insert_from_excel: "/students/insert-from-excel",
+        insert_from_excel: "/students/insert-from-file",
         insert: "/students/insert",
         update: "/students/update",
         delete: "/students/delete",
@@ -25,12 +25,12 @@ const API = {
         getAllNoParams: "/students/showAll-no-params"
     },
     teachers: {
-        insert_from_excel: "/teachers/insert-from-excel",
+        insert_from_excel: "/teachers/insert-from-file",
         insert: "/teachers/insert",
         delete: "/teachers/delete",
         update: "/teachers/update",
         getAll: "/teachers/showAll",
-        getAllNoParams: "/teachers/showAll-no-params"
+        getAllNoParams: "/teachers/showAll-to-selection"
     },
     job: {
         InsertJobForTeacher: "/jobs/teacher-job/insert",
@@ -39,10 +39,12 @@ const API = {
         ShowAllNoParam: "/jobs/showAll-no-params",
     },
     reSearch: {
-        insert: "/researches/insert",
+        insert: "/researches/insert-from-file",
         update: "/researches/update",
+        mark_approved: "/researches/mark-approved",
         delete: "/researches/delete",
         showall: "/researches/showAll",
+        showone: "/researches/showOne?researchId=",
     },
     feedBack: {
         insert: "/feedbacks/insert",

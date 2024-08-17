@@ -25,7 +25,7 @@ const defaultValues: SubjectType = {
 }
 
 const schema = yup.object({
-    id: yup.number(),
+    //id: yup.number(),
     name: yup.string().required(),
     departments: yup.object().shape({
         name: yup.string().required()
@@ -39,7 +39,6 @@ const Form = forwardRef<FormRefType<SubjectType>, FormType<SubjectType>>(({ type
     });
     const StudentMutation = useMutation<any, AxiosError<ResponseType>, any>({
         mutationFn: (data) => {
-            console.log(data)
             return type === "edit" ? request.update(API.subjects.update + `/${data.id}`, { name: data.name, nameDepartment: data.departments.name }) : request.post(API.subjects.insert, { name: data.name, nameDepartment: data.departments.name })
         },
     });
@@ -57,7 +56,7 @@ const Form = forwardRef<FormRefType<SubjectType>, FormType<SubjectType>>(({ type
 
     const show = (data?: SubjectType) => {
         setVisible(true);
-
+        console.log(data)
         if (data) {
             reset(data);
         } else {
@@ -67,6 +66,7 @@ const Form = forwardRef<FormRefType<SubjectType>, FormType<SubjectType>>(({ type
 
     };
     const onSubmit = (data: SubjectType) => {
+        console.log(data)
         StudentMutation.mutate(data, {
             onSuccess: (response) => {
                 close();

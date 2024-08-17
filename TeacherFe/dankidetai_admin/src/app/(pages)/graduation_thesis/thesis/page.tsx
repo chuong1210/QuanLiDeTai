@@ -8,7 +8,7 @@ import { Tag } from 'primereact/tag';
 import { classNames } from 'primereact/utils';
 import Link from 'next/link';
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import API from '@/assets/configs/api';
 import * as request from "@/assets/helpers/request"
@@ -17,9 +17,9 @@ import { MetaType, ParamType } from '@/assets/types/request';
 import { roleE } from '@/assets/configs/general';
 import { cookies } from '@/assets/helpers';
 import { ROLE_USER } from '@/assets/configs/request';
+import { toast } from 'react-toastify';
 
 export default function Page() {
-    const searchParams = useSearchParams()
     const [meta, setMeta] = useState<MetaType>(request.defaultMeta);
     const paramsRef = useRef<ParamType>({
         page: meta.currentPage,
@@ -59,14 +59,23 @@ export default function Page() {
         setMeta(e => ({ ...e, limit: event.rows }))
         ListResearchListQuery.refetch();
     }
+    const MarkApprovedMutation = useMutation<any, AxiosError<ResponseType>, any>({
+        mutationFn: (data: string) => {
+            return request.update(API.reSearch.mark_approved + `/${data}`, undefined)
+        },
+    });
+    const handleDuyetDeTai = (data: ReSearchType) => {
+        MarkApprovedMutation.mutate(data.id, {
+            onSuccess: (_: any) => {
+                toast.success("Đã duyệt đề tài:" + data.name);
+                ListResearchListQuery.refetch()
+            },
+        })
+    }
 
     const itemTemplate = (thesis: ReSearchType, index: number) => {
-        let status = "Approved"
-        if (thesis.isApproved === 0) {
-            status = "Not Approve"
-        }
         return (
-            <div className="col-12" key={thesis.maDeTai} style={{ padding: '8px 0' }}>
+            <div className="col-12" key={index} style={{ padding: '8px 0' }}>
                 <div className={`flex flex-column xl:flex-row xl:align-items-start p-4 gap-4 border-round ${index !== 0 ? 'border-top-1 surface-border' : ''}`} style={{ backgroundColor: 'white', border: '1px solid #ccc', position: 'relative' }}>
                     <div className="flex flex-column align-items-center sm:align-items-start gap-3 col-8">
                         <div
@@ -79,35 +88,40 @@ export default function Page() {
                         </div>
                         <div className="flex align-items-center gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin khác */}
                             <span className="flex align-items-center gap-2">
-                                <span className="font-semibold">{thesis.maDeTai}</span>
+                                <span className="font-semibold">Mã đề tài: {thesis.code}</span>
                             </span>
-                            <Tag value={status} severity={status === 'Not Approve' ? 'danger' : 'success'}></Tag>
+                            <Tag value={thesis.status} severity={thesis.status === "DE" || thesis.status === "PA" ? 'danger' : 'success'}></Tag>
                         </div>
-                        {(cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.truongkhoa) || cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.truongbomon)) && (
-                            <div className="flex align-items-center gap-3"> {/* Giảm font-size cho các thông tin khác */}
-                                <Button className='mt-4'>Duyệt đề tài</Button>
+                        <div className="flex align-items-center gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin khác */}
+                            <span className="font-semibold">Nhóm chuyên ngành:</span> {thesis.subjects.map(item => item.name + " ")}
+                        </div>
+                        {(thesis.status === "PA") && (cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.truongkhoa) || cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.truongbomon)) && (
+                            <div > {/* Giảm font-size cho các thông tin khác */}
+                                <Button onClick={() => handleDuyetDeTai(thesis)}>Duyệt đề tài</Button>
                             </div>
                         )}
-
                     </div>
                     <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-2 gap-3 col-4" style={{ minHeight: "120px" }}>
                         <div className="flex flex-column align-items-center sm:align-items-start gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin giảng viên và nhóm chuyên ngành */}
                             <div className="flex align-items-center gap-3">
-                                <span className="font-semibold">Giảng viên:</span> {thesis.teachers.map(item => item.name + ",")}
+                                {/* <span className="font-semibold">Giảng viên:</span> {thesis.teachers.map(item => item.name + ",")} */}
                             </div>
                             <div className="flex align-items-center gap-3">
-                                <span className="font-semibold">Số lượng TV:</span> {thesis.minMembers}-{thesis.maxMembers}
+                                {/* <span className="font-semibold">Số lượng TV:</span> {thesis.minMembers}-{thesis.maxMembers} */}
                             </div>
                             <div className="flex align-items-center gap-3">
-                                <span className="font-semibold">Nhóm chuyên ngành:</span> {thesis.subjects.map(item => item.name + ",")}
+                                {/* <span className="font-semibold">Nhóm chuyên ngành:</span> {thesis.subjects.map(item => item.name + ",")} */}
                             </div>
+
                         </div>
-                        <div className="flex sm:flex-column align-items-center sm:align-items-end gap-2 sm:gap-1" style={{ position: 'absolute', bottom: '16px', right: '16px' }}>
+
+                        <div className="flex gap-2 sm:gap-1" style={{ position: 'absolute', bottom: '16px', right: '16px' }}>
+
                             <Link style={{ textDecoration: "underline", fontSize: '1rem' }} href={`/graduation_thesis/thesis/${thesis.id}`}>Chi tiết</Link> {/* Giảm font-size cho liên kết */}
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
         );
     };
 
