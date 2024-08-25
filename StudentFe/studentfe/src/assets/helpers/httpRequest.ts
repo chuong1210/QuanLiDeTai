@@ -89,39 +89,6 @@ return  refreshTokenRes.data;
 
 
 // Response Interceptor
-// http.interceptors.response.use(
-//   (response) => response,
-//   async (error) => {
-//     const originalRequest = error.config;
-    
-//     // Check for 401 error and if it hasn't been retried yet
-//     if (error.response && error.response.status === 401 && !originalRequest._retry) {
-//       originalRequest._retry = true;
-
-//       try {
-//         const oldToken: AuthTypeRefreshToken = {
-//           token: cookies.get(ACCESS_TOKEN)
-//         };
-//           const responsRefresh=await refreshTokenMeth(oldToken.token ?? "")
-//         const newAccessToken = await responsRefresh?.result?.accessToken;
-//         console.log(newAccessToken+"new")
-
-//         if (newAccessToken) {
-//           await cookies.set(ACCESS_TOKEN, newAccessToken);
-//           originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-          
-//           // Retry the original request with the new token
-//           return http(originalRequest);
-//         }
-//       } catch (refreshError) {
-//         return Promise.reject(refreshError);
-//       }
-//     }
-    
-//     return Promise.reject(error);
-//   }
-// );
-// Response Interceptor
 http.interceptors.response.use(
   (response) => response,
   async (error) => {

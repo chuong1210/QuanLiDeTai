@@ -4,7 +4,7 @@ import { API } from './api';
 import { headers } from 'next/headers';
 import { ACCESS_TOKEN, REFRESH_TOKEN } from '../httpRequest';
 import { FormStateType } from '@/assets/types/loginform';
-import { AuthTypeLogin, AuthTypeRefreshToken, TopicParamType, TopicType } from '@/assets/interface';
+import { AuthTypeLogin, AuthTypeRefreshToken, NotificationTypeInvitationInsertInput, TopicParamType, TopicType } from '@/assets/interface';
 import { formChangePassword } from '@/assets/types/changePassword';
 import axios, { AxiosResponse } from 'axios';
 import { ResponseType } from '@/assets/types/httpRequest';
@@ -15,10 +15,6 @@ import { ResponseType } from '@/assets/types/httpRequest';
 export const loginStudent = async (user: FormStateType): Promise<ResponseType<AuthTypeLogin>> => {
   const response: AxiosResponse<ResponseType<AuthTypeLogin>> = await http.post(API.auth.sign_in, user);
   return response.data;
-
-  //   {headers: {
-//   Authorization: `Bearer ${cookies.get(REFRESH_TOKEN)}`
-// }}
 };
 
 // export const getStudents = (page: number | string, limit: number | string, signal?: AbortSignal) =>
@@ -54,19 +50,40 @@ export const fetchAllCourses = async () => {
   
     };
 
+    export const removeStudentGroup = async (groupId:string,studentIds:string[] ): Promise<ResponseType>  => {
+      const response: AxiosResponse<ResponseType> =  await http.update(API.put.group+`/${groupId}`,{studentIds:studentIds});
+    
+       return response.data;
+    
+      };
+
+      export const deleteGroup = async (groupIds:string[] ): Promise<ResponseType>  => {
+        const response: AxiosResponse<ResponseType> =  await http.remove(API.delete.group,groupIds);
+      
+         return response.data;
+      
+        };
   export const updatePassword = async (passwordData: formChangePassword) => {
  await http.post(`${API.post.change_password}/`, passwordData);
    
   };
 
-  export const registerGroup = async (studentJoinId:string[] | string) => {
+  export const registerGroup = async (maxMember:number) => {
     await http.post(`${API.post.register_group}`, 
       {
-        studentId:studentJoinId
+        maxMember:maxMember
       }
     );
       
      };
+
+     export const handleInvitation = async (data:NotificationTypeInvitationInsertInput)  => {
+      await http.post(`${API.post.invitation}`, 
+      data
+      );
+        
+       };
+     
    
   
   export const refreshTokenApi = async (oldTokendata?:AuthTypeRefreshToken): Promise<ResponseType<AuthTypeLogin> | null> => {

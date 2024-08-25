@@ -1,4 +1,4 @@
-import { StudentProfileType } from "@/assets/interface/StudentProfile.type";
+import { StudentProfileType, userProfileType } from "@/assets/interface/UserProfile.type";
 import { MenuItemType } from "@/assets/types/menu";
 import { useMemo } from "react";
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -64,8 +64,8 @@ export const scheduleDataTable: TableData[] =
       },
     ]
 
- export   const studentProfile: StudentProfileType = {
-      mssv: "2044226229",
+ export   const studentProfile: userProfileType = {
+      id: "2044226229",
       fullName: "Võ Ngọc Nguyên Chương",
       gender: "Nam",
       education: {
@@ -145,148 +145,130 @@ const topicsMock = [
 // Dữ liệu ảo cho phản hồi từ server cho topic detail
 
 
-export const fakeTopicData: TopicType = {
-  id: 1,
-  internalCode: "KHMT-001",
-  name: "Ứng dụng trí tuệ nhân tạo trong dự báo thời tiết",
-  description: "Nghiên cứu và phát triển mô hình dự báo thời tiết dựa trên trí tuệ nhân tạo, ứng dụng công nghệ deep learning và xử lý dữ liệu lớn.",
-  status: "A",
-  isRegister: true,
-  thesisMajors: [
-    {
-      id: 1,
-      name: "Khoa học máy tính"
-    },
-    {
-      id: 2,
-      name: "Công nghệ thông tin"
-    }
-  ],
-  minQuantity: 2,
-  maxQuantity: 4,
-  thesisInstructions: [
-    {
-      id: 1,
-      name: "Nguyễn Văn A",
-      email: "nguyenvanA@example.com",
-      academicTitle: "TS",
-      dateOfBirth: null
-    }
-  ],
-  messages: [
-    "Yêu cầu sinh viên có kiến thức về lập trình Python và machine learning",
-    "Có khả năng xử lý dữ liệu lớn"
-  ]
-};
 
-export const topicDetailMock: TopicType = {
-  id: 1,
-  internalCode: "KHMT-001",
-  name: "Ứng dụng trí tuệ nhân tạo trong dự báo thời tiết",
-  description: "Nghiên cứu và phát triển mô hình dự báo thời tiết dựa trên trí tuệ nhân tạo, ứng dụng công nghệ deep learning và xử lý dữ liệu lớn.",
-  status: "A",
-  isRegister: true,
-  thesisMajors: [
-    {
-      id: 1,
-      name: "Khoa học máy tính"
-    },
-    {
-      id: 2,
-      name: "Công nghệ thông tin"
-    }
-  ],
-  minQuantity: 2,
-  maxQuantity: 4,
-  thesisInstructions: [
-    {
-      id: 1,
-      name: "Nguyễn Văn A",
-      email: "nguyenvanA@example.com",
-      academicTitle: "TS",
-      dateOfBirth: null
-    },
-    {
-      id: 2,
-      name: "Trần Thị B",
-      email: "tranthiB@example.com",
-      academicTitle: "PGS",
-      dateOfBirth: null
-    }
-  ],
-  messages: [
-    "Yêu cầu sinh viên có kiến thức về lập trình Python và machine learning",
-    "Có khả năng xử lý dữ liệu lớn"
-  ],
-  summary: "Đây là một đề tài nghiên cứu về ứng dụng trí tuệ nhân tạo trong dự báo thời tiết. Đề tài này sẽ tập trung vào việc xây dựng một mô hình dự báo thời tiết dựa trên deep learning và xử lý dữ liệu lớn. Các sinh viên tham gia dự án sẽ được tiếp cận với các công nghệ mới nhất trong lĩnh vực trí tuệ nhân tạo, đồng thời được rèn luyện kỹ năng phân tích dữ liệu, xây dựng mô hình và đánh giá hiệu quả của mô hình.",
 
-};
 // topic.mock.ts
 
-export const topicMockData: TopicType[] = [
+
+export interface NotificationMock {
+  avatar?: string;
+  title?: string;
+  message?: string;
+  time?: string;
+  buttonLabel?: string;
+}
+
+export const fakeNotifications = [
   {
     id: 1,
-    internalCode: "KHMT-001",
-    name: "Ứng dụng trí tuệ nhân tạo trong dự báo thời tiết",
-    description: "Nghiên cứu và phát triển mô hình dự báo thời tiết dựa trên trí tuệ nhân tạo, ứng dụng công nghệ deep learning và xử lý dữ liệu lớn.",
-    status: "A",
-    isRegister: true,
-    thesisMajors: [
-      {
-        id: 1,
-        name: "Khoa học máy tính"
-      },
-      {
-        id: 2,
-        name: "Công nghệ thông tin"
-      }
-    ],
-    minQuantity: 2,
-    maxQuantity: 4,
-    thesisInstructions: [
-      {
-        id: 1,
-        name: "Nguyễn Văn A",
-        email: "nguyenvanA@example.com",
-        academicTitle: "TS",
-        dateOfBirth: null
-      }
-    ],
-    messages: [
-      "Yêu cầu sinh viên có kiến thức về lập trình Python và machine learning",
-      "Có khả năng xử lý dữ liệu lớn"
-    ]
+    sendFrom: "John Doe",
+    message: "Bạn đã được mời tham gia nhóm 'React Developers'.",
+    timeSent: "2023-10-26T10:00:00.000Z",
+    statusInvitation: "PENDING", // PENDING, AOS, RE
+    buttonLabel: "Tham gia ngay",
   },
   {
     id: 2,
-    internalCode: "KHMT-002",
-    name: "Phát triển ứng dụng di động hỗ trợ học tập",
-    description: "Nghiên cứu và phát triển ứng dụng di động hỗ trợ học tập, tích hợp các tính năng như: quản lý bài học, giao tiếp với giáo viên, ...",
-    status: "A",
-    isRegister: false,
-    thesisMajors: [
-      {
-        id: 1,
-        name: "Khoa học máy tính"
-      }
-    ],
-    minQuantity: 1,
-    maxQuantity: 3,
-    thesisInstructions: [
-      {
-        id: 2,
-        name: "Trần Thị B",
-        email: "tranthiB@example.com",
-        academicTitle: "PGS",
-        dateOfBirth: null
-      }
-    ],
-    messages: [
-      "Yêu cầu sinh viên có kiến thức về phát triển ứng dụng di động"
-    ]
+    sendFrom: "Jane Smith",
+    message: "Jane Smith đã yêu cầu kết nối với bạn.",
+    timeSent: "2023-10-25T14:30:00.000Z",
+    statusInvitation: "PENDING",
   },
-  // Thêm các đối tượng TopicType mock khác vào đây...
+  {
+    id: 3,
+    sendFrom: "Project Manager",
+    message: "Bạn đã được giao nhiệm vụ mới trong dự án 'Website X'.",
+    timeSent: "2023-10-24T08:15:00.000Z",
+    statusInvitation: "AOS",
+  },
+  {
+    id: 4,
+    sendFrom: "System Administrator",
+    message: "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ với quản trị viên.",
+    timeSent: "2023-10-23T16:45:00.000Z",
+    statusInvitation: "RE",
+  },
+  {
+    id: 5,
+    sendFrom: "Marketing Team",
+    message: "Có một sự kiện sắp diễn ra. Đăng ký ngay để tham gia.",
+    timeSent: "2023-10-22T12:00:00.000Z",
+    statusInvitation: "PENDING",
+  },
 ];
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-    res.status(200).json(fakeTopicData);
-}
+
+export const NotificationMock = {
+  getNotifications: () => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(fakeNotifications);
+      }, 1000);
+    });
+  },
+};
+// API Fetch Function with Mock Data
+  // Mock data
+ export const mockDataTeam = [
+    {
+      id:'001',
+      name: 'Leroy Jenkins',
+      role: 'Visual Designer',
+      email: 'leroy.jenkins@example.com',
+      twitter: 'https://twitter.com/leroyjenkins',
+      linkedin: 'https://linkedin.com/in/leroyjenkins',
+      github: 'https://github.com/leroyjenkins',
+    },
+    {
+      id:'001',
+
+      name: 'Sarah Connor',
+      role: 'Backend Developer',
+      email: 'sarah.connor@example.com',
+      twitter: 'https://twitter.com/sarahconnor',
+      linkedin: 'https://linkedin.com/in/sarahconnor',
+      github: 'https://github.com/sarahconnor',
+    },
+    {
+      id:'001',
+
+      name: 'John Doe',
+      role: 'Frontend Developer',
+      email: 'john.doe@example.com',
+      twitter: 'https://twitter.com/johndoe',
+      linkedin: 'https://linkedin.com/in/johndoe',
+      github: 'https://github.com/johndoe',
+    },
+    {
+      id:'001',
+
+      name: 'Jane Smith',
+      role: 'UI/UX Designer',
+      email: 'jane.smith@example.com',
+      twitter: 'https://twitter.com/janesmith',
+      linkedin: 'https://linkedin.com/in/janesmith',
+      github: 'https://github.com/janesmith',
+    },
+    {
+      id:'001',
+
+      name: 'Bruce Wayne',
+      role: 'Security Specialist',
+      email: 'bruce.wayne@example.com',
+      twitter: 'https://twitter.com/brucewayne',
+      linkedin: 'https://linkedin.com/in/brucewayne',
+      github: 'https://github.com/brucewayne',
+    },
+    {
+      id:'001',
+
+      name: 'Tony Stark',
+      role: 'Full Stack Developer',
+      email: 'tony.stark@example.com',
+      twitter: 'https://twitter.com/tonystark',
+      linkedin: 'https://linkedin.com/in/tonystark',
+      github: 'https://github.com/tonystark',
+    },
+  ];
+
+  // Simulate a delay to mimic fetching from an API
+

@@ -44,6 +44,7 @@ const ExerciseTab = () => {
 
   return (
     <div className="flex flex-column pt-4 gap-4 my-panel">
+      adudu
       {jobs &&
         jobs.length > 0 &&
         jobs.map((job) => (

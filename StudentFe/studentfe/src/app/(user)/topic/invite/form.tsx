@@ -1,6 +1,10 @@
 import { API } from "@/assets/config";
 import { http } from "@/assets/helpers";
-import { InviteType, StudentType } from "@/assets/interface";
+import {
+  InviteType,
+  NotificationTypeInvitationInsertInput,
+  StudentType,
+} from "@/assets/interface";
 import { ResponseType } from "@/assets/types/httpRequest";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Loader } from "@/resources/components/UI";
@@ -15,9 +19,10 @@ import { forwardRef, useImperativeHandle, useState } from "react";
 import { Controller, Resolver, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import * as yup from "yup";
+import { handleInvitation } from "@/assets/config/apiRequests/StudentApiMutation";
 
 interface InviteFormRefType {
-  show?: (data?: StudentType) => void;
+  show?: (data?: StudentType, selectedRows?: StudentType[]) => void;
   close?: () => void;
 }
 
@@ -25,6 +30,7 @@ interface InviteFormType {
   title: string;
   onSuccess?: (faculty: StudentType) => void;
   onUpdateStudent?: (studentJoinId: number) => void; // thêm mới
+  selectedRows?: StudentType[];
 }
 
 const defaultValues: InviteType = {
@@ -47,27 +53,36 @@ const InviteForm = forwardRef<InviteFormRefType, InviteFormType>(
       defaultValues,
     });
 
-    const inviteMutation = useMutation<
+    const inviteMutation: any = useMutation<
       any,
       AxiosError<ResponseType>,
-      { message: string; studentJoinId: number }
+      NotificationTypeInvitationInsertInput
     >({
-      mutationFn: (data) => {
-        return http.post(API.list.invitation, data, {
-          params: {
-            removeFacultyId: true,
-          },
-        });
+      mutationFn: (data: NotificationTypeInvitationInsertInput) => {
+        return handleInvitation(data);
       },
     });
 
-    const show = (data?: StudentType) => {
-      setVisible(true);
+    // const inviteMutation = useMutation<
+    //   any,
+    //   AxiosError<ResponseType>,
+    //   { message: string; studentJoinId: number }
+    // >({
+    //   mutationFn: (data) => {
+    //     return http.post(API.post.invitation, data, {
+    //       params: {
+    //         removeFacultyId: true,
+    //       },
+    //     });
+    //   },
+    // });
 
+    const show = (data?: StudentType, selectedRows?: StudentType[]) => {
+      setVisible(true);
       if (data) {
         reset({
           message: "",
-          studentJoinId: data.studentJoinId,
+          studentJoinId: data.id,
         });
       }
     };
@@ -78,15 +93,17 @@ const InviteForm = forwardRef<InviteFormRefType, InviteFormType>(
     };
 
     const onSubmit = (data: InviteType) => {
+      console.log(getValues("studentJoinId"));
       inviteMutation.mutate(
         {
-          message: data.message,
-          studentJoinId: getValues("studentJoinId"),
+          isSendAllStudent: !data.message,
+
+          studentIds: [getValues("studentJoinId")],
         },
         {
-          onSuccess: (response) => {
+          onSuccess: (response: any) => {
             close();
-            onSuccess?.(response.data); //  onSuccess?: (studentJoinId: number) => void; nó sẽ là cái này nếu ko sửa
+            //  onSuccess?.(response.data); //  onSuccess?: (studentJoinId: number) => void; nó sẽ là cái này nếu ko sửa
             onUpdateStudent?.(response.data);
             toast.success("Cập nhật thành công");
           },

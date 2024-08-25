@@ -11,20 +11,26 @@ import { Image } from "primereact/image";
 import { Ripple } from "primereact/ripple";
 import { classNames } from "primereact/utils";
 import { createContext, useState } from "react";
-import { InviteTab, NotificationTab } from "./_slug/index";
+import { InviteList, InviteTab, NotificationTab } from "./_slug/index";
 import moment from "moment";
 import CustomImage from "@/resources/components/UI/Image";
 
 interface NotificationPageContextType {
   tab: "IV" | "NT";
+  icon: "pi pi-envelope " | "pi pi-bell";
 }
 
 const NotificationPageContext = createContext<NotificationPageContextType>({
   tab: "NT",
+  icon: "pi pi-bell",
 });
 
 const NotificationPage = ({ params: { id } }: PageProps) => {
   const [tab, setTab] = useState<"NT" | "IV">("NT");
+  const [icon, setIcon] = useState<"pi pi-envelope " | "pi pi-bell">(
+    "pi pi-bell"
+  );
+
   const { isLoading, response } = useGetList<
     NotificationType,
     NotificationParamType
@@ -39,6 +45,7 @@ const NotificationPage = ({ params: { id } }: PageProps) => {
 
   const value = {
     tab,
+    icon,
   };
 
   return (
@@ -54,8 +61,17 @@ const NotificationPage = ({ params: { id } }: PageProps) => {
                   "surface-400": tab != "NT",
                 }
               )}
-              onClick={() => setTab("NT")}
+              onClick={() => {
+                setTab("NT");
+                setIcon("pi pi-bell");
+              }}
             >
+              {tab === "NT" && (
+                <i
+                  className={icon}
+                  style={{ lineHeight: "1.5", paddingRight: "6px" }}
+                ></i>
+              )}
               {"Thông báo"}
               <Ripple />
             </div>
@@ -68,8 +84,17 @@ const NotificationPage = ({ params: { id } }: PageProps) => {
                   "bg-primary": tab == "IV",
                 }
               )}
-              onClick={() => setTab("IV")}
+              onClick={() => {
+                setTab("IV");
+                setIcon("pi pi-envelope ");
+              }}
             >
+              {tab === "IV" && (
+                <i
+                  className={icon}
+                  style={{ lineHeight: "1.5", paddingRight: "6px" }}
+                ></i>
+              )}
               {"Lời mời"}
               <Ripple />
             </div>
@@ -77,7 +102,7 @@ const NotificationPage = ({ params: { id } }: PageProps) => {
 
           {tab == "NT" && <NotificationTab />}
 
-          {tab == "IV" && <InviteTab />}
+          {tab == "IV" && <InviteList />}
         </div>
 
         <div className="col-5">
@@ -88,7 +113,7 @@ const NotificationPage = ({ params: { id } }: PageProps) => {
             <Loader show={isLoading} />
 
             <div className="flex flex-column gap-5">
-              {response?.data?.map((notification, index: number) => (
+              {response?.result?.map((notification, index: number) => (
                 <div
                   key={notification.id}
                   className="flex gap-3 cursor-pointer"

@@ -10,7 +10,6 @@ interface StudentType extends GeneralType {
     studentJoinId?: number;
     status?: string;
     groupDto?: GroupType;
-    maSo?:string;
     subjects?:FacultyType;
     points?:PointType
 
@@ -20,7 +19,6 @@ interface StudentParamType extends ParamType {
     isGetMajor?: boolean;
     industryId?: boolean;
     majorId?: boolean;
-    maSo?:string;
 
 }
 

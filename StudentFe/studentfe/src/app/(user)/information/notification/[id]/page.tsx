@@ -7,7 +7,6 @@ import { PageProps } from "@/assets/types/UI";
 import moment from "moment";
 import { Card } from "primereact/card";
 import { da } from "date-fns/locale";
-// import { useRouter } from "next/navigation";
 import { useRouter } from "next/navigation";
 
 const NotificationDetailPage = ({ params: { id } }: PageProps) => {
@@ -16,7 +15,7 @@ const NotificationDetailPage = ({ params: { id } }: PageProps) => {
     params: { id },
   });
 
-  const dataO = data?.data;
+  const dataO = data?.result;
   console.log(dataO + "asa");
   const router = useRouter();
   const handleClose = () => {

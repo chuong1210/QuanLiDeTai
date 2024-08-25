@@ -39,7 +39,7 @@ export async function middleware(req: NextRequest) {
           return response;
 
   }
-    // // Kiểm tra access token hết hạn
+    // Kiểm tra access token hết hạn
     // if (accessToken && cookies.isTokenExpired(accessToken)) {
     //     try {
     //       // Thử refresh token

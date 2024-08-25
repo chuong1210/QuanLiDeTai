@@ -11,9 +11,7 @@ interface FeedbackType extends GeneralType {
     
 }
 
-// * **'A'**:  Active or Available. This could mean the topic is open for students to choose.
-// * **'AR'**:  Assigned or Reserved. This could mean the topic has been assigned to a specific student or group.
-// * **'D'**:  Deleted or Discontinued. This could mean the topic is no longer available for selection.
+
 interface FeedbackParamType extends ParamType {
   
 }

@@ -123,7 +123,6 @@ const CheckboxWrapper = styled.div`
 `;
 
 const CustomCheckbox: React.FC<CheckboxProps> = ({ value, onChange }) => {
-  console.log(value);
   return (
     <CheckboxWrapper>
       <input

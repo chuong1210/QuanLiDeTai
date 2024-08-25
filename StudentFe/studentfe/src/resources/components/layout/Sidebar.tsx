@@ -22,6 +22,7 @@ import {
 } from "@/assets/config";
 import { useChangePassword } from "@/assets/useHooks/useChangePassword";
 import { ChangePasswordModal } from "../modal";
+import { cookies } from "@/assets/helpers";
 
 const Menu = () => {
   const {
@@ -44,6 +45,7 @@ const Menu = () => {
 
       deleteCookie(ACCESS_TOKEN);
       deleteCookie(REFRESH_TOKEN);
+      cookies.logOut();
       dispatch(
         menuSlice.actions.onItemClick({
           activeItem: "home",
@@ -58,7 +60,7 @@ const Menu = () => {
     return (
       <MenuItem
         key={item.code}
-        permissions={auth?.permission || []}
+        permissions={auth?.roles || []}
         item={{
           ...item,
           onItemClick: () => {
@@ -97,7 +99,7 @@ const Menu = () => {
           />
           <div className="flex-1">
             <p className="text-sm text-600 pb-1">{"Xin chào"}</p>
-            <p className="text-sm font-semibold">{auth?.result.Name}</p>
+            <p className="text-sm font-semibold">{auth?.name}</p>
           </div>
 
           <i className="pi pi-angle-down ml-2" />
@@ -107,11 +109,7 @@ const Menu = () => {
 
         {auth &&
           adminMenu.map((item) => (
-            <MenuItem
-              key={item.code}
-              item={item}
-              permissions={auth?.permission}
-            />
+            <MenuItem key={item.code} item={item} permissions={auth?.roles} />
           ))}
       </ul>
 

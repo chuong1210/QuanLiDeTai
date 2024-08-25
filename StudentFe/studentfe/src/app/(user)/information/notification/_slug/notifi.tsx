@@ -23,7 +23,7 @@ const NotificationTab = () => {
     },
   });
 
-  const { tab } = useContext(NotificationPageContext);
+  const { tab, icon } = useContext(NotificationPageContext);
 
   return (
     <Card
@@ -49,7 +49,7 @@ const NotificationTab = () => {
       <div className="flex flex-column gap-5">
         <Loader show={isLoading} />
 
-        {response?.data?.map((notification) => (
+        {response?.result?.map((notification) => (
           <div key={notification.id} className="flex gap-3 cursor-pointer">
             <CustomImage
               src={notification.image?.path}

@@ -2,7 +2,11 @@
 
 import { API, DEFAULT_PARAMS, ROUTES, ROWS_PER_PAGE } from "@/assets/config";
 import { http } from "@/assets/helpers";
-import { StudentParamType, StudentType } from "@/assets/interface";
+import {
+  NotificationTypeInvitationInsertInput,
+  StudentParamType,
+  StudentType,
+} from "@/assets/interface";
 import { PageProps } from "@/assets/types/UI";
 import { MetaType, ResponseType } from "@/assets/types/httpRequest";
 import Loader from "@/resources/components/UI/Loader";
@@ -25,18 +29,37 @@ import { Checkbox } from "primereact/checkbox";
 import CustomCheckbox from "@/resources/components/form/Checkbox";
 import { classNames } from "primereact/utils";
 import { boolean } from "yup";
+import { handleInvitation } from "@/assets/config/apiRequests/StudentApiMutation";
 
 const InvitePage = ({ params: { id } }: PageProps) => {
   const [selectedRows, setSelectedRows] = useState<StudentType[]>([]);
   const formRef = useRef<InviteFormRefType>(null);
   const [selected, setSelected] = useState<StudentType>();
-  const confirmModalRef = useRef<ConfirmModalRefType>(null);
+
+  const confirmCancelModalRef = useRef<ConfirmModalRefType>(null);
+  const confirmInviteModalRef = useRef<ConfirmModalRefType>(null);
 
   const [params, setParams] = useState<StudentParamType>(DEFAULT_PARAMS);
 
+  ("use server");
   const studentQuery = useGetListWithPagination<StudentType>({
     module: "student",
     params,
+    _onSuccessPaginator: (data) => {
+      setParams((prev) => {
+        const newParams = {
+          ...prev,
+          currentPage: data.result?.currentPage,
+          pageSize: data.result?.pageSize,
+          totalPages: data.result?.totalPages,
+        };
+        // Only update state if params have actually changed to avoid unnecessary re-renders
+        if (JSON.stringify(prev) !== JSON.stringify(newParams)) {
+          return newParams;
+        }
+        return prev;
+      });
+    },
   });
 
   const onPageChange = (e: PaginatorPageChangeEvent) => {
@@ -55,18 +78,28 @@ const InvitePage = ({ params: { id } }: PageProps) => {
         studentQuery.refetch();
       });
   };
+
+  const inviteMutation: any = useMutation<
+    any,
+    AxiosError<ResponseType>,
+    NotificationTypeInvitationInsertInput
+  >({
+    mutationFn: (data: NotificationTypeInvitationInsertInput) => {
+      return handleInvitation(data);
+    },
+  });
   const renderActions = (data: StudentType) => {
     return (
       <div className="flex align-items-center justify-content-center gap-3">
         {data.status === "S" &&
           !selectedRows.some((row) => row.id === data.id) && (
-            <>
+            <Fragment>
               <i
                 key={`cancel-${data.id}`} // Add key here
                 data-pr-tooltip="Thu hồi lời mời"
                 className="pi pi-replay hover:text-red-500 cursor-pointer cancelInvite"
                 onClick={(e) => {
-                  confirmModalRef.current?.show?.(
+                  confirmCancelModalRef.current?.show?.(
                     e,
                     data,
                     `Bạn có muốn hủy lời mời tới ${data.name}`
@@ -76,22 +109,22 @@ const InvitePage = ({ params: { id } }: PageProps) => {
                 }}
               />
               <Tooltip target=".cancelInvite" />
-            </>
+            </Fragment>
           )}
 
         {selectedRows.some((row) => row.id === data.id) && (
-          <>
+          <Fragment>
             <i
               key={`send-${data.id}`} // Add key here
               data-pr-tooltip="Gửi lời mời"
               className="pi pi-envelope hover:text-primary cursor-pointer sentInvite"
               onClick={() => {
-                formRef.current?.show?.(data);
+                formRef.current?.show?.(data, selectedRows);
                 setSelected(data);
               }}
             />
             <Tooltip target=".sentInvite" />
-          </>
+          </Fragment>
         )}
       </div>
     );
@@ -133,8 +166,9 @@ const InvitePage = ({ params: { id } }: PageProps) => {
               data-pr-tooltip="Gửi lời mời"
               className="pi pi-envelope hover:text-primary cursor-pointer sentInvite"
               onClick={(e) => {
-                confirmModalRef.current?.show?.(
+                confirmInviteModalRef.current?.show?.(
                   e,
+
                   selectedRows,
                   `Bạn có muốn gửi tất cả lời mời tới ${selectedRows.map(
                     (rows) => rows.name
@@ -178,7 +212,9 @@ const InvitePage = ({ params: { id } }: PageProps) => {
               color: "var(--surface-a)",
               whiteSpace: "nowrap",
             }}
-            header={""}
+            header={
+              <i className="pi pi-user-edit" style={{ fontSize: "1.5rem" }}></i>
+            }
             body={(data: StudentType) => (
               <div className="flex align-items-center justify-content-center gap-3">
                 <CustomCheckbox
@@ -259,9 +295,9 @@ const InvitePage = ({ params: { id } }: PageProps) => {
           <div></div>
 
           <Paginator
-            first={http.currentPage(studentQuery.data?.extra?.currentPage)}
-            rows={studentQuery.data?.extra?.pageSize}
-            totalRecords={studentQuery.data?.extra?.totalCount}
+            first={http.currentPage(studentQuery.data?.result?.currentPage)}
+            rows={studentQuery.data?.result?.pageSize}
+            totalRecords={studentQuery.data?.result?.totalCount}
             rowsPerPageOptions={ROWS_PER_PAGE}
             onPageChange={onPageChange}
             className="border-noround p-0"
@@ -272,13 +308,45 @@ const InvitePage = ({ params: { id } }: PageProps) => {
       <InviteForm
         title={`Gửi lời mới tới ${selected?.name}`}
         ref={formRef}
-        onSuccess={(data) => studentQuery.refetch()}
+        onSuccess={(result) => studentQuery.refetch()}
         onUpdateStudent={handleInvitationSuccess}
       />
 
       <ConfirmModal
-        ref={confirmModalRef}
+        ref={confirmCancelModalRef}
         onAccept={onRemove}
+        acceptLabel={"Xác nhận"}
+        rejectLabel={"Hủy bỏ"}
+      />
+
+      <ConfirmModal
+        ref={confirmInviteModalRef}
+        onAccept={() => {
+          console.log(selectedRows);
+          const studentIds: number[] = selectedRows
+            .map((student) => {
+              if (student.id !== undefined) {
+                return student.id;
+              }
+            })
+            .filter((id) => id !== undefined) as number[];
+
+          const invitationData: NotificationTypeInvitationInsertInput = {
+            studentIds: studentIds,
+            isSendAllStudent: false,
+          };
+
+          // Trigger the mutation with the invitation data for all selected students
+          inviteMutation.mutate(invitationData, {
+            onSuccess: () => {
+              toast.success("Đã gửi lời mời!");
+              studentQuery.refetch();
+            },
+            onError: () => {
+              console.error("Error sending invitations:");
+            },
+          });
+        }}
         acceptLabel={"Xác nhận"}
         rejectLabel={"Hủy bỏ"}
       />
