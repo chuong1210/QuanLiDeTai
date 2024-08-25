@@ -95,9 +95,13 @@ const Page = () => {
             const expirationDate = tokenData.exp
               ? new Date(tokenData.exp * 1000)
               : new Date(Date.now() + 3600 * 1000);
-            cookies.set(ACCESS_TOKEN, accessToken, {
-              expires: expirationDate,
-            });
+            cookies.set(
+              ACCESS_TOKEN,
+              accessToken
+              //   , {
+              //   expires: expirationDate,
+              // }
+            );
             cookies.set(REFRESH_TOKEN, accessToken);
 
             router.push(ROUTES.home.index);

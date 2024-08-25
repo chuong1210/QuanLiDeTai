@@ -14,6 +14,7 @@ interface AuthType extends GeneralType {
 
 
 
+
 }
 
 interface AuthTypeParamType extends ParamType {

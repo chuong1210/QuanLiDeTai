@@ -23,8 +23,8 @@ const list = (params: any) => ({
 });
 
 const detail = () => ({
-    notification: ['notification_detail', 'detail'],
-    group: ['group_detail', 'detail'],
+    notification: ['notification', 'detail'],
+    group: ['group', 'detail'],
     topic: ['topic', 'detail'],
     job: ['job', 'detail'],
     schedule: ['schedule', 'detail'],

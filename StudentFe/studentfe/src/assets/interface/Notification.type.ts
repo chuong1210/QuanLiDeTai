@@ -10,7 +10,11 @@ interface NotificationType extends GeneralType {
     images?: FileType[];
 }
 
+interface NotificationTypeInvitationInsertInput  {
+    isSendAllStudent?: boolean;
+    studentIds?: number[];
+  }
 interface NotificationParamType extends ParamType {
 }
 
-export type { NotificationParamType, NotificationType };
+export type { NotificationParamType, NotificationType,NotificationTypeInvitationInsertInput };

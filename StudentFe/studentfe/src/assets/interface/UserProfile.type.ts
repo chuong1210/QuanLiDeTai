@@ -1,4 +1,6 @@
 import { ParamType } from "../types/httpRequest";
+import { StudentType } from "./Students.type";
+import { TeacherType } from "./Teacher.type";
 
  interface PersonalInfo {
     dateOfBirth?: string;
@@ -29,20 +31,28 @@ import { ParamType } from "../types/httpRequest";
   }
   
 
-  interface StudentProfileType {
-    mssv?: string;
+  interface StudentProfileType  {
     fullName?: string;
     gender?: string;
     education?: EducationInfo;
     personal?: PersonalInfo;
   }
+interface userProfileType extends StudentProfileType
+{ 
+  id?: string;
+  username?: string;
+  password?: string;
+  isGraduate?: number;
+  //roles: Role[];
+  teachers?: TeacherType;
+  students?: StudentType;
 
+}
   interface StudentProfileParamsType extends ParamType {
-    // studentId?: number;
     fullName?: string;
     gender?: string;
     education?: EducationInfo;
     personal?: PersonalInfo;
   }
 
-export type { StudentProfileParamsType, StudentProfileType };
+export type { StudentProfileParamsType, StudentProfileType,userProfileType };

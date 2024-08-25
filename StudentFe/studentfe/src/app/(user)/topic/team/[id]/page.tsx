@@ -6,10 +6,12 @@ import {
   useGetListWithPagination,
 } from "@/assets/useHooks/useGet";
 import {
+  AuthType,
   GroupParamType,
   GroupType,
   JobParamType,
   JobType,
+  NotificationTypeInvitationInsertInput,
   StudentParamType,
   StudentType,
   TopicType,
@@ -18,8 +20,22 @@ import { PageProps } from "@/assets/types/UI";
 import { OptionType } from "@/assets/types/common";
 import { Loader } from "@/resources/components/UI";
 import { classNames } from "primereact/utils";
-import { createContext, Fragment, useMemo, useRef, useState } from "react";
-import { MemberTab, ExerciseTab, NewsTab, ResultTab } from "../_tab";
+import {
+  createContext,
+  Fragment,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
+  MemberTab,
+  ExerciseTab,
+  NewsTab,
+  ResultTab,
+  TeamPageTab,
+} from "../_tab";
 import Link from "next/link";
 import { Button } from "primereact/button";
 import { DEFAULT_PARAMS, ROUTES } from "@/assets/config";
@@ -31,15 +47,25 @@ import { ConfirmModal } from "@/resources/components/modal";
 import { ConfirmModalRefType } from "@/assets/types/modal";
 import { Dialog } from "primereact/dialog";
 import { ConfirmDialog } from "primereact/confirmdialog";
-import { registerGroup } from "@/assets/config/apiRequests/StudentApiMutation";
+import {
+  handleInvitation,
+  registerGroup,
+} from "@/assets/config/apiRequests/StudentApiMutation";
 import { Panel } from "primereact/panel";
 import { Avatar } from "primereact/avatar";
+import { AxiosError } from "axios";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import { InputNumber } from "primereact/inputnumber";
 
 type GroupPageContextType = {
   id: number;
   topic?: TopicType | null;
   jobs?: JobType[];
   active: string;
+  groupDetail?: GroupType;
+  hasGroup?: boolean;
+  setHasGroup: (value: boolean) => void;
 };
 
 const GroupPageContext = createContext<GroupPageContextType>({
@@ -47,13 +73,32 @@ const GroupPageContext = createContext<GroupPageContextType>({
   topic: null,
   jobs: [],
   active: "news",
+
+  hasGroup: false,
+  setHasGroup: (value: boolean) => {}, // Empty function for now
 });
 
 const GroupPage = ({ params }: PageProps) => {
-  const { id } = params;
+  const { id, hg } = params;
   const searchParams = useSearchParams();
-  const hasGroup: boolean = searchParams?.get("hasGroup") === "true";
-  const maSo: string = searchParams?.get("studentId") ?? "";
+  const [user, setUser] = useState<AuthType | null>(null);
+  const hasGroupFromParams: boolean = searchParams?.get("hasGroup") === "true";
+  const { hasGroup: contextHasGroup, setHasGroup } =
+    useContext(GroupPageContext);
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
+    }
+  }, []);
+  useEffect(() => {
+    setHasGroup(hasGroupFromParams);
+  }, [hasGroupFromParams, setHasGroup]);
+  const idStudent: string = user?.students?.id?.toString() ?? "";
   const [selectedRows, setSelectedRows] = useState<StudentType[]>([]);
   const confirmModalRef = useRef<ConfirmModalRefType>(null);
   const [activeTab, setActiveTab] = useState<string>("news");
@@ -61,7 +106,7 @@ const GroupPage = ({ params }: PageProps) => {
   const [showPanel, setShowPanel] = useState<boolean>(false);
   const [paramsStudent, setParamsStudent] =
     useState<StudentParamType>(DEFAULT_PARAMS);
-
+  const [selectedGroupSize, setSelectedGroupSize] = useState<number>(1); // Initial group size
   const handleCreateGroup = () => {
     if (selectedRows.length >= 0) {
       setShowConfirmation(true); // Show the confirmation dialog
@@ -71,17 +116,19 @@ const GroupPage = ({ params }: PageProps) => {
   const studentQuery = useGetListWithPagination<StudentType>({
     module: "student",
     params: paramsStudent,
-    enabled: !hasGroup,
+    enabled: !contextHasGroup,
   });
 
   const groupDetail = useGetDetail<GroupType>({
     module: "group",
-    params: {
-      id,
-      isAllDetail: true,
-    },
+    // params: {
+    //   id,
+    //   isAllDetail: true,
+    // },
     enabled: id != "0",
   });
+
+  const groupBoolean: boolean = !!groupDetail?.data?.result?.id;
 
   const topicDetail = useGetDetail<TopicType>({
     module: "topic",
@@ -101,6 +148,19 @@ const GroupPage = ({ params }: PageProps) => {
     enabled: !!groupDetail.response?.result?.thesisDto?.id,
   });
 
+  const inviteMutation: any = useMutation<
+    any,
+    AxiosError<ResponseType>,
+    NotificationTypeInvitationInsertInput
+  >({
+    mutationFn: (data: NotificationTypeInvitationInsertInput) => {
+      return handleInvitation(data);
+    },
+    // onSuccess: () => {
+    //   studentQuery.refetch();
+    // },
+  });
+
   const onRowSelect = (event: { data: StudentType }) => {
     setSelectedRows([...selectedRows, event.data]);
   };
@@ -113,13 +173,24 @@ const GroupPage = ({ params }: PageProps) => {
     try {
       if (selectedRows.length > 0) {
         const studentJoinId = selectedRows.map(
-          (student) => student.maSo
-        ) as string[];
-        if (studentJoinId) await registerGroup(studentJoinId); // Call the API function
+          (student) => student.id
+        ) as number[];
+        if (studentJoinId) {
+          await registerGroup(selectedGroupSize);
+          await inviteMutation.mutate(studentJoinId, {
+            onSuccess: () => {
+              toast.success("Đã gửi lời mời!");
+              studentQuery.refetch();
+            },
+            onError: () => {
+              console.error("Error sending invitations:");
+            },
+          });
+        } // Call the API function
         // Handle success (e.g., show a success message, update state, redirect)
         console.log("Group created successfully!");
       } else {
-        await registerGroup(maSo);
+        await registerGroup(selectedGroupSize);
       }
       // ... your success handling logic
     } catch (error) {
@@ -131,33 +202,45 @@ const GroupPage = ({ params }: PageProps) => {
       setShowPanel(false); // Close the panel after creation // Hide the confirmation dialog
     }
   };
-
   const headerTemplate = () => {
     return (
-      <div className="flex align-items-center justify-content-between">
-        <div className="flex align-items-center gap-2">
-          {/* You might want to customize the avatar */}
-          <Avatar icon="pi pi-users" size="large" shape="circle" />
-          <span className="font-bold">Tạo nhóm</span>
+      <div className="flex flex-wrap gap-3 p-fluid mt-3">
+        <div className=" flex-auto">
+          <label htmlFor="stacked-buttons" className="font-bold block mb-2">
+            <Avatar icon="pi pi-users" size="large" shape="circle" /> Chọn số
+            lượng:
+          </label>
+          <InputNumber
+            value={selectedGroupSize}
+            onValueChange={(e) => setSelectedGroupSize(e.value || 1)}
+            min={1} // Set a minimum value
+            max={10} // Set a maximum value (adjust as needed)
+            mode="decimal"
+            className="max-w-20rem"
+            buttonLayout="horizontal"
+            showButtons
+          />
+          <Button
+            rounded
+            outlined
+            severity="info"
+            aria-label="Favorite"
+            icon="pi pi-users"
+            label="Tạo nhóm"
+            onClick={handleCreateGroup}
+            className="ml-3 max-w-10rem"
+          />
         </div>
       </div>
     );
   };
 
-  const footerTemplate = () => {
-    return (
-      <div className="flex flex-wrap align-items-center justify-content-end gap-3">
-        <Button label="Tạo nhóm" onClick={handleCreateGroup} />
-      </div>
-    );
-  };
-
-  const TABS: OptionType[] = useMemo(
-    () => [
-      {
-        value: "news",
-        label: "Bảng tin",
-      },
+  const TABS: OptionType[] = useMemo(() => {
+    const baseTabs = [
+      // {
+      //   value: "news",
+      //   label: "Bảng tin",
+      // },
       {
         value: "exercise",
         label: "Công việc",
@@ -166,35 +249,47 @@ const GroupPage = ({ params }: PageProps) => {
         value: "member",
         label: "Thành viên",
       },
-      {
-        value: "point",
-        label: "Kết quả",
-      },
-    ],
-    []
-  );
+      // {
+      //   value: "point",
+      //   label: "Kết quả",
+      // },
+    ];
+
+    return groupDetail.data?.result?.leaderId !== idStudent
+      ? [
+          ...baseTabs,
+          {
+            value: "team",
+            label: "Xem thành viên",
+          },
+        ]
+      : baseTabs;
+  }, [groupDetail.data, idStudent]);
 
   const value: GroupPageContextType = {
     id,
     topic: topicDetail.response?.result,
     jobs: jobDetail.response?.result || [],
     active: activeTab,
+    groupDetail: groupDetail.data?.result || undefined,
+    hasGroup: contextHasGroup,
+    setHasGroup,
   };
 
-  return hasGroup ? (
+  return hasGroupFromParams ? (
     <GroupPageContext.Provider value={value}>
       <Loader show={topicDetail.isFetching || jobDetail.isFetching} />
       {/* {typeof groupDetail.data?.result?.countMember === "number" || */}
 
       {/* {+(groupDetail.data?.result?.countMember || 0) <= 4} */}
-      {parseInt(String(groupDetail.data?.result?.countMember || "0"), 10) <=
+      {/* {parseInt(String(groupDetail.data?.result?.countMember || "0"), 10) <=
         4 && (
         <Fragment>
           <Link href={ROUTES.topic.invite}>
             <Button className="p-button p-component p-2">Mời thành viên</Button>
           </Link>
         </Fragment>
-      )}
+      )} */}
       <div className="flex align-items-center border-bottom-2 border-200 bg-white border-round overflow-hidden">
         {TABS.map((tab) => (
           <div
@@ -219,10 +314,12 @@ const GroupPage = ({ params }: PageProps) => {
           margin: "0 auto",
         }}
       >
-        {activeTab === "news" && <NewsTab />}
+        {/* {activeTab === "news" && <NewsTab />} */}
         {activeTab === "exercise" && <ExerciseTab />}
         {activeTab === "member" && <MemberTab />}
-        {activeTab === "point" && <ResultTab />}
+        {/* {activeTab === "point" && <ResultTab />} */}
+
+        {activeTab === "team" && <TeamPageTab />}
       </div>
     </GroupPageContext.Provider>
   ) : (
@@ -234,6 +331,7 @@ const GroupPage = ({ params }: PageProps) => {
           className=" max-w-full w-full"
           // cellClassName={}
           stripedRows={true}
+          style={{ overflow: "hidden" }}
           showGridlines={true}
           emptyMessage={"Danh sách sinh viên hiện trống"}
           dataKey="id"
@@ -255,8 +353,11 @@ const GroupPage = ({ params }: PageProps) => {
               background: "var(--primary-color)",
               color: "var(--surface-a)",
               whiteSpace: "nowrap",
+              width: "140px",
             }}
-            header={""}
+            header={
+              <i className="pi pi-user-edit" style={{ fontSize: "1.5rem" }}></i>
+            }
             body={(data: StudentType) => (
               <div className="flex align-items-center justify-content-center gap-3">
                 <CustomCheckbox
@@ -274,7 +375,7 @@ const GroupPage = ({ params }: PageProps) => {
               color: "var(--surface-a)",
               whiteSpace: "nowrap",
             }}
-            field="maSo"
+            field="id"
             align={"center"}
             className="center"
             header={"Mã sinh viên"}
@@ -285,18 +386,16 @@ const GroupPage = ({ params }: PageProps) => {
         <Link
           href={`${
             ROUTES.topic.group
-          }/create?studentId=${maSo}&hasGroup=${!hasGroup}`}
+          }/create?studentId=${id}&hasGroup=${!contextHasGroup}`}
         >
           <Button className="p-button p-component p-2">Xem nhóm</Button>
         </Link>
-        <Panel
-          headerTemplate={headerTemplate}
-          footerTemplate={footerTemplate}
-          toggleable
-        >
+        <Panel headerTemplate={headerTemplate} toggleable>
           {selectedRows.length > 0 && (
             <div>
-              <h2>Đồng ý tạo nhóm với {selectedRows.length} thành viên</h2>
+              <h1 className="-m-3 text-bluegray-400">
+                Đồng ý tạo nhóm với {selectedRows.length} thành viên
+              </h1>
             </div>
           )}
         </Panel>
@@ -307,8 +406,8 @@ const GroupPage = ({ params }: PageProps) => {
         onHide={() => setShowConfirmation(false)}
         message={
           selectedRows.length > 0
-            ? "Bạn có chắc muốn tạo nhóm?"
-            : "Bạn có chắc muốn tạo nhóm với mỗi bạn?"
+            ? "Bạn có chắc muốn tạo nhóm và gửi các lời mời vào nhóm trên?"
+            : "Bạn có chắc muốn tạo nhóm không gửi lời mời vào nhóm?"
         }
         header="Xác nhận"
         icon="pi pi-exclamation-triangle"

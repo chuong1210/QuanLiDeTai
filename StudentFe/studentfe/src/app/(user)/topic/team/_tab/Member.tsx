@@ -1,13 +1,24 @@
 import { Avatar } from "primereact/avatar";
 import { Divider } from "primereact/divider";
-import { useContext } from "react";
+import { Fragment, useContext } from "react";
 import { GroupPageContext } from "../[id]/page";
+import TeamSection from "./TeamPage";
+import Link from "next/link";
+import { Button } from "primereact/button";
+import { ROUTES } from "@/assets/config";
 
 const MemberTab = () => {
-  const { topic } = useContext(GroupPageContext);
+  const { topic, groupDetail } = useContext(GroupPageContext);
 
   return (
     <div className="flex flex-column gap-5 bg-white border-round shadow-1 p-3">
+      {parseInt(String(groupDetail?.countMember || "0"), 10) <= 4 && (
+        <Fragment>
+          <Link href={ROUTES.topic.invite}>
+            <Button className="p-button p-component p-2">Mời thành viên</Button>
+          </Link>
+        </Fragment>
+      )}
       <div>
         <div className="border-bottom-2 border-blue-500 px-3">
           <p className="font-semibold text-blue-500 text-2xl py-3">

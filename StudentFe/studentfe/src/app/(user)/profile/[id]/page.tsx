@@ -2,25 +2,28 @@
 import {
   StudentProfileParamsType,
   StudentProfileType,
-} from "@/assets/interface/StudentProfile.type";
+  userProfileType,
+} from "@/assets/interface/UserProfile.type";
 import { PageProps } from "@/assets/types/UI";
 import { useGetDetail, useGetList } from "@/assets/useHooks/useGet";
 import { studentProfile } from "@/mocks";
 import ProfileCard from "@/resources/components/UI/ProfileStudent";
 
 const ProfilePage = ({ params: { id } }: PageProps) => {
-  const queryStudent = useGetList<StudentProfileType, StudentProfileParamsType>(
-    {
-      module: "student",
-      params: { id }, //studentid cung dc
-    }
-  );
+  const queryStudent = useGetDetail<userProfileType, StudentProfileParamsType>({
+    module: "student",
+  });
   return (
     <div
       className="p-d-flex p-jc-center p-ai-center"
       style={{ height: "100vh" }}
     >
-      <ProfileCard profile={studentProfile} />
+      {queryStudent.data?.result ? (
+        <ProfileCard profile={queryStudent.data.result} />
+      ) : (
+        // Handle the case where data is not yet loaded or there's no result
+        <ProfileCard profile={studentProfile} />
+      )}
     </div>
   );
 };

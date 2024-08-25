@@ -39,6 +39,8 @@ const GroupPage = ({ params: { lng } }: PageProps) => {
   const [filter, setFilter] = useState<string | null>(null);
 
   const { limit, page, orderBy, orderDirection } = params;
+  // const [hasGroup, setHasGroup] = useState<boolean>(false);
+
   let hasGroup: boolean = false;
 
   useEffect(() => {
@@ -51,14 +53,13 @@ const GroupPage = ({ params: { lng } }: PageProps) => {
       }
     }
   }, []);
-  // Log the user data to the console
-  const idStudent: string = user?.students?.maSo ?? "";
+  const idStudent: string = user?.students?.id?.toString() ?? "";
   const studentQuery = useGetDetail<StudentType, StudentParamType>({
     module: "student",
-    params: { maSo: idStudent },
+    // params: { maSo: idStudent },
     enabled: !!user,
     // _onSuccess: (data) => {
-    //   if (data.data?.id) {
+    //   if (data.result?.groupDto?.id) {
     //     setHasGroup(true);
     //   }
     // },
@@ -78,8 +79,14 @@ const GroupPage = ({ params: { lng } }: PageProps) => {
   });
   const Groups: GroupType[] = groupQuery.data?.result?.responses;
   hasGroup = (Groups ?? []).some((group) =>
-    group.students?.some((stu) => stu.maSo === idStudent)
-  );
+    group.students?.some((stu) => stu.id?.toString() === idStudent)
+  ); //vì trong studen đã có group attribute nên thay bằng cái này
+  const groupQueryDetail = useGetDetail<GroupType>({
+    module: "group",
+    enabled: !!user,
+  });
+
+  hasGroup = !!groupQueryDetail.data?.result?.id;
   const onPageChange = (e: PaginatorPageChangeEvent) => {
     setParams((prev) => ({
       ...prev,
@@ -133,16 +140,19 @@ const GroupPage = ({ params: { lng } }: PageProps) => {
             <p className="text-xl font-semibold">Danh sách nhóm</p>
             {!hasGroup && (
               <Fragment>
-                <Link
-                  href={`${ROUTES.topic.group}/create?studentId=${studentQuery.data?.result?.maSo}&hasGroup=${hasGroup}`}
-                >
+                <div className="flex">
                   {" "}
-                  <Button className="p-button p-component p-2">Tạo nhóm</Button>
-                </Link>
+                  <p>Chưa có nhóm?</p>
+                  <Link
+                    href={`${ROUTES.topic.group}/create?studentId=${studentQuery.data?.result?.id}&hasGroup=${hasGroup}`}
+                  >
+                    <i className="m-2 underline text-bluegray-700 ">Tạo nhóm</i>
+                  </Link>
+                </div>
                 <Link href={ROUTES.topic.group}>
-                  <Button className="p-button p-component p-2">
+                  <i className="m-2 underline text-bluegray-700  ">
                     Tham gia nhóm
-                  </Button>
+                  </i>
                 </Link>
               </Fragment>
             )}
@@ -296,7 +306,7 @@ const GroupPage = ({ params: { lng } }: PageProps) => {
           <p>Bạn đã có nhóm</p>
 
           <Link
-            href={`${ROUTES.topic.group}/${studentQuery.data?.result?.groupDto?.id}`}
+            href={`${ROUTES.topic.group}/${groupQueryDetail.data?.result?.id}?hasGroup=${hasGroup}`}
           >
             <Button className="p-button p-component p-2">Xem nhóm</Button>
           </Link>

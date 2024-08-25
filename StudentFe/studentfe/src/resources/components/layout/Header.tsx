@@ -18,7 +18,12 @@ import { headerItems } from "@/assets/config/menu/header_menu";
 import { MenuItemType } from "@/assets/types/menu";
 import Link from "next/link";
 import { useGetList } from "@/assets/useHooks/useGet";
-import { NotificationParamType, NotificationType } from "@/assets/interface";
+import {
+  InviteParamType,
+  InviteType,
+  NotificationParamType,
+  NotificationType,
+} from "@/assets/interface";
 import moment from "moment";
 import { MenuItem } from "primereact/menuitem";
 import { Divider } from "primereact/divider";
@@ -39,6 +44,10 @@ const Header = () => {
     },
   });
   //http://localhost:8888/notification?filters=lastModifiedDate%3E%3Dyyyy-07-22
+  const notifiQuery = useGetList<InviteType, InviteParamType>({
+    module: "notification",
+  });
+  const countNoti: number = notifiQuery.data?.result?.length ?? 0;
   const router = useRouter();
   const start = (
     <Image
@@ -106,25 +115,31 @@ const Header = () => {
                 rounded
                 size="small"
                 className="p-button-rounded p-button-primary custom-target-icon mr-4 "
-                icon="pi pi-envelope"
-                data-pr-tooltip="No notifications"
+                icon="pi pi-bell"
+                data-pr-tooltip={
+                  countNoti <= 0
+                    ? "Không có thông báo"
+                    : `Có ${countNoti} thông báo`
+                }
                 data-pr-position="right"
                 data-pr-at="right+5 top"
                 data-pr-my="left center-2"
               />
 
-              <Badge
-                size={"normal"}
-                value="2"
-                style={{
-                  position: "absolute",
-                  marginTop: "0",
-                  right: "18px",
-                  transition: "all 0.4s ease",
-                  marginRight: "1.5rem",
-                }}
-                severity="warning"
-              ></Badge>
+              {countNoti > 0 ? (
+                <Badge
+                  size={"normal"}
+                  value={countNoti}
+                  style={{
+                    position: "absolute",
+                    marginTop: "0",
+                    right: "18px",
+                    transition: "all 0.4s ease",
+                    marginRight: "1.5rem",
+                  }}
+                  severity="warning"
+                ></Badge>
+              ) : null}
             </Link>
           }
         />

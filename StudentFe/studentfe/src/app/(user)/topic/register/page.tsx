@@ -48,7 +48,6 @@ import {
 import { FileUpload } from "primereact/fileupload";
 import File from "@/resources/components/form/File";
 import { Toast } from "primereact/toast";
-import { fakeTopicData, topicDetailMock, topicMockData } from "@/mocks";
 import { Checkbox } from "primereact/checkbox";
 import { NotificationCard } from "@/resources/components/modal";
 import { NotificationCardModalRefType } from "@/assets/types/modal";
@@ -219,7 +218,9 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
               color: "var(--surface-a)",
               whiteSpace: "nowrap",
             }}
-            header="Thao tác"
+            header={
+              <i className="pi pi-user-edit" style={{ fontSize: "1.5rem" }}></i>
+            }
             body={viewTopic}
           />
           <Column

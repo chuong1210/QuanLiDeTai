@@ -107,8 +107,6 @@ const HomePage = ({ params: { _ } }: PageProps) => {
       />
 
       <div className="flex-1">
-        <Button onClick={buttonClick} />
-
         <div className="flex align-items-center justify-content-between">
           <div className="col-6">
             {/* <span className='p-input-icon-left'>

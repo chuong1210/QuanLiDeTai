@@ -28,7 +28,7 @@ interface ParamType {
     code: number;
     message?: string;
     result: T |null;
-    extra?: MetaType;
+    //extra?: MetaType;
     messages: string[] | null;
     message: string | null;
     exception: string | null;

@@ -1,12 +1,12 @@
 // components/ProfileCard.tsx
 import React from "react";
 import { Card } from "primereact/card";
-import { StudentProfileType } from "@/assets/interface/StudentProfile.type";
 import Image from "next/image";
 import { CustomImage } from "@/resources/components/UI";
+import { userProfileType } from "@/assets/interface/UserProfile.type";
 
 interface ProfileCardProps {
-  profile: StudentProfileType;
+  profile: userProfileType;
 }
 
 const ProfileCard = ({ profile }: ProfileCardProps) => {
@@ -36,7 +36,7 @@ const ProfileCard = ({ profile }: ProfileCardProps) => {
       <div className="p-text-bold">Thông Tin Học Vấn</div>
       <ul className="list-none p-p-0">
         <li>Trạng thái: {education?.status}</li>
-        <li>MSSV: {profile.mssv}</li>
+        <li>MSSV: {profile.id}</li>
       </ul>
 
       <div className="p-text-bold p-mt-2">Thông Tin Cá Nhân</div>

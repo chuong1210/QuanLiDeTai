@@ -46,6 +46,8 @@ interface useGetListMultiType<TParam, TData> extends UseGetListType<TParam, TDat
 // {
 //     notification: ['notifications', 'list', { facultyId: 1, pageSize: 10 }],
 //     faculty: ['faculties', 'list', { facultyId: 1, pageSize: 10 }],
+//queryKey: ["group_detail", "detail", { id, isAllDetail: true }],
+
 //     // Các dòng khác tương tự...
 const useGetList = <TQueryFnData, TParam = ParamType>({
     module,
@@ -85,13 +87,14 @@ const useGetListWithPagination = <TQueryFnData, TParam = ParamType>({
         enabled,
         refetchOnWindowFocus: false,
         queryKey: [...list(params)[module], params],
+        
         queryFn: async () => {
             const response = await http.getPaginator<ResponseType<MetaResponseType<TQueryFnData[]>>>(API.list[module], { params });
             return response.data;
         },
         select: (data) => ({
             ...data,
-            meta: data?.extra,
+            meta: data?.result,
         }),
     });
 
@@ -105,7 +108,7 @@ const useGetListWithPagination = <TQueryFnData, TParam = ParamType>({
         onSuccessPaginator();
     }, [onSuccessPaginator, query.data]);
 
-    return { ...query, meta: query.data?.extra };
+    return { ...query, meta: query.data?.result };
 };
 
 const useGetDetail = <TQueryFnData, TParam = ParamType>({
@@ -114,6 +117,8 @@ const useGetDetail = <TQueryFnData, TParam = ParamType>({
     enabled = true,
     _onSuccess = () => {},
 }: UseGetDetailType<TParam, TQueryFnData>) => {
+    console.log( [...detail()[module], params])
+
     const query = useQuery<ResponseType<TQueryFnData>, AxiosError<ResponseType>>({
         enabled,
         refetchOnWindowFocus: false,

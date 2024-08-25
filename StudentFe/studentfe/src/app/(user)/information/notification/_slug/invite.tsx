@@ -12,10 +12,10 @@ import { NotificationPageContext } from "../page";
 const InviteTab = () => {
   // const { lng, tab } = useContext(NotificationPageContext);
   const inviteQuery = useGetList<InviteType, InviteParamType>({
-    module: "invitation",
-    params: {
-      isGetGroup: true,
-    },
+    module: "notification",
+    // params: {
+    //   isGetGroup: true,
+    // },
   });
 
   const recallInviteMutate = useMutation({
