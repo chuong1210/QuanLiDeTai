@@ -11,7 +11,7 @@ interface StudentType extends GeneralType {
     status?: string;
     groupDto?: GroupType;
     subjects?:FacultyType;
-    points?:PointType
+    points?:PointType[];
 
 }
 

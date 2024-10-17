@@ -14,12 +14,14 @@ import {
   removeStudentGroup,
 } from "@/assets/config/apiRequests/StudentApiMutation";
 import { Dialog } from "primereact/dialog";
+import { useUserStore } from "@/assets/zustand/user";
 
 const TeamContainer = styled.section`
-  background-color: #1451c9;
+  background-color: #a0baee;
   padding: 2rem;
   text-align: center;
   position: relative;
+  margin-bottom: 150px;
 `;
 
 const Title = styled.h1`
@@ -104,8 +106,10 @@ const SettingIcon = styled.div`
 `;
 
 const TeamPage = () => {
-  const { jobs, topic, id, groupDetail, hasGroup, setHasGroup } =
+  const { jobs, topic, id, groupDetail, setActiveTab, setGroupDetail } =
     useContext(GroupPageContext);
+
+  const { user, hasGroup, setUser, setHasGroup } = useUserStore();
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const groupId = groupDetail?.id?.toString() ?? "00";
   const {
@@ -141,7 +145,12 @@ const TeamPage = () => {
         queryKey: ["group_detail", "detail", {}],
       });
       setShowDialog(false);
+      // setHasGroup(false); // Update the context to reflect no group
+      setActiveTab("exercise"); // Optionally, switch to a different tab
       setHasGroup(false);
+      localStorage.removeItem("hasGroup");
+      refetch;
+      window.location.reload();
     },
     onError: (error) => {
       console.error("Error deleting group:", error);
@@ -211,7 +220,7 @@ const TeamPage = () => {
               onClick={() =>
                 removeStudentGroup(groupId, [member.id?.toString() + ""])
               }
-              label="Delete"
+              label="Xóa thành viên"
               icon="pi pi-trash"
             />
           </PrimeCard>

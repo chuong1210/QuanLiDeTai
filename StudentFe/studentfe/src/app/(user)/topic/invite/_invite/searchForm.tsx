@@ -37,7 +37,7 @@ const SearchForm = ({
     <div>
       <IconField iconPosition="right">
         <InputText
-          placeholder="Search"
+          placeholder="Tìm kiếm"
           className={classNames(blockClassName)}
         />
         <InputIcon

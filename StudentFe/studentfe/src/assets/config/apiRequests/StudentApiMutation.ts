@@ -63,8 +63,8 @@ export const fetchAllCourses = async () => {
          return response.data;
       
         };
-  export const updatePassword = async (passwordData: formChangePassword) => {
- await http.post(`${API.post.change_password}/`, passwordData);
+  export const updatePassword = async (passwordData: FormStateType) => {
+ await http.update(`${API.post.change_password}`, passwordData);
    
   };
 
@@ -84,7 +84,19 @@ export const fetchAllCourses = async () => {
         
        };
      
-   
+     export  const refreshTokenMeth = async (refreshToken: string): Promise<ResponseType<AuthTypeLogin> | null> => {
+        const refreshTokenRes = await http.post('/api/refresh-token', {
+          token: refreshToken,
+        }, {
+          withCredentials: true, 
+          headers: {
+              'Content-Type': 'application/json'
+          }
+        });
+      
+        return refreshTokenRes.data;
+      }
+      
   
   export const refreshTokenApi = async (oldTokendata?:AuthTypeRefreshToken): Promise<ResponseType<AuthTypeLogin> | null> => {
       const refreshToken = cookies.get(ACCESS_TOKEN);

@@ -16,7 +16,7 @@ import { PageProps } from "@/assets/types/UI";
 import { FileType } from "@/assets/types/form";
 import { ResponseType } from "@/assets/types/httpRequest";
 import { Loader } from "@/resources/components/UI";
-import { InputFile } from "@/resources/components/form/InputFile";
+import { InputFile } from "@/resources/components/form/inputFile";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import moment from "moment";
@@ -26,12 +26,16 @@ import { Chip } from "primereact/chip";
 import { Divider } from "primereact/divider";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Skeleton } from "primereact/skeleton";
-import { createContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { FaUserGroup } from "react-icons/fa6";
 import { useGetDetail, useGetList } from "@/assets/useHooks/useGet";
 import { toast } from "react-toastify";
 import useCookies from "@/assets/useHooks/useCookies";
 import { JobInfo, ExerciseJob, CommentJob } from "../_job";
+import { UserProvider, useUser } from "@/assets/context/UserContext";
+import dynamic from "next/dynamic";
+import { useUserStore } from "@/assets/zustand/user";
+import { GroupPageContext } from "../../[id]/page";
 
 interface JobPageContextType {
   groupId: number;
@@ -46,17 +50,22 @@ const JobPageContext = createContext<JobPageContextType>({
   comments: [],
   exercise: [],
 });
+const LazyComponentNoSSR = dynamic(() => import("../_job/Comment"), {
+  loading: () => <p>Đang tải...</p>, // Hiển thị nội dung loading khi component chưa sẵn sàng
+  ssr: false, // Không sử dụng SSR, chỉ load trên client-side
+});
 
 const JobPage = ({ params, searchParams }: PageProps) => {
   const { id } = params;
   const { topicId, groupId } = searchParams;
-  const [auth] = useCookies<AuthType>(DATA_RESULT);
+  const { user } = useUserStore();
+  const { groupDetail } = useContext(GroupPageContext);
+  console.log(groupDetail);
 
-  const jobDetail = useGetDetail<JobType>({
+  const jobDetail = useGetDetail<JobType, JobParamType>({
     module: "job",
     params: {
-      id,
-      isAllDetail: true,
+      groupId: groupDetail?.id,
     },
   });
 
@@ -70,11 +79,11 @@ const JobPage = ({ params, searchParams }: PageProps) => {
 
   const exerciseQuery = useGetList<JobResultType, JobResultParamType>({
     module: "job_result",
-    enabled: !!auth?.result.Id,
+    enabled: !!user?.id,
     params: {
       removeFacultyId: true,
       jobId: id,
-      studentId: auth?.result.Id!,
+      studentId: user?.id!,
     },
   });
 
@@ -125,6 +134,7 @@ const JobPage = ({ params, searchParams }: PageProps) => {
     comments: exchangeQuery.response?.result || [],
     exercise: exerciseQuery.response?.result?.[0]?.files || [],
   };
+  console.log(jobDetail.response?.result);
 
   return (
     <JobPageContext.Provider value={jobPageValue}>
@@ -189,6 +199,7 @@ const JobPage = ({ params, searchParams }: PageProps) => {
           />
         </div>
       </div>
+      {/* <LazyComponentNoSSR onSubmit={()=>console.log(123)} /> */}
     </JobPageContext.Provider>
   );
 };

@@ -14,6 +14,7 @@ export const config = {
 
 const publicRoutes = ["/", "/login", "/signup"];
 const privateRoutes = ["/", "/home", "/team"];
+const groupProtectedRoutes = ['/topic/invite','/topic/register','topic/team/job/']; 
 
 
 
@@ -39,52 +40,97 @@ export async function middleware(req: NextRequest) {
           return response;
 
   }
-    // Kiểm tra access token hết hạn
-    // if (accessToken && cookies.isTokenExpired(accessToken)) {
-    //     try {
-    //       // Thử refresh token
-    //       const response = await fetch('/api/refresh-token', {
-    //         method: 'POST',
-    //         headers: {
-    //           'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({ token: refreshToken }),
-    //       });
+
+
+  if (accessToken) {
+    const userHasGroup = await checkUserGroupServer(accessToken);
+    const isGroupProtectedRoute = groupProtectedRoutes.some(route => req.nextUrl.pathname.startsWith(route))
+    if (!userHasGroup  ) {
+      if(groupProtectedRoutes.includes(req.nextUrl.pathname))
+      {
+
+      return NextResponse.redirect(new URL(`${ROUTES.home.index}`, req.url));
+    }
+    if(req.nextUrl.pathname==="/topic/team/job/detail" )
+      {
+        return NextResponse.redirect(new URL(`${ROUTES.home.index}`, req.url));
+  
+      }
+    }
+  
+  }
+
+
+  async function checkUserGroupServer(accessToken: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${req.nextUrl.origin}/api/check-user-group`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json(); // Get error details from the response
+        throw new Error(`Failed to fetch user group: ${errorData.error || 'Unknown error'}`);
+      }
+      const data = await response.json();
+     
+      return data.hasGroup;
+    } catch (error) {
+      console.error('Error calling Next.js API route:', error);
+      return false;
+    }
+  }
+
+  // if (!accessToken && refreshToken && cookies.isTokenExpired(accessToken)) {
+  //   try {
+  //     // Call the refresh token API route on Next.js server
+  //     const refreshResponse = await fetch(`${req.nextUrl.origin}/api/refresh-token`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ token: refreshToken }),
+  //       credentials: 'include', // Send cookies for token refresh
+  //     });
+
+  //     if (refreshResponse.ok) {
+  //       const data = await refreshResponse.json();
+  //       if (data.success && data.result?.accessToken) {
+  //         // Successfully refreshed, set new access token in response cookies
+  //         const response = NextResponse.next();
+  //         response.cookies.set(ACCESS_TOKEN, data.result.accessToken);
+  //         return response; // Proceed with the request using the refreshed token
+  //       } else {
+  //         // If refresh fails, delete both tokens and redirect to login
+  //         const response = NextResponse.redirect(new URL(`${ROUTES.auth.sign_in}`, req.url));
+  //         response.cookies.delete(ACCESS_TOKEN);
+  //         response.cookies.delete(REFRESH_TOKEN);
+  //         return response;
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error('Error refreshing token in middleware:', error);
+  //   }
+  // }
+
+  // // Case 4: If the user is trying to access a group-protected route, check group membership
+  // if (accessToken) {
+  //   const userHasGroup = await checkUserGroupServer(accessToken);
+  //   const isGroupProtectedRoute = groupProtectedRoutes.some(route => req.nextUrl.pathname.startsWith(route));
     
-    //       if (response.ok) {
-    //         // Refresh token thành công, tiếp tục request
-    //         return NextResponse.next();
-    //       } else {
-    //         // Refresh token không hợp lệ, đăng xuất
-    //         throw new Error('Refresh token invalid');
-    //       }
-    //     } catch (error) {
-    //       // Xóa cookie và chuyển hướng đến trang đăng nhập
-    //       console.error('Error refreshing token:', error);
-    //       const response = NextResponse.redirect(new URL(`${ROUTES.auth.sign_in}`, req.url));
-    //       response.cookies.delete(ACCESS_TOKEN);
-    //       response.cookies.delete(REFRESH_TOKEN);
-    //       return response;
-    //     }
-    //   }
+  //   if (!userHasGroup && isGroupProtectedRoute) {
+  //     return NextResponse.redirect(new URL(`${ROUTES.home.index}`, req.url));
+  //   }
+  // }
+
+
     
   // Các trường hợp khác, tiếp tục request
   return NextResponse.next();
 }
-// export function middleware(req: NextRequest) {
-//     const hasAccessToken = req.cookies.has(ACCESS_TOKEN);
-//     const hasRefreshToken = req.cookies.has(REFRESH_TOKEN);
-  
-//     if (!hasAccessToken && !hasRefreshToken && !req.nextUrl.pathname.startsWith('/login')) {
-//       return NextResponse.redirect(new URL(`${ROUTES.auth.sign_in}`, req.url));
-//     }
-  
-//     if (hasAccessToken && hasRefreshToken && req.nextUrl.pathname.startsWith('/login')) {
-//       return NextResponse.redirect(new URL(`${ROUTES.home.index}`, req.url));
-//     }
-  
-//     return NextResponse.next();
-//   }
 
 /////////////////////////////////----------
 

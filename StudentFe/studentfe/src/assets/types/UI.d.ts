@@ -30,7 +30,18 @@ interface DividerProps {
     px?: number;
     py?: number;
 }
-
+interface NotificationItemProps {
+    notification: any; // Thay thế bằng kiểu dữ liệu thực tế của bạn
+    index: number;
+    onAccept: (notification: any) => void;
+    onReject: (notification: any) => void;
+    menuRef: React.RefObject<Menu>;
+    handleMenuToggle: (
+      event: React.MouseEvent<HTMLButtonElement>,
+      index: number
+    ) => void;
+  }
+  
 interface CustomImageProps extends ImageProps {}
 
-export type { PageProps, BreadcrumbProps, LoaderProps, DividerProps, CustomImageProps };
+export type { PageProps, BreadcrumbProps, LoaderProps, DividerProps, CustomImageProps,NotificationItemProps };

@@ -21,17 +21,16 @@ import { formChangePassword } from "@/assets/types/changePassword";
 const ChangePasswordModal = React.forwardRef<
   ChangePasswordModalRefType,
   ChangePasswordModalType
->(({ onSave, onCancel }, ref) => {
+>(({ onSave, onCancel, username }, ref) => {
   const passwordSchema = yup
     .object({
-      password: yup.string().required("Old password is required"),
-      newPassword: yup
+      password: yup
         .string()
         .min(6, "Password must be at least 6 characters long")
         .required("New password is required"),
       confirmPassword: yup
         .string()
-        .oneOf([yup.ref("newPassword")], "Passwords must match")
+        .oneOf([yup.ref("password")], "Passwords must match")
         .required("Please confirm your new password"),
     })
     .required();
@@ -44,6 +43,10 @@ const ChangePasswordModal = React.forwardRef<
     reset,
   } = useForm({
     resolver: yupResolver(passwordSchema),
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
+    },
   });
 
   useImperativeHandle(ref, () => ({
@@ -59,9 +62,14 @@ const ChangePasswordModal = React.forwardRef<
     setIsVisible(false);
     onCancel();
   };
+
   const onSubmit = (data: formChangePassword) => {
-    onSave(data);
+    onSave({
+      username, // Truyền username cùng với password
+      password: data.password,
+    });
   };
+
   return (
     <Dialog
       header="Đổi mật khẩu"
@@ -71,21 +79,12 @@ const ChangePasswordModal = React.forwardRef<
       style={{ width: "30vw" }}
     >
       <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="field">
+          <label>Username</label>
+          <p>{username}</p> {/* Hiển thị username đã được tự động điền */}
+        </div>
         <Controller
-          name="password" // must be the same as the schema section
-          control={control}
-          render={({ field }) => (
-            <Password
-              id="currentPassword"
-              label="Current Password"
-              placeholder="Current Password"
-              {...field}
-              errorMessage={errors.password?.message}
-            />
-          )}
-        />
-        <Controller
-          name="newPassword"
+          name="password"
           control={control}
           render={({ field }) => (
             <Password
@@ -93,7 +92,7 @@ const ChangePasswordModal = React.forwardRef<
               label="New Password"
               placeholder="New Password"
               {...field}
-              errorMessage={errors.newPassword?.message}
+              errorMessage={errors.password?.message}
             />
           )}
         />

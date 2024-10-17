@@ -44,7 +44,15 @@ const ExerciseTab = () => {
 
   return (
     <div className="flex flex-column pt-4 gap-4 my-panel">
-      adudu
+      {/* {parseInt(String(groupDetail?.students?.length || "0"), 10) <= 4 && (
+            <Fragment>
+              <Link href={ROUTES.topic.invite}>
+                <Button className="p-button p-component p-2">
+                  Thêm thành viên
+                </Button>
+              </Link>
+            </Fragment>
+          )} */}
       {jobs &&
         jobs.length > 0 &&
         jobs.map((job) => (

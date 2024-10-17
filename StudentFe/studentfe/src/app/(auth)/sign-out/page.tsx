@@ -10,20 +10,21 @@ import { formChangePassword } from "@/assets/types/changePassword";
 import { useMutation } from "@tanstack/react-query";
 import { updatePassword } from "@/assets/config/apiRequests/StudentApiMutation";
 import { toast } from "react-toastify";
+import { useUserStore } from "@/assets/zustand/user";
 
 const Page = () => {
+  const { user } = useUserStore();
   const changePasswordModalRef = useRef<ChangePasswordModalRefType>(null);
   const updatePasswordMutation: any = useMutation({
     mutationFn: (data: formChangePassword) => {
       return updatePassword(data);
     },
   });
-
+  const currentUser = user?.username ?? "";
   const onSubmit = async (data: formChangePassword) => {
     try {
       await updatePasswordMutation.mutateAsync({
         password: data.password,
-        newPassword: data.newPassword,
       });
       changePasswordModalRef.current?.resetModal(); // Reset form trong modal nếu có thể tham chiếu và đã định nghĩa reset() trong ChangePasswordModalRefType
     } catch (error) {
@@ -49,6 +50,7 @@ const Page = () => {
         ref={changePasswordModalRef}
         onSave={onSubmit}
         onCancel={handleCancel}
+        username={currentUser}
       />
     </>
   );

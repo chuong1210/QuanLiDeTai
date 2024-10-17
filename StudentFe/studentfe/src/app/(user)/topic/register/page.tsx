@@ -59,6 +59,7 @@ import { MetaResponseType, MetaType } from "@/assets/types/httpRequest";
 import page from "../page";
 import { FacultyDutyType } from "@/assets/interface/FacultyDuty";
 import { FacultyType } from "@/assets/interface/Faculty";
+import SearchForm from "../invite/_invite/searchForm";
 
 const RegisterTopicPage = ({ params: { i } }: PageProps) => {
   const router = useRouter();
@@ -183,9 +184,10 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
         <p className="text-xl font-semibold">Danh sách đề tài</p>
       </div>
       <div className="flex align-items-center gap-3 mb-2">
-        <InputText
+        <SearchForm
+          id=""
           placeholder="Search..."
-          className="w-20rem"
+          blockClassName="w-20rem"
           onChange={(e) => debounceKeyword(e.target.value)}
         />
         <Dropdown
@@ -203,7 +205,7 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
         />
       </div>
       <div className="border-round-xl overflow-hidden relative shadow-2 mt-0">
-        {/* <Loader show={topicQuery.isFetching || teacherQuery.isFetching} /> */}
+        {<Loader show={topicQuery.isFetching && teacherQuery.isFetching} />}
         <DataTable
           value={topicQuery.data?.result?.responses || []}
           rowHover={true}
@@ -232,7 +234,9 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
             }}
             field="internalCode"
             header="Mã đề tài"
-            body={(data: TopicType) => <div>{data.maDeTai}</div>}
+            body={(data: TopicType) => (
+              <div className="text-center">{data.id}</div>
+            )}
           />
           <Column
             alignHeader="center"
@@ -243,7 +247,9 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
             }}
             field="name"
             header="Tên đề tài"
-            body={(data: TopicType) => <div>{data.name}</div>}
+            body={(data: TopicType) => (
+              <div className="text-center">{data.name}</div>
+            )}
           />
           <Column
             alignHeader="center"
@@ -268,7 +274,9 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
             }}
             header="Chuyên ngành phù hợp"
             body={(data: TopicType) => (
-              <div>{data.subjects?.map((t) => t.name).join(", ")}</div>
+              <div className="text-center">
+                {data.subjects?.map((t) => t.name).join(", ")}
+              </div>
             )}
           />
           <Column
@@ -279,13 +287,15 @@ const RegisterTopicPage = ({ params: { i } }: PageProps) => {
               whiteSpace: "nowrap",
             }}
             header="Ghi chú"
-            body={(data: TopicType) => <div>{data?.notes}</div>}
+            body={(data: TopicType) => (
+              <div className="text-center">{data?.code}</div>
+            )}
           />
         </DataTable>
         <div className="flex align-items-center justify-content-between bg-white px-3 py-2">
           <Paginator
-            rows={topicQuery.data?.result?.page}
-            totalRecords={topicQuery.data?.result?.totalpage}
+            rows={topicQuery.data?.result?.totalElements}
+            totalRecords={topicQuery.data?.result?.totalPages}
             rowsPerPageOptions={ROWS_PER_PAGE}
             onPageChange={onPageChange}
             className="border-noround p-0"

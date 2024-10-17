@@ -19,6 +19,7 @@ interface ParamType {
     facultyId?: string | number;
     isGetFaculty?: boolean;
     removeFacultyId?: boolean;
+    limit?: number;
     orderBy?:string;
     orderDirection?:"ASC"|"DESC";
 }
@@ -37,9 +38,9 @@ interface ParamType {
   }
   
  interface MetaResponseType<T=any> extends MetaType {
-  page?: number;
-  totalpage?: number;
+  totalPages?: number;
   responses?:any
+  totalElements?:number;
 
 }
 

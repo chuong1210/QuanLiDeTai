@@ -30,17 +30,22 @@ import CustomCheckbox from "@/resources/components/form/Checkbox";
 import { classNames } from "primereact/utils";
 import { boolean } from "yup";
 import { handleInvitation } from "@/assets/config/apiRequests/StudentApiMutation";
+import { Dialog } from "primereact/dialog";
+import { useUserStore } from "@/assets/zustand/user";
 
 const InvitePage = ({ params: { id } }: PageProps) => {
   const [selectedRows, setSelectedRows] = useState<StudentType[]>([]);
   const formRef = useRef<InviteFormRefType>(null);
   const [selected, setSelected] = useState<StudentType>();
 
-  const confirmCancelModalRef = useRef<ConfirmModalRefType>(null);
+  // const confirmCancelModalRef = useRef<ConfirmModalRefType>(null);
   const confirmInviteModalRef = useRef<ConfirmModalRefType>(null);
-
+  const [errorModalVisible, setErrorModalVisible] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [params, setParams] = useState<StudentParamType>(DEFAULT_PARAMS);
+  const [totalElements, setTotalElements] = useState<number>(0);
 
+  const { user, hasGroup, setUser, setHasGroup } = useUserStore();
   ("use server");
   const studentQuery = useGetListWithPagination<StudentType>({
     module: "student",
@@ -49,9 +54,11 @@ const InvitePage = ({ params: { id } }: PageProps) => {
       setParams((prev) => {
         const newParams = {
           ...prev,
+
           currentPage: data.result?.currentPage,
           pageSize: data.result?.pageSize,
           totalPages: data.result?.totalPages,
+          totalElements: data.result?.totalElements,
         };
         // Only update state if params have actually changed to avoid unnecessary re-renders
         if (JSON.stringify(prev) !== JSON.stringify(newParams)) {
@@ -59,13 +66,18 @@ const InvitePage = ({ params: { id } }: PageProps) => {
         }
         return prev;
       });
+      setTotalElements(data.result?.totalElements || 0);
     },
   });
 
+  ("use server");
+  const studentQuerySelect = useGetList<StudentType>({
+    module: "student_toSelect",
+  });
   const onPageChange = (e: PaginatorPageChangeEvent) => {
     setParams((prev) => ({
       ...prev,
-      pageSize: e.rows,
+      page: e.rows,
       currentPage: e.first + 1,
     }));
   };
@@ -75,7 +87,7 @@ const InvitePage = ({ params: { id } }: PageProps) => {
       .update(`${API.put.student}/${studentJoinId}`, { status: "S" })
       .then(() => {
         // Refetch data to update the DataTable
-        studentQuery.refetch();
+        studentQuerySelect.refetch();
       });
   };
 
@@ -87,6 +99,22 @@ const InvitePage = ({ params: { id } }: PageProps) => {
     mutationFn: (data: NotificationTypeInvitationInsertInput) => {
       return handleInvitation(data);
     },
+    onSuccess: () => {
+      toast.success("Đã gửi lời mời!");
+      studentQuery.refetch();
+    },
+    onError: (error: AxiosError<ResponseType>) => {
+      console.log(error);
+      if (error.response?.data.code === 1059) {
+        setErrorMessage(
+          error.response?.data.message ||
+            "Bạn chưa có nhóm nên ko thể gửi lời mời"
+        );
+        setErrorModalVisible(true);
+      } else {
+        console.error("Error sending invitations:", error);
+      }
+    },
   });
   const renderActions = (data: StudentType) => {
     return (
@@ -94,7 +122,7 @@ const InvitePage = ({ params: { id } }: PageProps) => {
         {data.status === "S" &&
           !selectedRows.some((row) => row.id === data.id) && (
             <Fragment>
-              <i
+              {/* <i
                 key={`cancel-${data.id}`} // Add key here
                 data-pr-tooltip="Thu hồi lời mời"
                 className="pi pi-replay hover:text-red-500 cursor-pointer cancelInvite"
@@ -108,7 +136,7 @@ const InvitePage = ({ params: { id } }: PageProps) => {
                   setSelected(data);
                 }}
               />
-              <Tooltip target=".cancelInvite" />
+              <Tooltip target=".cancelInvite" /> */}
             </Fragment>
           )}
 
@@ -129,21 +157,21 @@ const InvitePage = ({ params: { id } }: PageProps) => {
       </div>
     );
   };
-  const recallInviteMutate = useMutation({
-    mutationFn: (id: number) => {
-      return http.update(API.post.change_invite_status, {
-        id,
-        status: "C",
-      });
-    },
-  });
-  const onRemove = (data: StudentType) => {
-    recallInviteMutate.mutate(data.id!, {
-      onSuccess: () => {
-        toast.success("Thu hồi lời mời thành công");
-      },
-    });
-  };
+  // const recallInviteMutate = useMutation({
+  //   mutationFn: (id: number) => {
+  //     return http.update(API.post.change_invite_status, {
+  //       id,
+  //       status: "C",
+  //     });
+  //   },
+  // });
+  // const onRemove = (data: StudentType) => {
+  //   recallInviteMutate.mutate(data.id!, {
+  //     onSuccess: () => {
+  //       toast.success("Thu hồi lời mời thành công");
+  //     },
+  //   });
+  // };
   const onRowSelect = (event: { data: StudentType }) => {
     setSelectedRows([...selectedRows, event.data]);
   };
@@ -157,14 +185,15 @@ const InvitePage = ({ params: { id } }: PageProps) => {
         <p className="text-xl font-semibold">Danh sách sinh viên</p>
       </div>
 
-      <div className="flex align-items-center justify-content-between">
-        <SearchForm id="searchForm" blockClassName="w-20rem center flex " />
+      <div className="flex align-items-center ">
+        <SearchForm id="searchForm" blockClassName="w-20rem center flex  " />
         {selectedRows.length > 1 && (
           <Fragment>
             <Button
               key={`send-${selectedRows.map((row) => row.id)}`} // Add key here
-              data-pr-tooltip="Gửi lời mời"
-              className="pi pi-envelope hover:text-primary cursor-pointer sentInvite"
+              // data-pr-tooltip="Gửi lời mời"
+              size="small"
+              className="pi pi-envelope pl-4 ml-3  hover:text-primary cursor-pointer sentInvite"
               onClick={(e) => {
                 confirmInviteModalRef.current?.show?.(
                   e,
@@ -176,18 +205,20 @@ const InvitePage = ({ params: { id } }: PageProps) => {
                 );
               }}
             />
-            <Tooltip target=".sentInvite" />
+            <Tooltip
+              position="bottom"
+              content="Gửi lời mời"
+              target=".sentInvite"
+            />
           </Fragment>
         )}
       </div>
 
       <div className="border-round-xl overflow-hidden relative shadow-5">
-        <Loader
-          show={studentQuery.isFetching || recallInviteMutate.isPending}
-        />
+        <Loader show={studentQuerySelect.isFetching} />
 
         <DataTable
-          value={studentQuery.data?.result?.responses || []}
+          value={studentQuerySelect.data?.result || []}
           rowHover={true}
           stripedRows={true}
           showGridlines={true}
@@ -211,7 +242,12 @@ const InvitePage = ({ params: { id } }: PageProps) => {
               background: "var(--primary-color)",
               color: "var(--surface-a)",
               whiteSpace: "nowrap",
+              
             }}
+            bodyStyle={{
+              textAlign: "center",
+            }}
+            align={"center"}
             header={
               <i className="pi pi-user-edit" style={{ fontSize: "1.5rem" }}></i>
             }
@@ -231,7 +267,7 @@ const InvitePage = ({ params: { id } }: PageProps) => {
               color: "var(--surface-a)",
               whiteSpace: "nowrap",
             }}
-            field="maSo"
+            field="id"
             align={"center"}
             className="center"
             header={"Mã sinh viên"}
@@ -273,7 +309,7 @@ const InvitePage = ({ params: { id } }: PageProps) => {
               color: "var(--surface-a)",
               whiteSpace: "nowrap",
             }}
-            field="myClass"
+            field="code"
             header={"Lớp học"}
           />
 
@@ -297,10 +333,17 @@ const InvitePage = ({ params: { id } }: PageProps) => {
           <Paginator
             first={http.currentPage(studentQuery.data?.result?.currentPage)}
             rows={studentQuery.data?.result?.pageSize}
-            totalRecords={studentQuery.data?.result?.totalCount}
+            totalRecords={studentQuery.data?.result?.totalPages}
             rowsPerPageOptions={ROWS_PER_PAGE}
             onPageChange={onPageChange}
             className="border-noround p-0"
+
+            // first={(params.currentPage - 1) * params.pageSize}
+            // rows={params.pageSize}
+            // totalRecords={totalElements}
+            // rowsPerPageOptions={ROWS_PER_PAGE}
+            // onPageChange={onPageChange}
+            // className="border-noround p-0"
           />
         </div>
       </div>
@@ -311,18 +354,17 @@ const InvitePage = ({ params: { id } }: PageProps) => {
         onSuccess={(result) => studentQuery.refetch()}
         onUpdateStudent={handleInvitationSuccess}
       />
-
+      {/* 
       <ConfirmModal
         ref={confirmCancelModalRef}
         onAccept={onRemove}
         acceptLabel={"Xác nhận"}
         rejectLabel={"Hủy bỏ"}
-      />
+      /> */}
 
       <ConfirmModal
         ref={confirmInviteModalRef}
         onAccept={() => {
-          console.log(selectedRows);
           const studentIds: number[] = selectedRows
             .map((student) => {
               if (student.id !== undefined) {
@@ -350,6 +392,14 @@ const InvitePage = ({ params: { id } }: PageProps) => {
         acceptLabel={"Xác nhận"}
         rejectLabel={"Hủy bỏ"}
       />
+      <Dialog
+        header="Error"
+        visible={errorModalVisible}
+        style={{ width: "50vw" }}
+        onHide={() => setErrorModalVisible(false)}
+      >
+        <p>{errorMessage}</p>
+      </Dialog>
     </div>
   );
 };

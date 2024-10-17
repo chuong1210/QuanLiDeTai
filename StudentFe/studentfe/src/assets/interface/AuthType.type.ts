@@ -2,13 +2,17 @@ import { ParamType } from "../types/httpRequest";
 import { GeneralType } from "./GeneralType.type";
 import { StudentType } from "./Students.type";
 
+interface Role extends GeneralType {
+
+  code?: string;
+}
 interface AuthType extends GeneralType {
 
     username: string;
     isGraduate?:number
-    roles: string[];
+    roles: Role[];
     type: string;
-    students?: StudentType;
+    student?: StudentType;
 
 
 

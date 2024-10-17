@@ -21,6 +21,7 @@ import {
 import { toast } from "react-toastify";
 import { Metadata } from "next";
 import { AuthProvider } from "@/assets/context/AuthProvider";
+import { UserProvider } from "@/assets/context/UserContext";
 
 addLocale("vi", {
   firstDayOfWeek: 1,
@@ -105,7 +106,7 @@ const RootLayout = ({ children, session }: PageProps) => {
       <ReduxProvider>
         <QueryClientProvider client={queryClient}>
           <PrimeReactProvider value={primeReactValue}>
-            {children}
+            <UserProvider>{children}</UserProvider>
           </PrimeReactProvider>
         </QueryClientProvider>
       </ReduxProvider>

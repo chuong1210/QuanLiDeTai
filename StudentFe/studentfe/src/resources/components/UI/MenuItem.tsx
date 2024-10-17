@@ -12,7 +12,18 @@ import { Ripple } from "primereact/ripple";
 import { classNames } from "primereact/utils";
 import qs from "query-string";
 import { useState } from "react";
+// const userPermissions = {
+//   view: ['Faculty.View', 'Student.View'],
+//   create: ['Student.Create', 'Group.Create'],
+//   // ... NÀY LÀ BACKEND TRẢ VỀ
+// };
+// const checkPermission = (requiredPermission, userPermissions) => {
+//   return userPermissions.includes(requiredPermission);
+// };
 
+// const { code, permission } = item;
+
+//   const hasPermission = permission ? checkPermission(permission, permissions.view) : true;
 const MenuItem = ({ item, permissions }: MenuItemProps) => {
   const {
     parent,
@@ -32,12 +43,13 @@ const MenuItem = ({ item, permissions }: MenuItemProps) => {
   const dispatch = useDispatch();
   const params = useSearchParams();
   const active =
-    code === params.get("activeItem") || code === params.get("parent");
+    code === params?.get("activeItem") || code === params?.get("parent");
   const [isOpenMenu, setIsOpenMenu] = useState<boolean>(false);
   const router = useRouter();
   const checkChildPermission = cookies.checkChildPermission(item, permissions);
 
   const onClick = (currItem: MenuItemType) => {
+    if (!params) return;
     let activeMenu: MenuSliceType = {
       activeItem: code,
       parent,
@@ -137,7 +149,8 @@ const MenuItem = ({ item, permissions }: MenuItemProps) => {
             {label}
           </p>
 
-          {items && items.length > 0 && checkChildPermission && (
+          {items && items.length > 0 && (
+            //  && checkChildPermission &&
             <i className="pi pi-chevron-down text-sm" />
           )}
 
@@ -149,8 +162,8 @@ const MenuItem = ({ item, permissions }: MenuItemProps) => {
         <motion.div
           animate={
             (isOpenMenu && active) ||
-            (isOpenMenu && JSON.parse(params.get("openMenu") || "false")) ||
-            parent === params.get("parent")
+            (isOpenMenu && JSON.parse(params?.get("openMenu") || "false")) ||
+            parent === params?.get("parent")
               ? { height: "auto" }
               : { height: 0 }
           }

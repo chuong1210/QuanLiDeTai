@@ -26,6 +26,7 @@ interface ConfirmModalType {
    interface ChangePasswordModalType {
     onSave: (data: formChangePassword) => void;
     onCancel: () => void;
+    username:string;
   }
 interface SelectObjectModalRefType {
     show: (items: OptionType[], defaultIndex?: number) => void;
