@@ -3,7 +3,7 @@ import { Dialog } from 'primereact/dialog';
 import React, { forwardRef, useImperativeHandle, useState } from 'react'
 import API from '@/assets/configs/api';
 import * as request from '@/assets/helpers/request';
-import { Dropdown, Editor, InputDate, InputText } from '@/resources/components/form';
+import { Dropdown, Editor, InputDate, InputNumber, InputText } from '@/resources/components/form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
@@ -15,14 +15,15 @@ import { dateToString, getDateNow } from '@/assets/helpers/string';
 import { cookies } from '@/assets/helpers';
 import { ACCESS_TOKEN } from '@/assets/configs/request';
 import { jwtDecode } from 'jwt-decode';
+import { MultiSelect } from '@/resources/components/form/MultiSelect';
 const schema = yup.object({
-    nameJob: yup.string(),
-    nameTeacher: yup.string().required(),
-    details: yup.string(),
-    taskEnd: yup.date().required(),
+    from: yup.date().required(),
+    due: yup.date().required(),
+    name: yup.string().required(),
+    description: yup.string(),
+    detail: yup.string(),
+    groupId: yup.string()
 })
-
-
 const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, ref) => {
     const [visible, setVisible] = useState(false);
     const { control, handleSubmit, reset, setValue, getValues } = useForm({
@@ -30,39 +31,21 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
 
     });
 
-    const TeacherQuery = useQuery<TeacherType[], AxiosError<ResponseType>>({
-        refetchOnWindowFocus: false,
-        queryKey: ['list-Teacher'],
-        queryFn: async () => {
-            const response: any = await request.get<TeacherType[]>(API.teachers.getAllNoParams);
-            return response.data.result || [];
-        },
-    });
+
     const JobAssignment = useMutation<any, AxiosError<ResponseType>, JobType>({
         mutationFn: (data) => {
-            return request.post<JobType>(API.job.InsertJobForTeacher, data);
+            return request.post<JobType>(API.job.InsertJobForStudent, data);
         },
     });
 
 
     const onSubmit = (data: any) => {
         try {
-            const accout = jwtDecode(cookies.get(ACCESS_TOKEN) || "").sub
-            const newData: JobType = {
-                from: getDateNow(),
-                due: dateToString(data.taskEnd),
-                sendTo: data.nameTeacher,// neame teacher == msgv
-                sendFrom: accout || "",
-                name: data.nameJob,
-                details: data.details,
-                isCompleted: 0
-            }
-            console.log("data", data, "newDataq", newData)
-            JobAssignment.mutate(newData, {
+            JobAssignment.mutate(data, {
                 onSuccess: (response) => {
                     close();
-                    onSuccess?.(response.data);
-                    toast.success("Lưu mới thành công");
+                    toast.success("Tạo nhiệm vụ mới thành công");
+                    onSuccess
                 },
             })
         } catch (error: any) {
@@ -72,22 +55,18 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
     };
 
     const show = (data: string) => {
-        reset({ nameJob: data })
+        // console.log(data)
+        reset({ groupId: data })
         setVisible(true);
     };
-
-
     const close = () => {
         setVisible(false);
         reset();
     };
-
     useImperativeHandle(ref, () => ({
         show,
         close
     }));
-
-
     return (
         <Dialog
             header={title}
@@ -99,41 +78,41 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
         >
             <>
                 <div className='p-4 bg-white h-full'>
-                    <form className='relative mt-2 h-auto  formgrid grid' style={{ minHeight: "50vh" }} onSubmit={handleSubmit(onSubmit)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }}>
+                    <form className='relative mt-2 h-auto  formgrid grid' style={{ minHeight: "50vh", maxWidth: "100vw" }} onSubmit={handleSubmit(onSubmit)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }}>
                         <div className='col-6 flex flex-column gap-3 mb-2'>
                             <Controller
-                                name={"nameJob"}
+                                name={"name"}
                                 control={control}
                                 render={({ field, fieldState }) => <InputText
                                     id={`form_data_${field.name}`}
                                     value={field.value?.toString()}
                                     label={"Tên nhiệm vụ"}
-                                    disabled
                                     placeholder={"Tên nhiệm vụ"}
                                     errorMessage={fieldState.error?.message}
                                     onChange={field.onChange}
                                 />}
                             />
                         </div>
+
                         <div className='col-6 flex flex-column gap-3 mb-2'>
                             <Controller
-                                name={"nameTeacher"}
+                                name={"from"}
                                 control={control}
-                                render={({ field, fieldState }) => <Dropdown
+                                render={({ field, fieldState }) => <InputDate
                                     id={`form_data_${field.name}`}
-                                    value={field.value?.toString()}
-                                    options={TeacherQuery.data?.map((t) => ({ label: t.name + " - " + t.maSo, value: t.maSo }))}
-                                    label={"Tên giảng viên"}
-                                    placeholder={"Tên giảng viên"}
+                                    label={"Thời gian bắt đầu"}
+                                    placeholder={"Thời gian bắt đầu"}
                                     errorMessage={fieldState.error?.message}
                                     onChange={field.onChange}
                                 />}
 
                             />
+
                         </div>
+
                         <div className='col-6 flex flex-column gap-3 mb-2'>
                             <Controller
-                                name={"taskEnd"}
+                                name={"due"}
                                 control={control}
                                 render={({ field, fieldState }) => <InputDate
                                     id={`form_data_${field.name}`}
@@ -144,11 +123,27 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
                                 />}
 
                             />
+
                         </div>
 
                         <div className='col-12 flex flex-column gap-3 mb-2'>
                             <Controller
-                                name={"details"}
+                                name={"description"}
+                                control={control}
+                                render={({ field, fieldState }) => <Editor
+                                    id={`form_data_${field.name}`}
+                                    label={"Mô tả"}
+                                    placeholder={"Mô tả"}
+                                    errorMessage={fieldState.error?.message}
+                                    value={field.value}
+                                    onChange={(data) => setValue(field.name, data)}
+                                />}
+
+                            />
+                        </div>
+                        <div className='col-12 flex flex-column gap-3 mb-2'>
+                            <Controller
+                                name={"detail"}
                                 control={control}
                                 render={({ field, fieldState }) => <Editor
                                     id={`form_data_${field.name}`}
@@ -162,7 +157,7 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
                             />
                         </div>
 
-                        <div style={{ bottom: "-250px" }} className='absolute botton-0 flex align-items-center justify-content-end gap-2 mt-5 p-4 w-full' >
+                        <div className=' botton-0 flex align-items-center justify-content-end gap-2 mt-5 p-4 w-full' >
                             <Button
                                 label={'cancel'}
                                 icon='pi pi-undo'
@@ -172,7 +167,7 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
                                     close();
                                 }}
                             />
-                            <Button label={'save'} icon='pi pi-save' />
+                            <Button type='submit' label={'save'} icon='pi pi-save' />
                         </div>
                     </form>
                 </div>

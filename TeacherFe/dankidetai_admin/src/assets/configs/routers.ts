@@ -18,6 +18,7 @@ const ROUTER = {
         list_student_join: "/graduation_thesis/list_student_join",
         thesis: {
             list_thesis: "/graduation_thesis/thesis",
+            list_thesis_to_approve: "/graduation_thesis/thesis/approve",
             my_thesis: "/graduation_thesis/thesis/my_thesis",
         },
         thesis_defense_schedule: "/graduation_thesis/thesis_defense_schedule",
@@ -26,7 +27,8 @@ const ROUTER = {
     },
     job: {
         tasks_assignment: "/job/tasks_assignment",
-        tasks_assigned: "/job/tasks_assigned"
+        tasks_assigned: "/job/tasks_assigned",
+        tasks_group: "/job/tasks_group"
     }
 
 

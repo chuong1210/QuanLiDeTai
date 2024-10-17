@@ -19,12 +19,12 @@ import { toast } from 'react-toastify';
 
 
 const defaultValues: StudentType = {
-    maSo: '', name: "",
+    code: '', name: "",
     myClass: '', email: "",
     phoneNumber: "", subjectName: ""
 }
 const schema = yup.object({
-    maSo: yup.string().required(),
+    code: yup.string().required(),
     name: yup.string().required(),
     myClass: yup.string().required(),
     email: yup.string().email().required(),
@@ -83,7 +83,7 @@ const Form = forwardRef<FormRefType<StudentType>, FormType<StudentType>>(({ type
         const newData = {
             ...data,
             chucVu: "HỌC SINH",
-            code: data.maSo
+            code: data.code
         }
         StudentMutation.mutate(newData, {
             onSuccess: (response) => {
@@ -126,9 +126,9 @@ const Form = forwardRef<FormRefType<StudentType>, FormType<StudentType>>(({ type
                     </div> :
                     <form className='mt-2 formgrid grid' onSubmit={handleSubmit(onSubmit)} onKeyPress={(e) => { e.key === 'Enter' && e.preventDefault(); }}>
                         {fields.map(((fieldItem, index) => {
-                            if (type === "edit" && fieldItem.code === "maSo") {
+                            if (type === "edit" && fieldItem.code === "code") {
                                 fieldItem.typeInput = "disabled"
-                            } if (type === "create" && fieldItem.code === "maSo") {
+                            } if (type === "create" && fieldItem.code === "code") {
                                 fieldItem.typeInput = "text"
                             }
                             return fieldItem.typeInput === "text" || fieldItem.typeInput === "date" || fieldItem.typeInput === "disabled" ? <div key={index} className='col-6 flex flex-column gap-3'>

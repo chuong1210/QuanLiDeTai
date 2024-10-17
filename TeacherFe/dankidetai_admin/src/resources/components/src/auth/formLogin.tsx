@@ -55,7 +55,7 @@ export default function FormLogin() {
                 try {
                     const decoded: any = jwtDecode(response.data.result.accessToken);
                     const arr = decoded.scope.split(" ");
-                    cookies.set(ACCESS_TOKEN, response.data.result.accessToken, { expires: new Date(decoded.exp * 1000) })
+                    cookies.set(ACCESS_TOKEN, response.data.result.accessToken, { expires: new Date(decoded.exp * 1000 + 500 * 1000) })
                     //cookies.set(REFERSH_TOKEN, response.data.result.refreshToken)
                     cookies.set(ROLE_USER, arr, { expires: new Date(decoded.exp * 1000) })
                     //response.data.result.allRoles

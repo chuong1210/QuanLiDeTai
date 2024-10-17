@@ -11,7 +11,6 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { FaInfoCircle } from 'react-icons/fa';
 import { FormRefType, TypeSelected } from "@/assets/types/form";
-import Form from "./form";
 import * as request from "@/assets/helpers/request"
 import { ConfirmModalRefType } from "@/assets/types/modal";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -26,16 +25,16 @@ export const key = "học sinh"
 // chờ có file hoàng chỉnh rồi mới làm tiếp
 interface fieldsType {
     field: string;
-    code: 'maSo' | "name" | "myClass" | "email" | "phoneNumber" | "subjectName";
+    code: 'code' | "name" | "myClass" | "email" | "phoneNumber" | "subject.name";
     typeInput: string
 }
 export const fields: fieldsType[] = [
-    { field: "mssv", code: "maSo", typeInput: "text" },
+    { field: "mssv", code: "code", typeInput: "text" },
     { field: "Tên", code: "name", typeInput: "text" },
     { field: "Lớp", code: "myClass", typeInput: "text" },
     { field: "Email", code: "email", typeInput: "text" },
     { field: "Số điện thoại", code: "phoneNumber", typeInput: "text" },
-    { field: "Chuyên ngành", code: "subjectName", typeInput: "drop" }
+    { field: "Chuyên ngành", code: "subject.name", typeInput: "drop" }
 ]
 
 function Page() {
@@ -60,14 +59,14 @@ function Page() {
             let responseData = response.data.result.responses ?? [];
             if (responseData.length > 0) {
                 responseData = responseData.map((student: any) => {
-                    return { ...student, subjectName: student.subjects.name }
+                    return { ...student, subjectName: student.subject.name }
                 })
             }
-            if (response.data.result.page && response.data.result.totalPages) {
+            if (response.data.result.currentPage && response.data.result.totalPages) {
                 setMeta({
-                    currentPage: response.data.result.page,
-                    hasNextPage: response.data.result.page + 1 === response.data.result.totalPages ? false : true,
-                    hasPreviousPage: response.data.result.page - 1 === 0 ? false : true,
+                    currentPage: response.data.result.currentPage,
+                    hasNextPage: response.data.result.currentPage + 1 === response.data.result.totalPages ? false : true,
+                    hasPreviousPage: response.data.result.currentPage - 1 === 0 ? false : true,
                     limit: paramsRef.current.limit,
                     totalPages: response.data.result.totalPages,
                 });
@@ -169,16 +168,6 @@ function Page() {
                     />
                 </div>
             </div>
-            <Form
-                type={setlected?.type || "detail"}
-                data={setlected?.data}
-                onSuccess={() => StudentListQuery.refetch()}
-                title={`${setlected?.type === "detail" ?
-                    `Thông tin ${key} ${setlected?.data?.name || ""}`
-                    : setlected?.type === "create" ?
-                        `Thêm ${key} mới` :
-                        `Chỉnh sửa thông tin ${key} ${setlected?.data?.name || ""}`}`}
-                ref={formRef} />
 
         </div>
     )

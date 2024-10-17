@@ -13,19 +13,21 @@ const Layout = ({ children }:
     }) => {
     const router = useRouter()
     useEffect(() => {
-        // if (!cookies.get(ACCESS_TOKEN) || !localStorage.getItem(ROLE_USER)) {
-        // if (!cookies.get(ACCESS_TOKEN)) {
-        //     router.push(ROUTER.auth.login)
-        // }
+        if (!cookies.get(ACCESS_TOKEN) || !localStorage.getItem(ROLE_USER)) {
+            if (!cookies.get(ACCESS_TOKEN)) {
+                localStorage.clear();
+                router.push(ROUTER.auth.login)
+            }
+        }
     }, [])
     return (
         <div>
             <div className='min-h-screen surface-100 overflow-hidden m-0'>
                 <div >
                     <Header />
-                    <div className='flex p-3 w-100 overflow-auto' style={{ marginTop: '4rem' }}>
+                    <div className='flex p-3 w-100' style={{ marginTop: '4rem', display: 'flex' }}>
                         <Sidebar />
-                        <div className='' style={{ marginLeft: "1rem" }}>
+                        <div style={{ marginLeft: "1rem", flex: 1 }}>
                             {children}
                         </div>
                     </div>

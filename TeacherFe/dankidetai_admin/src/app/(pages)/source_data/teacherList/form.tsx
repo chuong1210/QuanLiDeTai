@@ -25,7 +25,8 @@ const defaultValues: TeacherType = {
     email: "", phoneNumber: "",
     subjectName: "",
     departmentName: "",
-    position: [], degree: ""
+    position: [], degree: "",
+    subject: { name: "" }
 }
 const schema = yup.object({
     code: yup.string().required(),
@@ -35,7 +36,7 @@ const schema = yup.object({
     degree: yup.string().required(),
     position: yup.array().required(),
     departmentName: yup.string().required(),
-    subjectName: yup.string().required()
+    subjectName: yup.string().required(),
 
 })
 
@@ -90,10 +91,9 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
 
         const newData = {
             ...data,
-            //position: data.position.join(",")
-            user_id: data.id
         }
-        //console.log(newData)
+
+        console.log(newData)
         TeacherMutation.mutate(newData, {
             onSuccess: (response) => {
                 close();

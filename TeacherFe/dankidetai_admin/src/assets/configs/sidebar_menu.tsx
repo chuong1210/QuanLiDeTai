@@ -84,11 +84,18 @@ const SIDEBAR_MENU: MenuItemType[] = [
                         code: 'my_thesis',
                         parent: 'thesis',
                         label: 'đề tài của tôi',
-                        permission: [roleE.giaovien, roleE.truongbomon, roleE.truongkhoa],
+                        permission: [roleE.giaovien],
                         to: ROUTER.graduation_thesis.thesis.my_thesis,
 
                     },
+                    {
+                        code: 'thesis_to_approve ',
+                        parent: 'thesis',
+                        label: 'duyệt đề tài',
+                        permission: [roleE.truongbomon],
+                        to: ROUTER.graduation_thesis.thesis.list_thesis_to_approve,
 
+                    },
 
                 ],
             },
@@ -121,19 +128,24 @@ const SIDEBAR_MENU: MenuItemType[] = [
         icon: <FaBriefcase />,
         items: [
             {
+                code: 'tasks_group',
+                parent: 'job',
+                label: 'Đề tài nhóm',
+                to: ROUTER.job.tasks_group,
+                permission: [roleE.giaovien, roleE.truongkhoa, roleE.truongbomon]
+            },
+            {
                 code: 'tasks_assignment',
                 parent: 'job',
                 label: 'Giao nhiệm vụ',
                 to: ROUTER.job.tasks_assignment,
-                permission: [roleE.giaovien, roleE.truongkhoa, roleE.truongbomon]
+                permission: [roleE.truongkhoa, roleE.truongbomon]
             },
             {
                 code: 'tasks_assigned',
                 parent: 'job',
                 label: 'Nhiệm vụ được giao',
                 to: ROUTER.job.tasks_assigned,
-
-
             },
 
         ],

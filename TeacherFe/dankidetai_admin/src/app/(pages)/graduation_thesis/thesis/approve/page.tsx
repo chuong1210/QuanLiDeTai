@@ -33,7 +33,7 @@ export default function Page() {
         queryKey: ['list-Research'],
         queryFn: async () => {
 
-            const response: any = await request.get<ReSearchType[]>(`${API.reSearch.showall_to_feedback}`, {
+            const response: any = await request.get<ReSearchType[]>(`${API.reSearch.showall_to_approve}`, {
                 params: paramsRef.current
             });
             let responseData = response.data ?? [];
@@ -59,8 +59,19 @@ export default function Page() {
         setMeta(e => ({ ...e, limit: event.rows }))
         ListResearchListQuery.refetch();
     }
-
-
+    const MarkApprovedMutation = useMutation<any, AxiosError<ResponseType>, any>({
+        mutationFn: (data: string) => {
+            return request.update(API.reSearch.mark_approved + `/${data}`, undefined)
+        },
+    });
+    const handleDuyetDeTai = (data: ReSearchType) => {
+        MarkApprovedMutation.mutate(data.id, {
+            onSuccess: (_: any) => {
+                toast.success("Đã duyệt đề tài:" + data.name);
+                ListResearchListQuery.refetch()
+            },
+        })
+    }
 
     const itemTemplate = (thesis: ReSearchType, index: number) => {
         return (
@@ -72,12 +83,12 @@ export default function Page() {
                             style={{ width: '100%', wordWrap: 'break-word', wordBreak: 'break-word', fontSize: '1.5rem' }} // Giảm font-size cho tiêu đề
                         >
                             <span style={{ display: 'block', minWidth: '50vw' }}>
-                                {thesis?.name}
+                                {thesis.name}
                             </span>
                         </div>
                         <div className="flex align-items-center gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin khác */}
                             <span className="flex align-items-center gap-2">
-                                <span className="font-semibold">Mã đề tài: {thesis?.code}</span>
+                                <span className="font-semibold">Mã đề tài: {thesis.code}</span>
                             </span>
                             <Tag value={thesis.status} severity={thesis.status === "DE" || thesis.status === "PA" ? 'danger' : 'success'}></Tag>
                         </div>
@@ -103,8 +114,11 @@ export default function Page() {
                         </div>
 
                         <div className="flex gap-2 sm:gap-1" style={{ position: 'absolute', bottom: '16px', right: '16px' }}>
-
-                            <Link style={{ textDecoration: "underline", fontSize: '1rem' }} href={`/graduation_thesis/thesis/${thesis.id}`}>Chi tiết</Link> {/* Giảm font-size cho liên kết */}
+                            {
+                                thesis?.status === "PA" &&
+                                <Button outlined onClick={() => handleDuyetDeTai(thesis)}>Duyệt đề tài</Button>
+                            }
+                            <Link style={{ marginTop: "24px", marginLeft: "8px", textDecoration: "underline", fontSize: '1rem' }} href={`/graduation_thesis/thesis/${thesis.id}`}>Chi tiết</Link> {/* Giảm font-size cho liên kết */}
                         </div>
                     </div>
                 </div>

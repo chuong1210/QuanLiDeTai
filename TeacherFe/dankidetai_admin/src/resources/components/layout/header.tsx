@@ -22,6 +22,7 @@ export default function Header() {
             return router.push(ROUTER.auth.login);
         }
         const info: UserLoginType = JSON.parse(jinfo)
+        // console.log(info)
         setInfo(info)
     }, [])
     const logOut = (item: MenuItemType) => {
@@ -37,7 +38,7 @@ export default function Header() {
             <Image src={brand} alt='' width={244} height={60} priority={true} />
             <div style={{ cursor: "pointer" }} onClick={(e) => userModalRef?.current?.toggle(e)}>
                 <span className="pi pi-user bg-primary p-2 border-circle"></span>
-                <span> {info?.teachers.name}</span>
+                <span> {info?.teacher?.name}</span>
             </div>
             <OverlayPanel ref={userModalRef} className='p-0'>
                 <ul>

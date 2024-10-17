@@ -20,9 +20,9 @@ import { trimObjectProperties } from '@/assets/helpers/string';
 import { Loader } from '@/resources/components/UI';
 
 const fieldsDefault = [{
-    maSo: '200112', name: "Trần Văn Thọ",
+    code: '200112', name: "Trần Văn Thọ",
     email: "vinhhien12z@gmail.com", phoneNumber: "0344197279",
-    hocVi: 'Thạc sĩ',
+    degree: 'Thạc sĩ',
     subjectName: "Kỹ thuật phần mềm",
     departmentName: "Công nghệ thông tin"
 }];
@@ -91,14 +91,13 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
             delete item.STT;
             return trimObjectProperties({
                 ...item,
-                degree: item.hocVi,
-                code: item.maSo.toString().trim(),
+                degree: item.degree,
+                code: item.code.toString().trim(),
                 phoneNumber: item.phoneNumber.toString(),
                 position: [item.chucVu]
 
             })
         })
-        console.log(newData)
         TeacherListMutationInsert.mutate(newData, {
             onSuccess: (data) => {
                 close();
@@ -123,7 +122,7 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
 
                 <h3>Thực hiện thêm {key} vào đợt đăng kí Khóa luận</h3>
                 <div >
-                    <Button className="my-3" onClick={() => XLSX.handleExportFile(fieldsDefault, "FilestudentExample")}>Export fie mẫu</Button>
+                    <Button className="my-3" onClick={() => XLSX.handleExportFile(fieldsDefault, "FileTeacherExample")}>Export fie mẫu</Button>
                     <h3>chose file</h3>
                     <InputFile
                         accept='.xlsx ,.xls'
@@ -131,7 +130,7 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
                         multiple={true}
                         onChange={(e) => {
                             XLSX.handleImportFile(e, (data) => {
-                                setTeachertOnExcel(data.map((item: any) => { return { ...item, chucVu: "GIẢNG VIÊN" } }))
+                                setTeachertOnExcel(data.map((item: any) => { return { ...item, position: ["GIẢNG VIÊN"] } }))
                             })
                         }}
                         onRemove={() => {

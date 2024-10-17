@@ -19,5 +19,5 @@ interface UserLoginType {
     username: string;
     isGraduate: number;
     roles: Role[];
-    teachers: Teacher;
+    teacher: Teacher;
 }

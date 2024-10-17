@@ -52,12 +52,12 @@ const Editor = ({
                         placeholder,
 
                     }}
-                    onReady={(editor) => {
-                        editor.editing.view.change((writer) => {
-                            writer.setStyle("height", "200px", editor.editing.view.document.getRoot()),
-                                row
-                        })
-                    }}
+                    // onReady={(editor) => {
+                    //     editor.editing.view.change((writer) => {
+                    //         writer.setStyle("height", "200px", editor.editing.view.document.getRoot()),
+                    //             row
+                    //     })
+                    // }}
                     onChange={(event, editor) => {
                         const data = editor.data.get();
 

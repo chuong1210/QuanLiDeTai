@@ -1,7 +1,18 @@
+"use client"
+import { TabPanel, TabView } from 'primereact/tabview'
 import React from 'react'
+import PageNhomDetai from './nhomdetai'
+import { typePoinsE } from '@/assets/configs/general'
 
 export default function Page() {
     return (
-        <div>Page đồ án</div>
+        <TabView>
+            <TabPanel header="Nhóm hướng dẫn">
+                <PageNhomDetai type={typePoinsE.gvhuongdan} title='Nhóm hướng dẫn' />
+            </TabPanel>
+            <TabPanel header="Nhóm phản biện" >
+                <PageNhomDetai type={typePoinsE.gvphanbien} title='Nhóm phản biện' />
+            </TabPanel>
+        </TabView>
     )
 }

@@ -13,6 +13,7 @@ interface InputProps {
     blockClassName?: string;
     errorMessage?: string;
     row?: boolean;
+    readOnly?: boolean;
     required?: boolean;
     disabled?: boolean;
     onChange?: ChangeEventHandler<HTMLInputElement>;

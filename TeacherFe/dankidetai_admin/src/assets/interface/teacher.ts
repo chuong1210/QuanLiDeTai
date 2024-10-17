@@ -7,6 +7,7 @@ interface TeacherType extends DefaultResponse {
     position: string[];
     departmentName: string;
     subjectName: string;
+    subject?: SubjectType
 }
 // const a = {
 //     "maSo": "222222",

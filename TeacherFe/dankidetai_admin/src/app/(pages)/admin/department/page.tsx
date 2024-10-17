@@ -47,11 +47,11 @@ function Page() {
             });
             let responseData = response.data.result.responses ?? [];
 
-            if (response.data.result.page && response.data.result.totalPages) {
+            if (response.data.result.currentPage && response.data.result.totalPages) {
                 setMeta({
-                    currentPage: response.data.result.page,
-                    hasNextPage: response.data.result.page + 1 === response.data.result.totalPages ? false : true,
-                    hasPreviousPage: response.data.result.page - 1 === 0 ? false : true,
+                    currentPage: response.data.result.currentPage,
+                    hasNextPage: response.data.result.currentPage + 1 === response.data.result.totalPages ? false : true,
+                    hasPreviousPage: response.data.result.currentPage - 1 === 0 ? false : true,
                     limit: paramsRef.current.limit,
                     totalPages: response.data.result.totalPages,
                 });

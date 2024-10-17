@@ -1,18 +1,14 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from 'primereact/button';
-import { DataView } from 'primereact/dataview';
-import { Rating } from 'primereact/rating';
 import { Tag } from 'primereact/tag';
-import { classNames } from 'primereact/utils';
 import Link from 'next/link';
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import API from '@/assets/configs/api';
 import * as request from "@/assets/helpers/request"
-import { useSearchParams } from 'next/navigation';
 import { MetaType, ParamType } from '@/assets/types/request';
 import { roleE } from '@/assets/configs/general';
 import { cookies } from '@/assets/helpers';
@@ -33,7 +29,7 @@ export default function Page() {
         queryKey: ['list-Research'],
         queryFn: async () => {
 
-            const response: any = await request.get<ReSearchType[]>(`${API.reSearch.showall_to_feedback}`, {
+            const response: any = await request.get<ReSearchType[]>(`${API.reSearch.showall_my_research}`, {
                 params: paramsRef.current
             });
             let responseData = response.data ?? [];
@@ -59,8 +55,19 @@ export default function Page() {
         setMeta(e => ({ ...e, limit: event.rows }))
         ListResearchListQuery.refetch();
     }
-
-
+    const MarkApprovedMutation = useMutation<any, AxiosError<ResponseType>, any>({
+        mutationFn: (data: string) => {
+            return request.update(API.reSearch.mark_approved + `/${data}`, undefined)
+        },
+    });
+    const handleDuyetDeTai = (data: ReSearchType) => {
+        MarkApprovedMutation.mutate(data.id, {
+            onSuccess: (_: any) => {
+                toast.success("Đã duyệt đề tài:" + data.name);
+                ListResearchListQuery.refetch()
+            },
+        })
+    }
 
     const itemTemplate = (thesis: ReSearchType, index: number) => {
         return (
@@ -72,21 +79,23 @@ export default function Page() {
                             style={{ width: '100%', wordWrap: 'break-word', wordBreak: 'break-word', fontSize: '1.5rem' }} // Giảm font-size cho tiêu đề
                         >
                             <span style={{ display: 'block', minWidth: '50vw' }}>
-                                {thesis?.name}
+                                {thesis.name}
                             </span>
                         </div>
                         <div className="flex align-items-center gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin khác */}
                             <span className="flex align-items-center gap-2">
-                                <span className="font-semibold">Mã đề tài: {thesis?.code}</span>
+                                <span className="font-semibold">Mã đề tài: {thesis.code}</span>
                             </span>
                             <Tag value={thesis.status} severity={thesis.status === "DE" || thesis.status === "PA" ? 'danger' : 'success'}></Tag>
                         </div>
                         <div className="flex align-items-center gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin khác */}
-                            <span className="font-semibold">Nhóm chuyên ngành:</span> {thesis?.subjects?.map(item => item.name + " ")}   <span className="font-semibold">Số lượng thành viên:</span> {`${thesis.minMembers} - ${thesis.maxMembers}`}
+                            <span className="font-semibold">Nhóm chuyên ngành:</span> {thesis.subjects.map(item => item.name + " ")}
                         </div>
-                        <div className="flex align-items-center gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin khác */}
-                            <span className="font-semibold">Giảng viên hướng dẫn:</span> {thesis?.teachers?.map(tc => { if (tc.code) return tc.name })}
-                        </div>
+                        {(thesis.status === "PA") && (cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.truongkhoa) || cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.truongbomon)) && (
+                            <div > {/* Giảm font-size cho các thông tin khác */}
+                                <Button onClick={() => handleDuyetDeTai(thesis)}>Duyệt đề tài</Button>
+                            </div>
+                        )}
                     </div>
                     <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-2 gap-3 col-4" style={{ minHeight: "120px" }}>
                         <div className="flex flex-column align-items-center sm:align-items-start gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin giảng viên và nhóm chuyên ngành */}
@@ -104,7 +113,7 @@ export default function Page() {
 
                         <div className="flex gap-2 sm:gap-1" style={{ position: 'absolute', bottom: '16px', right: '16px' }}>
 
-                            <Link style={{ textDecoration: "underline", fontSize: '1rem' }} href={`/graduation_thesis/thesis/${thesis.id}`}>Chi tiết</Link> {/* Giảm font-size cho liên kết */}
+                            <Link style={{ textDecoration: "underline", fontSize: '1rem' }} href={`/job/tasks_group/${thesis.id}`}>Xem tiến độ</Link> {/* Giảm font-size cho liên kết */}
                         </div>
                     </div>
                 </div>
@@ -115,8 +124,7 @@ export default function Page() {
 
     const listTemplate = (items: ReSearchType[]) => {
         if (!items || items.length === 0) return null;
-
-        let list = items.map((thesis, index) => {
+        let list = items?.map((thesis, index) => {
             return itemTemplate(thesis, index);
         });
 

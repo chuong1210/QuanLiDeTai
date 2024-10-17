@@ -1,5 +1,5 @@
 interface StudentType extends DefaultResponse {
-    maSo: string;
+    code: string;
     name: string;
     myClass: string;
     email: string;
@@ -7,6 +7,10 @@ interface StudentType extends DefaultResponse {
     chucVu?: string;
     departmentName?: number;
     subjectName?: string;
-    idPoint?: number;
-    idGroup?: number;
+    subject?: SubjectType;
+    points?: Ipoint[];
+    POINT_INSTRUCTORS?: Ipoint;
+    POINT_THESIS_ADVISOR?: Ipoint;
+    POINT_COUNCIL?: Ipoint;
+    POINT_AVG?: number;
 }

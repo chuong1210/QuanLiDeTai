@@ -47,11 +47,10 @@ export default function Page() {
   const ListResearchListQuery = useQuery<ReSearchType[], AxiosError<ResponseType>>({
     queryKey: ['list-Research'],
     queryFn: async () => {
-      const response: any = await request.get<ReSearchType[]>(API.reSearch.showall, {
+      const response: any = await request.get<ReSearchType[]>(API.reSearch.showall_my_research, {
         params: paramsRef.current
       });
       let responseData = response.data.result.responses ?? [];
-
       if (response.data.result.page && response.data.result.totalPages) {
         setMeta({
           currentPage: response.data.result.page,
@@ -184,7 +183,7 @@ export default function Page() {
         />
         <FormInsert
           type="detail"
-          title="Thực hiện thêm đề tài vào hệ thống"
+          title={`Thực hiện thêm ${key} vào hệ thống`}
           onSuccess={() => { ListResearchListQuery.refetch() }}
           ref={formInsert}
         />

@@ -28,7 +28,7 @@ export const key = "giảng viên"
 // chờ có file hoàng chỉnh rồi mới làm tiếp
 interface fieldsType {
     field: string;
-    code: 'code' | "name" | "degree" | "email" | "phoneNumber" | "subjectName" | "position" | 'departmentName';
+    code: 'code' | "name" | "degree" | "email" | "phoneNumber" | "subject.name" | "position" | 'departmentName';
     typeInput: string
 }
 export const fields: fieldsType[] = [
@@ -38,7 +38,7 @@ export const fields: fieldsType[] = [
     { field: "Số điện thoại", code: "phoneNumber", typeInput: "text" },
     { field: "Học vị", code: "degree", typeInput: "null" },
     { field: "Chức vụ", code: "position", typeInput: "null" },
-    { field: "Bộ môn", code: "subjectName", typeInput: "null" },
+    { field: "Bộ môn", code: "subject.name", typeInput: "null" },
     // { field: "Chuyên ngành", code: "subjectName", typeInput: "text" },
 ]
 
@@ -77,18 +77,16 @@ function Page() {
                 })
             }
 
-            if (response.data.result.page && response.data.result.totalPages) {
+            if (response.data.result.currentPage && response.data.result.totalPages) {
                 setMeta({
-                    currentPage: response.data.result.page,
-                    hasNextPage: response.data.result.page + 1 === response.data.result.totalPages ? false : true,
-                    hasPreviousPage: response.data.result.page - 1 === 0 ? false : true,
+                    currentPage: response.data.result.currentPage,
+                    hasNextPage: response.data.result.currentPage + 1 === response.data.result.totalPages ? false : true,
+                    hasPreviousPage: response.data.result.currentPage - 1 === 0 ? false : true,
                     limit: paramsRef.current.limit,
                     totalPages: response.data.result.totalPages,
                 });
 
             }
-            // console.log("reload", responseData)
-
             return responseData || [];
         },
     });

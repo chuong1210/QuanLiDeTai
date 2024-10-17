@@ -3,10 +3,11 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import _, { isArray } from "lodash";
 import API from '../configs/api';
 import * as cookies from "./cookies"
-import { ACCESS_TOKEN } from '../configs/request';
+import { ACCESS_TOKEN, ROLE_USER } from '../configs/request';
 import { redirect, useRouter } from 'next/navigation'
 import { NextResponse } from 'next/server';
 import { trimObjectProperties } from './string';
+import { jwtDecode } from 'jwt-decode';
 
 export const request = axios.create({
     baseURL: API.base,
@@ -40,14 +41,20 @@ request.interceptors.response.use(
         return response;
     },
     async (error: any) => {
-        console.log(error)
-        if (error.response.data.code === 9992) {
-
+        if (error.response.data.code === 9993) { // token  hết hạn
             const token = cookies.get(ACCESS_TOKEN);
+            if (token === null) {
+                throw new Error("you need login !!!")
+            }
             const req = await axios.post(API.base + API.auth.refresh, {
                 token: token
             })
-            console.log("zo trong get du lieu moi", req)
+            const decoded: any = jwtDecode(req.data.result.accessToken);
+            const arr = decoded.scope.split(" ");
+            cookies.set(ACCESS_TOKEN, req.data.result.accessToken, { expires: new Date(decoded.exp * 1000 + 5 * 1000) })
+            //cookies.set(REFERSH_TOKEN, response.data.result.refreshToken)
+            cookies.set(ROLE_USER, arr, { expires: new Date(decoded.exp * 1000) })
+
             return
         }
         throw new Error(error.response.data.message)

@@ -10,11 +10,16 @@ interface ThesisType extends DefaultResponse {
     Group?: any;
 }
 interface Icomment {
-    ID: string;
-    NameTeacher: string;
-    CreateAt: string;
+    id: string;
     message: string;
+    createBy: string;
+    createdDate: string;
+    sendFromName: string;
+    sendFrom: string;
+
 }
+// 
+
 interface ReSearchType extends DefaultResponse {
     name: string;
     code: string;
@@ -32,4 +37,5 @@ interface ReSearchType extends DefaultResponse {
     subjects: SubjectType[];
     feedbacks: Icomment[];
     status: "PA" | "AP" | "AS" | "DE"
+    group?: Group;
 }

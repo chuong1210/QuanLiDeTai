@@ -81,4 +81,11 @@ enum roleE {
     truongbomon = "HEAD_OF_DEPARTMENT",
 }
 
-export { DropdownValue, ChucVuValue, HocViValue, roleE };
+enum typePoinsE {
+    gvhuongdan = "1",
+    gvphanbien = "2",
+    hoidong = "3",
+
+}
+
+export { DropdownValue, ChucVuValue, HocViValue, roleE, typePoinsE };

@@ -15,6 +15,7 @@ const InputText = ({
     required = false,
     disabled = false,
     errorMessage,
+    readOnly = false,
     onChange = () => { },
     onBlur = () => { },
 }: InputTextProps) => {
@@ -43,6 +44,7 @@ const InputText = ({
                 <PrimeInputText
                     id={id}
                     value={inputValue}
+                    readOnly={readOnly}
                     placeholder={placeholder}
                     spellCheck={false}
                     disabled={disabled}

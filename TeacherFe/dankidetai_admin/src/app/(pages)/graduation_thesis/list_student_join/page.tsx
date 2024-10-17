@@ -27,11 +27,11 @@ export const key = "học sinh"
 // chờ có file hoàng chỉnh rồi mới làm tiếp
 interface fieldsType {
     field: string;
-    code: 'maSo' | "name" | "myClass" | "email" | "phoneNumber" | "subjectName" | "departmentName";
+    code: 'code' | "name" | "myClass" | "email" | "phoneNumber" | "subjectName" | "departmentName";
     typeInput: string
 }
 export const fields: fieldsType[] = [
-    { field: "mssv", code: "maSo", typeInput: "text" },
+    { field: "mssv", code: "code", typeInput: "text" },
     { field: "Tên", code: "name", typeInput: "text" },
     { field: "Lớp", code: "myClass", typeInput: "text" },
     { field: "Email", code: "email", typeInput: "text" },
@@ -70,23 +70,24 @@ function Page() {
                 responseData = responseData.map((student: any) => {
                     const newStudent = {
                         ...student,
-                        subjectName: student.subjects.name,
-                        departmentName: student.subjects.departments.name
+                        subjectName: student.subject.name,
+                        departmentName: student.subject.department.name
                     }
-                    delete newStudent.subjects
+                    delete newStudent.subject
                     return newStudent
                 })
             }
-            if (response.data.result.page && response.data.result.totalPages) {
+            if (response.data.result.currentPage && response.data.result.totalPages) {
                 setMeta({
-                    currentPage: response.data.result.page,
-                    hasNextPage: response.data.result.page + 1 === response.data.result.totalPages ? false : true,
-                    hasPreviousPage: response.data.result.page - 1 === 0 ? false : true,
+                    currentPage: response.data.result.currentPage,
+                    hasNextPage: response.data.result.currentPage + 1 === response.data.result.totalPages ? false : true,
+                    hasPreviousPage: response.data.result.currentPage - 1 === 0 ? false : true,
                     limit: paramsRef.current.limit,
                     totalPages: response.data.result.totalPages,
                 });
 
             }
+            console.log(responseData)
             return responseData || [];
         },
     });

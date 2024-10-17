@@ -17,7 +17,7 @@ interface ParamType {
 interface ResponseType<dataType = any> {
     result: {
         responses: dataType,
-        page?: number,
+        currentPage?: number,
         totalPages?: number,
         message?: string,
     }

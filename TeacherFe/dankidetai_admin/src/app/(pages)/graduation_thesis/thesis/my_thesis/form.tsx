@@ -63,7 +63,6 @@ const Form = forwardRef<FormRefType<ReSearchType>, FormType<ReSearchType>>(({ ty
     });
     const ReSearchMutation = useMutation<any, AxiosError<ResponseType>, any>({
         mutationFn: (dataa) => {
-            console.log(dataa)
             if (type === "edit") {
                 return request.update(API.reSearch.update + `/${data?.id}`, dataa)
             } else {
@@ -266,7 +265,7 @@ const Form = forwardRef<FormRefType<ReSearchType>, FormType<ReSearchType>>(({ ty
                             placeholder={"Chi tiết"}
                             errorMessage={fieldState.error?.message}
                             value={field.value}
-                            onChange={(data) => setValue(field.name, data)}
+                            onChange={field.onChange}
                         />}
 
                     />
