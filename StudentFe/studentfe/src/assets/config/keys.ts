@@ -20,6 +20,9 @@ const list = (params: any) => ({
     feedback: ['feedbacks', 'list', params],
     schedule: ['schedules', 'list', params],
     point_by_thesis: ['point_by_thesis', 'list', params],
+
+    student_toSelect: ['student_toSelects', 'list', params],
+
 });
 
 const detail = () => ({

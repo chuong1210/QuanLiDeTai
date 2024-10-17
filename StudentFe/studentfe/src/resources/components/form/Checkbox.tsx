@@ -10,7 +10,7 @@ const CheckboxWrapper = styled.div`
   }
 
   label {
-    --size: 30px; /* Adjust size as needed */
+    --size: 25px; /* Adjust size as needed */
     --shadow: calc(var(--size) * 0.07) calc(var(--size) * 0.1);
     position: relative;
     display: block;

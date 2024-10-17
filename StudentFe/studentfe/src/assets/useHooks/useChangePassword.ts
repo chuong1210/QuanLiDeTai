@@ -11,12 +11,14 @@ export function useChangePassword() {
   const updatePasswordMutation = useMutation({
     mutationFn: updatePassword,
     onSuccess: () => {
-      changePasswordModalRef.current?.resetModal();
+      changePasswordModalRef.current?.hideModal(); // or rest
       toast.success("Password successfully changed");
+
     },
     onError: (error: any) => {
       toast.error("An error occurred while updating the password");
     },
+    
   });
 
   const handleSave = useCallback(

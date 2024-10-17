@@ -16,8 +16,14 @@ import { MenuItem } from "primereact/menuitem";
 import { Skeleton } from "primereact/skeleton";
 import { motion } from "framer-motion";
 import imageAsset from "/public/images/avatar/waifu.jpg";
+import { useUser } from "@/assets/context/UserContext";
+import { toast } from "react-toastify";
+import { useUserStore } from "@/assets/zustand/user";
+import { ms } from "date-fns/locale";
+import { NotificationItem } from "@/resources/components/UI";
 
 const NotificationList = () => {
+  const { user, hasGroup, setUser, setHasGroup } = useUserStore();
   const menuRefs = useRef<(Menu | null)[]>([]);
 
   const inviteQuery = useGetList<InviteType, InviteParamType>({
@@ -44,6 +50,7 @@ const NotificationList = () => {
   const PAGE_SIZE = 10;
   const recallInviteMutate = useMutation({
     mutationFn: (data: InviteType) => {
+      setTimeout(() => {}, 300);
       return http.update(API.put.invitation + `/${data.id}`, {
         statusInvitation: data.statusInvitation,
       });
@@ -55,15 +62,23 @@ const NotificationList = () => {
 
   const handleAccept = (notification: InviteType) => {
     // Tạo một bản sao của notification và cập nhật status
+    setIsLoading(true);
+
     const updatedNotification: InviteType = {
       // ...notification,
       id: notification.id,
       statusInvitation: "AOS",
     };
     recallInviteMutate.mutate(updatedNotification);
+    if (recallInviteMutate.isSuccess) {
+      setHasGroup(true);
+      toast.success("Chấp nhận lời mời thành công");
+      inviteQuery.refetch();
+    }
   };
 
   const handleReject = (notification: InviteType) => {
+    setIsLoading(true);
     // Tạo một bản sao của notification và cập nhật status
     const updatedNotification: InviteType = {
       // ...notification,
@@ -71,6 +86,12 @@ const NotificationList = () => {
       statusInvitation: "RE",
     };
     recallInviteMutate.mutate(updatedNotification);
+    if (recallInviteMutate.isSuccess) {
+      localStorage.removeItem("hasGroup");
+      localStorage.setItem("hasGroup", JSON.stringify(false));
+
+      inviteQuery.refetch();
+    }
   };
 
   const handleMenuToggle = (
@@ -78,9 +99,10 @@ const NotificationList = () => {
     index: number
   ) => {
     if (menuRefs.current[index]) {
-      menuRefs.current[index]?.toggle(event);
+      menuRefs.current[index]?.toggle(event); // This should open the menu
     }
   };
+
   const mapMenuItemTypeToMenuItem = (menuItems: MenuItemType[]): MenuItem[] => {
     return menuItems.map((item) => ({
       label: item.label,
@@ -104,8 +126,8 @@ const NotificationList = () => {
     <div className="notifications-container  overflow-hidden  border-round-xl  shadow-2 flex flex-column ">
       <Card
         header={
-          <div className="flex justify-content-center mt-2  h-3rem max-h-10rem   ">
-            <p className="p-1">Danh sách thông báo</p>
+          <div className="flex justify-content-center mt-2  h-3rem max-h-10rem mb-0  ">
+            <p className="p-1 font-semibold text-xl ">Danh sách lời mời</p>
             <i
               className="pi pi-arrow-circle-down ml-2 "
               style={{ fontSize: "2rem", cursor: "pointer" }}
@@ -113,8 +135,11 @@ const NotificationList = () => {
             ></i>
           </div>
         }
-        className="h-3rem max-h-10rem "
-      ></Card>
+        // content={
+
+        // }
+        className="h-3rem max-h-10rem max-h-0 mb-0 "
+      />
       <Divider />
       <motion.div
         variants={containerVariants}
@@ -123,13 +148,17 @@ const NotificationList = () => {
         className="notifications-list"
       >
         {inviteQuery.data?.result && inviteQuery.data.result.length > 0 ? (
-          <h6 className="notification-dialogue m-0">Tất cả lời mời của bạn:</h6>
+          <h5 className="notification-dialogue ml-3 mb-0">
+            Tất cả lời mời của bạn:
+          </h5>
         ) : (
-          <h6 className="notification-dialogue">Bạn chưa có lời mời nào.</h6>
+          <h5 className="notification-dialogue ml-3">
+            Bạn chưa có lời mời nào.
+          </h5>
         )}
-        <div className="notifications-list">
+        <div className="notifications-list mb-8">
           {inviteQuery.isLoading && (
-            <div className="card">
+            <div className="card ">
               <div className="border-round border-1 surface-border p-4">
                 <ul className="m-0 p-0 list-none">
                   <li className="mb-3">
@@ -188,57 +217,17 @@ const NotificationList = () => {
               </div>
             </div>
           )}
-          {inviteQuery.data?.result?.map((notification, index) => {
-            const menuItems: MenuItemType[] = [
-              {
-                label: "Từ chối",
-                icon: "pi pi-trash",
-                command: () => handleReject(notification),
-              },
-              {
-                label: "Chấp nhận",
-                icon: "pi pi-check",
-                command: () => handleAccept(notification),
-              },
-            ];
-            return (
-              <Card key={index} className="notification-item ">
-                <div className="notification-content ">
-                  <Avatar
-                    image="/public/images/avatar/waifu.jpg"
-                    shape="circle"
-                    size="large"
-                  />
-                  <div className="notification-text">
-                    <h6>{notification.sendFrom}</h6>
-                    <p>{notification.message}</p>
-                    {/* {notification.buttonLabel && (
-                  <Button
-                    label={notification.buttonLabel}
-                    className="p-button-outlined p-button-success"
-                  />
-                )} */}
-                  </div>
-                  <div className="menu-container">
-                    {/* Add a container for the menu */}
-                    <Menu
-                      model={mapMenuItemTypeToMenuItem(menuItems)}
-                      popup
-                      ref={(el) => (menuRefs.current[index] = el)}
-                    />
-                    <Button
-                      icon="pi pi-ellipsis-v"
-                      onClick={(event) => handleMenuToggle(event, index)}
-                      className="p-button-text"
-                    />
-                    <p className="notification-time">
-                      {moment(notification.timeSent).format("DD/MM/YYYY")}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
+          {inviteQuery.data?.result?.map((notification, index) => (
+            <NotificationItem
+              key={index}
+              notification={notification}
+              index={index}
+              onAccept={handleAccept}
+              onReject={handleReject}
+              menuRef={menuRefs}
+              handleMenuToggle={handleMenuToggle}
+            />
+          ))}
         </div>
       </motion.div>
     </div>

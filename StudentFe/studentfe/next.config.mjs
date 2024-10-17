@@ -12,6 +12,7 @@ const nextConfig = {
   //     NEXTAUTH_SECRET: "<removed>",
   //   },
   //   basePath: "/admin",
+  basePath: "",
   typescript: {
     // !! WARN !!
     // Dangerously allow production builds to successfully complete even if

@@ -6,6 +6,7 @@ interface GeneralType {
     address?: string;
     email?: string;
     status?:string
+    code?:string
 }
 
 export type { GeneralType };

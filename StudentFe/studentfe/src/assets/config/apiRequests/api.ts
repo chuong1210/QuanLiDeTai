@@ -21,6 +21,7 @@ const API = {
         industry: '/industry',
 
         student: '/students/showAll',
+        student_toSelect:'/students/showAll-to-selection',
         student_by_period: 'student/listStudentOfPeriodCurrent',
 
         registration_period: '/registrationPeriod',
@@ -31,12 +32,11 @@ const API = {
 
         group: '/groups/showAll',
         thesis: '/thesis',
-        research: '/researches/showAll',
+        research: '/researches/showAll-to-registration',
 
 
         invitation: '/invitation',
 
-        job: '/job',
 
         exchange: '/exchange',
 
@@ -47,13 +47,16 @@ const API = {
         schedule: '/reportSchedule',
 
         point_by_thesis: '/point/thesis',
+        job: 'job-group/showJob-detail',
+
+
     },
 
     detail: {
         notification: '/notification/detail',
         group: '/groups/showInfo-my-group',
         topic: '/thesis/detail',
-        job: '/job/detail',
+        job: 'job-group/showJob-detail',
         schedule: '/reportSchedule/detail',
         research: '/researches/showAll',
         student:'/students/getMyInfo',
@@ -64,7 +67,7 @@ const API = {
         register_research: 'researches/register',
         google_drive: '/googleDrive',
         change_invite_status: '/invitation/changeStatus',
-        change_password: '/update/password',
+        change_password: '/users/update-user',
         register_group:'/groups/insert',
         invitation:'notifications/insert-invitation'
 

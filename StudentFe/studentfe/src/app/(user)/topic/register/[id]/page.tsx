@@ -57,7 +57,6 @@ const TopicDetailPage = ({
   const { id } = _params;
   // const isSelectedTopic: boolean = storedTopics.some((t) => t.id === id);
   if (storedTopics === id) {
-    console.log(123456);
     isSelectedTopic = true;
   }
 

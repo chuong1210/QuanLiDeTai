@@ -5,11 +5,11 @@ import { AuthType } from "@/assets/interface";
 import { useDispatch } from "@/assets/redux-toolkit";
 import menuSlice from "@/assets/redux-toolkit/slices/menu/slice";
 import { MenuItemType } from "@/assets/types/menu";
-import { deleteCookie } from "cookies-next";
+import { deleteCookie, getCookie } from "cookies-next";
 import { usePathname, useRouter } from "next/navigation";
 import { Avatar } from "primereact/avatar";
 import { OverlayPanel } from "primereact/overlaypanel";
-import { useRef } from "react";
+import { use, useRef } from "react";
 import { MenuItem } from "../UI/";
 import { Divider } from "primereact/divider";
 import { ADMIN_MENU } from "@/assets/config/menu/admin_menu";
@@ -19,10 +19,14 @@ import {
   ACCESS_TOKEN,
   ROUTES,
   DATA_RESULT,
+  API,
 } from "@/assets/config";
 import { useChangePassword } from "@/assets/useHooks/useChangePassword";
 import { ChangePasswordModal } from "../modal";
-import { cookies } from "@/assets/helpers";
+import { cookies, http } from "@/assets/helpers";
+import { useUser } from "@/assets/context/UserContext";
+import { NextRequest } from "next/server";
+import { useUserStore } from "@/assets/zustand/user";
 
 const Menu = () => {
   const {
@@ -35,17 +39,45 @@ const Menu = () => {
   const pathName = usePathname();
   const userMenu = USER_MENU(pathName ?? "");
   const [auth] = useCookies<AuthType>(DATA_RESULT);
+  const { user, hasGroup, setUser, setHasGroup } = useUserStore();
+  console.log(user);
   const userModalRef = useRef<OverlayPanel>(null);
   const dispatch = useDispatch();
   const router = useRouter();
-
+  useCookies;
+  // console.log(getCookie(REFRESH_TOKEN));
   const renderItem = (item: MenuItemType) => {
-    const onLogoutClick = () => {
-      router.push(ROUTES.auth.sign_in);
+    const handleLogout = async () => {
+      try {
+        // Gọi API trên server để xử lý đăng xuất
+        const response = await fetch("/api/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token: getCookie(REFRESH_TOKEN) }), // Gửi accessToken
+        });
 
+        if (!response.ok) throw new Error("Logout failed");
+
+        // Chuyển hướng về trang login hoặc trang chủ sau khi logout
+        router.push("/login");
+      } catch (error) {
+        console.error("Error during logout:", error);
+      }
+    };
+
+    const onLogoutClick = () => {
+      handleLogout();
       deleteCookie(ACCESS_TOKEN);
       deleteCookie(REFRESH_TOKEN);
-      cookies.logOut();
+      // localStorage.removeItem("hasGroup");
+      // localStorage.removeItem("user");
+
+      // http.post(API.auth.sign_out, {
+      //   token: getCookie(REFRESH_TOKEN),
+      // });
+      //  cookies.logOut();
       dispatch(
         menuSlice.actions.onItemClick({
           activeItem: "home",
@@ -60,7 +92,7 @@ const Menu = () => {
     return (
       <MenuItem
         key={item.code}
-        permissions={auth?.roles || []}
+        permissions={user?.roles || []}
         item={{
           ...item,
           onItemClick: () => {
@@ -71,7 +103,6 @@ const Menu = () => {
             }
             if (item.code === "change_password") {
               event = onChangePasswrod;
-              console.log("hello");
             }
 
             event();
@@ -99,7 +130,7 @@ const Menu = () => {
           />
           <div className="flex-1">
             <p className="text-sm text-600 pb-1">{"Xin chào"}</p>
-            <p className="text-sm font-semibold">{auth?.name}</p>
+            <p className="text-sm font-semibold">{user?.username}</p>
           </div>
 
           <i className="pi pi-angle-down ml-2" />
@@ -107,12 +138,11 @@ const Menu = () => {
 
         <Divider layout="horizontal" />
 
-        {auth &&
+        {user != null &&
           adminMenu.map((item) => (
-            <MenuItem key={item.code} item={item} permissions={auth?.roles} />
+            <MenuItem key={item.code} item={item} permissions={user.roles} />
           ))}
       </ul>
-
       <OverlayPanel ref={userModalRef} className="px-2 py-1">
         {userMenu.map(renderItem)}
       </OverlayPanel>
@@ -120,6 +150,7 @@ const Menu = () => {
         ref={changePasswordModalRef}
         onSave={onSave}
         onCancel={onCancel}
+        username={user?.username ?? ""}
       />
     </div>
   );

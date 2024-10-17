@@ -29,7 +29,6 @@ import { Skeleton } from "primereact/skeleton";
 import { classNames } from "primereact/utils";
 import _ from "lodash";
 import { refreshTokenApi } from "@/assets/config/apiRequests/StudentApiMutation";
-import { GroupTable } from "../topic/team/_tab";
 
 const HomePage = ({ params: { _ } }: PageProps) => {
   const groupQuery = useGetDetail<GroupType, GroupParamType>({
@@ -101,8 +100,7 @@ const HomePage = ({ params: { _ } }: PageProps) => {
         show={
           // groupQuery.isFetching ||
           // jobQuery.isFetching ||
-          // notificationQuery.isFetching
-          false
+          notificationQuery.isFetching
         }
       />
 

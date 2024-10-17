@@ -2,6 +2,12 @@ interface FormStateType {
     username: string;
     password: string;
   }
+  
+interface formChangePassword extends Omit<FormStateType, 'username'> {
+  newPassword: string;
+  confirmPassword: string;
+}
+
   interface LoginProps {
     // control: any; // Điều này phụ thuộc vào loại control bạn đang sử dụng
     onSubmit: SubmitHandler<FormStateType>;
@@ -11,4 +17,4 @@ interface FormStateType {
   }
   
 
-  export { FormStateType, LoginProps };
+  export { FormStateType, LoginProps,formChangePassword };

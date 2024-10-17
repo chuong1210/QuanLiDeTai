@@ -7,7 +7,7 @@ import { FaHouseChimney } from "react-icons/fa6";
 
 const Breadcrumb = () => {
   const pathName = usePathname();
-  const pathItems = _.drop(pathName.split("/"), 2);
+  const pathItems = _.drop(pathName?.split("/"), 2);
   const dispatch = useDispatch();
 
   const items = _.map(pathItems, (path) => ({

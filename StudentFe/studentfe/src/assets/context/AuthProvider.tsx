@@ -9,17 +9,11 @@ interface AuthContextProps {
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 const initialAuth: AuthType = {
-  aud: "",
-  result: {
-    Id: 0,
-    Name: "",
-  },
-  faculty: {
-    Id: 0,
-  },
-  permission: [],
+  id: 0,
+  username: "",
+  roles: [],
   type: "",
-  userName: "",
+  students: {},
 };
 
 export const AuthProvider = ({ children }: PageProps) => {

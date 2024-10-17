@@ -16,7 +16,6 @@ const NotificationDetailPage = ({ params: { id } }: PageProps) => {
   });
 
   const dataO = data?.result;
-  console.log(dataO + "asa");
   const router = useRouter();
   const handleClose = () => {
     router.back;

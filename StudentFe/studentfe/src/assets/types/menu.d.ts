@@ -10,16 +10,18 @@ interface MenuItemType {
     itemClassName?: string;
     labelClassName?: string;
     iconClassName?: string;
-    permission?: string;
+    permission?: any;
     checkPermission?: boolean;
     onItemClick?: (_item: MenuItemType) => void;
     onSubItemClick?: (_item: MenuItemType) => void;
     command?:(_item: MenuItemType) => void;
     separator?:boolean
+    key?:string;
+    description?: string; // Add a description field
 }
 interface MenuItemProps {
     item: MenuItemType;
-    permissions: string[];
+    permissions: any[];
   }
 
 export type { MenuItemType,MenuItemProps };

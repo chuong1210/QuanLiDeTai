@@ -17,7 +17,7 @@ const Chart = () => {
   });
 
   useEffect(() => {
-    if (pointQuery.response?.data && pointQuery.response?.data.length > 0) {
+    if (pointQuery.response?.result && pointQuery.response?.result.length > 0) {
       const documentStyle = getComputedStyle(document.documentElement);
       const textColor = documentStyle.getPropertyValue("--text-color");
       const textColorSecondary = documentStyle.getPropertyValue(
@@ -26,13 +26,13 @@ const Chart = () => {
       const surfaceBorder = documentStyle.getPropertyValue("--surface-border");
 
       const data = {
-        labels: pointQuery?.response?.data?.[0].scores?.map(
+        labels: pointQuery?.response?.result?.[0].scores?.map(
           (t) => t.teacher.name
         ),
         datasets: [
           {
             label: "Kết quả",
-            backgroundColor: pointQuery.response?.data?.[0].scores?.map(
+            backgroundColor: pointQuery.response?.result?.[0].scores?.map(
               (score) =>
                 score.type === "R"
                   ? documentStyle.getPropertyValue("--blue-600")
@@ -40,14 +40,14 @@ const Chart = () => {
                   ? documentStyle.getPropertyValue("--green-500")
                   : documentStyle.getPropertyValue("--bluegray-800")
             ),
-            borderColor: pointQuery.response?.data?.[0].scores?.map((score) =>
+            borderColor: pointQuery.response?.result?.[0].scores?.map((score) =>
               score.type === "R"
                 ? documentStyle.getPropertyValue("--blue-600")
                 : score.type === "I"
                 ? documentStyle.getPropertyValue("--green-500")
                 : documentStyle.getPropertyValue("--bluegray-800")
             ),
-            data: pointQuery?.response?.data?.[0].scores?.map((t) => t.score),
+            data: pointQuery?.response?.result?.[0].scores?.map((t) => t.score),
           },
         ],
       };
@@ -90,7 +90,7 @@ const Chart = () => {
       setChartData(data);
       setChartOptions(options);
     }
-  }, [pointQuery.response?.data]);
+  }, [pointQuery.response?.result]);
 
   return <PrimeChart type="bar" data={chartData} options={chartOptions} />;
 };

@@ -8,9 +8,11 @@ import { jwtDecode } from 'jwt-decode';
 import { http } from './httpRequest';
 import { cookies } from '.';
 
+import { NextRequest, NextResponse } from 'next/server';
+
 const get = <T>(key: string): T | undefined => {
     const value = getCookie(key);
-
+    console.log(`Getting cookie: ${key}, Value: ${value}`);
     if (!value) {
         return undefined;
     }
@@ -32,14 +34,22 @@ const set = (key: string, value: any, options?: OptionsType) => {
 const remove = (key: string) => {
     deleteCookie(key);
 };
-
-const logOut = () => {
-    http.post(API.auth.sign_out, {
-        token: cookies.get(REFRESH_TOKEN)
-    })
-    remove(REFRESH_TOKEN);
-    remove(ACCESS_TOKEN);
-};
+const logOut = async () => {
+    try {
+      const response = await http.post('/api/logout', {
+        token: getCookie(REFRESH_TOKEN),
+      });
+  
+      if (response.status === 200) {
+        remove(REFRESH_TOKEN);
+        remove(ACCESS_TOKEN);
+        console.log('Logout successful');
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
+  
 const isTokenExpired = (token: string | undefined) => {
     if (!token) return true;
     try {
@@ -48,6 +58,15 @@ const isTokenExpired = (token: string | undefined) => {
     } catch (error) {
         return true;
     }
+};
+
+ const getClientSideCookie = (name: string): string | undefined => {
+    const cookieValue = document.cookie
+        .split('; ')
+        .find((row) => row.startsWith(`${name}=`))
+        ?.split('=')[1];
+
+   return cookieValue;
 };
 const checkPermission = (permission: string, permissions: string[]): boolean => {
     if (!permissions || !permissions.includes(permission)) {
@@ -65,4 +84,4 @@ const checkChildPermission = (item: MenuItemType, permissions: string[]): boolea
     return false;
 };
 
-export { checkChildPermission, checkPermission, get, logOut, remove, set, isTokenExpired };
+export { checkChildPermission, checkPermission, get, logOut, remove, set, isTokenExpired,getClientSideCookie };

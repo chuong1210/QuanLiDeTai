@@ -142,13 +142,6 @@ const topicsMock = [
   },
 ];
 
-// Dữ liệu ảo cho phản hồi từ server cho topic detail
-
-
-
-
-// topic.mock.ts
-
 
 export interface NotificationMock {
   avatar?: string;
@@ -270,5 +263,4 @@ export const NotificationMock = {
     },
   ];
 
-  // Simulate a delay to mimic fetching from an API
 

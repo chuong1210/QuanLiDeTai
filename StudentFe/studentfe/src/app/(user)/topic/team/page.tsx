@@ -30,30 +30,22 @@ import { Button } from "primereact/button";
 import { Tag } from "primereact/tag";
 import { AvatarGroup } from "primereact/avatargroup";
 import { Avatar } from "primereact/avatar";
+import SearchForm from "../invite/_invite/searchForm";
+import { useUserStore } from "@/assets/zustand/user";
 
 const GroupPage = ({ params: { lng } }: PageProps) => {
   const [meta, setMeta] = useState<MetaType>(DEFAULT_META);
   const [params, setParams] = useState<GroupParamType>(DEFAULT_PARAMS);
   const [currentPage, setCurrentPage] = useState(meta.currentPage);
-  const [user, setUser] = useState<AuthType | null>(null);
   const [filter, setFilter] = useState<string | null>(null);
 
   const { limit, page, orderBy, orderDirection } = params;
   // const [hasGroup, setHasGroup] = useState<boolean>(false);
 
   let hasGroup: boolean = false;
+  const { user } = useUserStore();
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-      }
-    }
-  }, []);
-  const idStudent: string = user?.students?.id?.toString() ?? "";
+  const idStudent: string = user?.student?.id?.toString() ?? "";
   const studentQuery = useGetDetail<StudentType, StudentParamType>({
     module: "student",
     // params: { maSo: idStudent },
@@ -78,15 +70,17 @@ const GroupPage = ({ params: { lng } }: PageProps) => {
     },
   });
   const Groups: GroupType[] = groupQuery.data?.result?.responses;
-  hasGroup = (Groups ?? []).some((group) =>
-    group.students?.some((stu) => stu.id?.toString() === idStudent)
-  ); //vì trong studen đã có group attribute nên thay bằng cái này
+
+  //vì trong studen đã có group attribute nên thay bằng cái này
   const groupQueryDetail = useGetDetail<GroupType>({
     module: "group",
-    enabled: !!user,
   });
+  // hasGroup = (Groups ?? []).some((group) =>
+  //   group.students?.some((stu) => stu.id?.toString() === idStudent)
+  // );
 
-  hasGroup = !!groupQueryDetail.data?.result?.id;
+  hasGroup = !!groupQueryDetail.data?.result;
+
   const onPageChange = (e: PaginatorPageChangeEvent) => {
     setParams((prev) => ({
       ...prev,
@@ -130,7 +124,6 @@ const GroupPage = ({ params: { lng } }: PageProps) => {
   const handleFilter = (status: string | null) => {
     setFilter(status);
   };
-
   return (
     <>
       {/* studentQuery.data?.result?.groupDto?.id */}
@@ -159,13 +152,17 @@ const GroupPage = ({ params: { lng } }: PageProps) => {
           </div>
 
           <div className="flex align-items-center justify-content-between">
-            <InputText placeholder={`${"search"}...`} className="w-20rem" />
+            <SearchForm
+              placeholder={`${"search"}...`}
+              id="searchForm"
+              blockClassName="w-20rem center flex  "
+            />
           </div>
 
           <div className="border-round-xl overflow-hidden relative shadow-5">
             <Loader show={groupQuery.isFetching} />
 
-            <div className="flex gap-2 mb-4">
+            {/* <div className="flex align-content-center justify-content-center  gap-2 m-4">
               <Button
                 className={`p-button ${
                   filter === null ? "p-button-primary" : ""
@@ -174,7 +171,7 @@ const GroupPage = ({ params: { lng } }: PageProps) => {
                 severity="success"
                 outlined
               >
-                View all
+                Xem tất cả nhóm
               </Button>
               <Button
                 className={`p-button ${
@@ -184,7 +181,7 @@ const GroupPage = ({ params: { lng } }: PageProps) => {
                 severity="info"
                 outlined
               >
-                Has Members
+                Xem nhóm chưa đủ người
               </Button>
               <Button
                 className={`p-button ${
@@ -194,9 +191,9 @@ const GroupPage = ({ params: { lng } }: PageProps) => {
                 severity="danger"
                 outlined
               >
-                No Members
+                Xem nhóm không có người
               </Button>
-            </div>
+            </div> */}
 
             <DataTable
               showGridlines
@@ -303,12 +300,29 @@ const GroupPage = ({ params: { lng } }: PageProps) => {
         </div>
       ) : (
         <div>
-          <p>Bạn đã có nhóm</p>
+          <p className="center font-bold text-center flex justify-content-center">
+            Bạn đã có nhóm
+          </p>
 
           <Link
+            className="m-3"
             href={`${ROUTES.topic.group}/${groupQueryDetail.data?.result?.id}?hasGroup=${hasGroup}`}
           >
-            <Button className="p-button p-component p-2">Xem nhóm</Button>
+            <Button
+              className="p-button p-component w-full p-2 border-200 border-solid"
+              severity="success"
+              style={{
+                display: "inline-block",
+                textAlign: "center",
+                lineHeight: "1.5",
+                verticalAlign: "middle",
+                borderColor: "#14ce1433",
+              }}
+              rounded
+              outlined
+            >
+              Xem nhóm
+            </Button>
           </Link>
         </div>
       )}
