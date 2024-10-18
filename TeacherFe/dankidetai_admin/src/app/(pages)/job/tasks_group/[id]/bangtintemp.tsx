@@ -56,22 +56,20 @@ const BangTinTemp = ({ reSearch }: { reSearch?: ReSearchType }) => {
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
-            // hồi trc t đổi được
-            paddingTop: "20%",  // Dùng tỷ lệ này để giữ tỷ lệ khung hình của ảnh
-            // width: "75vw",      // Đặt chiều rộng của div theo 75% chiều rộng màn hình
-            maxWidth: "1000px", // Đặt chiều rộng tối đa để div không quá lớn trên các màn hình lớn
-            margin: "0 auto",   // Căn giữa div ngang màn hình
+
+            paddingTop: "20%",
+            maxWidth: "1000px",
+            margin: "0 auto",
             position: "relative",
             backgroundImage: "url(https://gstatic.com/classroom/themes/Honors.jpg)"
         }}>
             <div
                 style={{
-                    position: 'absolute',   // Cho phép đặt div này nằm trên ảnh
-                    bottom: '10%',             // Căn chỉnh từ trên
-                    left: '5%',             // Căn chỉnh từ bên trái
-                    color: '#fff',          // Đặt màu chữ để dễ nhìn trên nền ảnh
-                    // padding: '1rem',        // Khoảng cách bên trong để tạo khoảng trống giữa chữ và biên của khung
-                    borderRadius: '8px'     // Tùy chọn: Bo tròn góc
+                    position: 'absolute',
+                    bottom: '10%',
+                    left: '5%',
+                    color: '#fff',
+                    borderRadius: '8px'
                 }}
             >
                 <h2 >
@@ -91,9 +89,9 @@ const BangTinTemp = ({ reSearch }: { reSearch?: ReSearchType }) => {
                 <b>
                     Nhiệm vụ đến hạn :
                 </b>
-                <p>
+                {/* <p>
                     Tuyệt vời bạn có 5 nhiệm vụ chưa hoàng thành
-                </p>
+                </p> */}
                 <p style={{ position: "absolute", bottom: "12px", right: "32px", cursor: "pointer", textDecorationLine: "underline" }} onClick={() => {
                     // console.log(ListResearch?ListQuery?.data);
                     formInsert.current.show(reSearch.group?.id);
