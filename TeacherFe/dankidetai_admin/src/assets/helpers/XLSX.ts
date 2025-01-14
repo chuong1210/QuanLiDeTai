@@ -22,5 +22,6 @@ class XLSX {
         XLSXMain.utils.book_append_sheet(wb, ws, "Sheet1")
         XLSXMain.writeFile(wb, `${fileName}.xlsx`)
     }
+
 }
 export default XLSX

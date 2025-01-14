@@ -9,13 +9,12 @@ interface ThesisType extends DefaultResponse {
     oldDetails?: string;
     Group?: any;
 }
-interface Icomment {
-    id: string;
+interface Icomment extends DefaultResponse {
     message: string;
-    createBy: string;
+    createdBy: string;
     createdDate: string;
-    sendFromName: string;
-    sendFrom: string;
+    senderName: string;
+    senderCode: string;
 
 }
 // 
@@ -28,14 +27,20 @@ interface ReSearchType extends DefaultResponse {
     notes: string;
     maxMembers: number;
     minMembers: number;
-    instructorsIds: string[];
-    gvpb: string;
     stage: string;
     schoolYear: string;
     isApproved: number;
-    teachers: TeacherType[];
-    subjects: SubjectType[];
+    teachers?: TeacherType[];
+    subject: SubjectType;
     feedbacks: Icomment[];
     status: "PA" | "AP" | "AS" | "DE"
     group?: Group;
+    researchTeachers?: {
+        teacher: TeacherType,
+        typeTeacher: { name: string }
+    }[];
+    exitAdvisor?: boolean;
+    exitCoucli?: boolean;
+    donePoint?: boolean;
+    differencePoint?: boolean;
 }

@@ -19,7 +19,7 @@ import { fields } from './page';
 
 const defaultValues: SubjectType = {
     name: "",
-    departments: {
+    department: {
         name: ""
     }
 }
@@ -27,7 +27,7 @@ const defaultValues: SubjectType = {
 const schema = yup.object({
     //id: yup.number(),
     name: yup.string().required(),
-    departments: yup.object().shape({
+    department: yup.object().shape({
         name: yup.string().required()
     })
 })
@@ -39,7 +39,7 @@ const Form = forwardRef<FormRefType<SubjectType>, FormType<SubjectType>>(({ type
     });
     const StudentMutation = useMutation<any, AxiosError<ResponseType>, any>({
         mutationFn: (data) => {
-            return type === "edit" ? request.update(API.subjects.update + `/${data.id}`, { name: data.name, nameDepartment: data.departments.name }) : request.post(API.subjects.insert, { name: data.name, nameDepartment: data.departments.name })
+            return type === "edit" ? request.update(API.subjects.update + `/${data?.id}`, { name: data?.name, departmentId: data?.department.name }) : request.post(API.subjects.insert, { name: data?.name, departmentId: data?.department.name })
         },
     });
 
@@ -49,14 +49,13 @@ const Form = forwardRef<FormRefType<SubjectType>, FormType<SubjectType>>(({ type
         queryKey: ["list-Subject"],
         queryFn: async () => {
             const response: any = await request.get<DepartmentType[]>(API.department.getAllNoParams);
-            return response.data.result || [];
+            return response.data?.result || [];
         },
     });
 
 
     const show = (data?: SubjectType) => {
         setVisible(true);
-        console.log(data)
         if (data) {
             reset(data);
         } else {
@@ -66,7 +65,6 @@ const Form = forwardRef<FormRefType<SubjectType>, FormType<SubjectType>>(({ type
 
     };
     const onSubmit = (data: SubjectType) => {
-        console.log(data)
         StudentMutation.mutate(data, {
             onSuccess: (response) => {
                 close();
@@ -124,21 +122,23 @@ const Form = forwardRef<FormRefType<SubjectType>, FormType<SubjectType>>(({ type
                         </div>
                         <div className='col-6 flex flex-column gap-3'>
                             <Controller
-                                name="departments"
+                                name="department"
                                 control={control}
-                                render={({ field, fieldState }) => (
-                                    <Dropdown
-                                        id='form_data_industry_id'
-                                        options={DeparmentQuery.data?.map((t) => ({ label: t.name, value: t.name }))}
-                                        value={field.value?.name}
-                                        label={"Ngành"}
-                                        placeholder={"Ngành"}
-                                        errorMessage={fieldState.error?.message}
-                                        onChange={(e) => {
-                                            field.onChange({ name: e })
-                                        }}
-                                    />
-                                )}
+                                render={({ field, fieldState }) => {
+                                    return (
+                                        <Dropdown
+                                            id='form_data_industry_id'
+                                            options={DeparmentQuery.data?.map((t) => ({ label: t.name, value: t.id }))}
+                                            value={field.value?.id}
+                                            label={"Ngành"}
+                                            placeholder={"Ngành"}
+                                            errorMessage={fieldState.error?.message}
+                                            onChange={(e) => {
+                                                field.onChange({ name: e })
+                                            }}
+                                        />
+                                    )
+                                }}
                             />
                         </div>
                         <div className='flex align-items-center justify-content-end gap-2 absolute bottom-0 left-0 right-0 bg-white p-4'>

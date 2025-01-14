@@ -26,7 +26,7 @@ const Editor = ({
     }, [value]);
 
     return (
-        <div className={classNames(blockClassName)}>
+        <div className={classNames(blockClassName)} style={{ height: "250px" }}>
             <div className={classNames('block h-5rem', { 'flex align-items-center': row })}>
                 {label && (
                     <p
@@ -52,14 +52,18 @@ const Editor = ({
                         placeholder,
 
                     }}
-                    // onReady={(editor) => {
-                    //     editor.editing.view.change((writer) => {
-                    //         writer.setStyle("height", "200px", editor.editing.view.document.getRoot()),
-                    //             row
-                    //     })
-                    // }}
+                    onReady={(editor) => {
+                        editor.editing.view.change((writer) => {
+                            const root = editor.editing.view.document.getRoot();
+                            if (root) {
+                                writer.setStyle("height", "200px", root);
+                                // writer.setStyle("width", "100%", root);
+                                // writer.setStyle("position", "absolute", root)
+                            }
+                        });
+                    }}
                     onChange={(event, editor) => {
-                        const data = editor.data.get();
+                        const data = editor.data?.get();
 
                         onChange(data);
                         setInputValue(data);

@@ -4,10 +4,17 @@ interface TeacherType extends DefaultResponse {
     email: string;
     phoneNumber: string;
     degree: string;
-    position: string[];
-    departmentName: string;
+    position?: string;
+    departmentName?: string;
     subjectName: string;
-    subject?: SubjectType
+    subject?: SubjectType;
+    roleIds?: string[];
+    user?: user;
+}
+interface user extends DefaultResponse {
+    isActivated: number;
+    roles: RoleType[];
+    username: string;
 }
 // const a = {
 //     "maSo": "222222",

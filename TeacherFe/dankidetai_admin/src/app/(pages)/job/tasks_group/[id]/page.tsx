@@ -1,13 +1,10 @@
 "use client";
 
 import React from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { request } from '@/assets/helpers/request';
 import API from '@/assets/configs/api';
-import imageee from "../../../../../resources/image/huit/img_backgroud.jpg"
-import { Image } from 'primereact/image';
-import { Card } from 'primereact/card';
 import { TabPanel, TabView } from 'primereact/tabview';
 import BangTinTemp from './bangtintemp';
 import { DataTable } from 'primereact/datatable';
@@ -35,15 +32,17 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
         queryFn: async () => {
             const response: any = await request.get<ReSearchType>(`${API.reSearch.showone}${id}`);
             let responseData = response.data ?? [];
-            console.log("  queryKey: ['list-Research'],", responseData.result)
-            return responseData.result;
+            return responseData?.result;
         },
     });
-
+    const onSuccess = () => {
+        console.log("có chạy tới đích")
+        ResearchDetailQuery.refetch()
+    }
     // viết hàm sao
     return <TabView>
-        <TabPanel header="Bản tin">
-            <BangTinTemp reSearch={ResearchDetailQuery?.data} />
+        <TabPanel header="Bản tin" style={{ justifyContent: "center", display: 'flex' }}>
+            <BangTinTemp reSearch={ResearchDetailQuery?.data} onSuccess={onSuccess} />
         </TabPanel>
         <TabPanel header="Thành viên">
             <DataTable
@@ -62,8 +61,9 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
                         color: 'var(--bluegray-900)',
                         whiteSpace: 'nowrap',
                     }}
+
                     header={"Trưởng nhóm"}
-                    body={(vl: StudentType) => { return vl?.id === ResearchDetailQuery?.data?.group?.leaderId ? < i className="pi pi-check-circle" style={{ color: 'green' }}></i> : null }}
+                    body={(vl: StudentType) => { return vl?.id === ResearchDetailQuery?.data?.group?.leaderId ? < i className="pi pi-check-circle flex" style={{ color: 'green', justifyContent: "center" }}></i> : null }}
                 />
                 {fields.map((field, index) => < Column
                     key={index}

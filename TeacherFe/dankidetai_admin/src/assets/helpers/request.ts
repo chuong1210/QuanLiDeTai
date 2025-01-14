@@ -4,9 +4,6 @@ import _, { isArray } from "lodash";
 import API from '../configs/api';
 import * as cookies from "./cookies"
 import { ACCESS_TOKEN, ROLE_USER } from '../configs/request';
-import { redirect, useRouter } from 'next/navigation'
-import { NextResponse } from 'next/server';
-import { trimObjectProperties } from './string';
 import { jwtDecode } from 'jwt-decode';
 
 export const request = axios.create({
@@ -29,6 +26,7 @@ request.interceptors.request.use(
         else {
             throw new Error("You need login!")
         }
+        console.log(config)
         return config;
     },
     (error) => {
@@ -38,10 +36,12 @@ request.interceptors.request.use(
 
 request.interceptors.response.use(
     (response) => {
+        console.log(response)
         return response;
     },
     async (error: any) => {
-        if (error.response.data.code === 9993) { // token  hết hạn
+        console.error(error)
+        if (error?.response?.data?.code === 9993) { // token  hết hạn
             const token = cookies.get(ACCESS_TOKEN);
             if (token === null) {
                 throw new Error("you need login !!!")
@@ -49,16 +49,16 @@ request.interceptors.response.use(
             const req = await axios.post(API.base + API.auth.refresh, {
                 token: token
             })
-            const decoded: any = jwtDecode(req.data.result.accessToken);
+            const decoded: any = jwtDecode(req.data?.result.accessToken);
             const arr = decoded.scope.split(" ");
-            cookies.set(ACCESS_TOKEN, req.data.result.accessToken, { expires: new Date(decoded.exp * 1000 + 5 * 1000) })
-            //cookies.set(REFERSH_TOKEN, response.data.result.refreshToken)
+            cookies.set(ACCESS_TOKEN, req.data?.result.accessToken, { expires: new Date(decoded.exp * 1000 + 5 * 1000) })
+            //cookies.set(REFERSH_TOKEN, response.data?.result.refreshToken)
             cookies.set(ROLE_USER, arr, { expires: new Date(decoded.exp * 1000) })
 
             return
         }
         throw new Error(error.response.data.message)
-        // return Promise.reject(error);
+        return Promise.reject(error);
     },
 );
 
@@ -75,6 +75,14 @@ const post = <T = any>(
     configs?: AxiosRequestConfig,
 ): Promise<AxiosResponse<T, any>> => {
     const response = request.post(path, data, configs);
+    return response;
+};
+const patch = <T = any>(
+    path: string,
+    data?: any,
+    configs?: AxiosRequestConfig,
+): Promise<AxiosResponse<T, any>> => {
+    const response = request.patch(path, data, configs);
     return response;
 };
 
@@ -104,4 +112,4 @@ const defaultMeta: MetaType = {
 
 };
 const ROW_PER_PAGE = [10, 20, 30]
-export { get, post, remove, update, defaultMeta, ROW_PER_PAGE };
+export { get, post, patch, remove, update, defaultMeta, ROW_PER_PAGE };

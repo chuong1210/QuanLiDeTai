@@ -12,6 +12,7 @@ interface ConfirmModalType {
     cancelLabel?: string;
     acceptLabel?: string;
     rejectLabel?: string;
+    type?: "remove" | "comfirm";
     onAccept?: (data: any) => void;
     onReject?: () => void;
 }

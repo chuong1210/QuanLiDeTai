@@ -11,6 +11,8 @@ import API from '@/assets/configs/api';
 import moment from "moment"
 import { random } from 'lodash';
 import { INFO_USER } from '@/assets/configs/request';
+import { typeTeacherReSearch } from '@/assets/configs/general';
+import TimeStringConvert from '@/assets/helpers/TimeStringConvert';
 
 
 export default function Page({ params: { id } }: { params: { id: string } }) {
@@ -41,8 +43,9 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
         queryFn: async () => {
             const response: any = await request.get<ReSearchType>(`${API.reSearch.showone}${id}`);
             let responseData = response.data ?? [];
-            setListComment(responseData.result.feedbacks)
-            return responseData.result;
+            setListComment(responseData?.result.feedbacks)
+            console.log(responseData)
+            return responseData?.result;
         },
     });
     const handleCommentSubmit = () => {
@@ -56,17 +59,17 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
                     setListComment([{
                         id: random.toString(),
                         message: newComment,
-                        createBy: info ? info.id : "",
+                        createdBy: info ? info.id : "",
                         createdDate: Date.now().toString(),
-                        sendFromName: info ? info.teachers.name : "",
-                        sendFrom: info ? info.id : "",
+                        senderName: info ? info.teacher.name : "",
+                        senderCode: info ? info.id : "",
                     }, ...listComment])
                     close();
                     // toast.success("comment thành công");
                 },
             })
             // ListResearchListQuery.refetch()
-            //ListResearchListQuery.data.Comment.push(datareq);
+            //ListResearchListQuery.data?.Comment.push(datareq);
             setNewComment("");
             setShowCommentInput(false);
         }
@@ -79,8 +82,8 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
                     <div className='col-12 flex flex-column gap-3 mb-2'>
                         <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                             <div style={{ flex: 1 }}>
-                                <p style={{ fontWeight: 'bold', margin: '0' }}>{item.sendFromName}</p>
-                                <span style={{ color: '#606060', margin: '0', fontSize: '0.575rem' }}>{moment(item.createdDate, "M/D/YY, h:mm A").fromNow()}</span>
+                                <p style={{ fontWeight: 'bold', margin: '0' }}>{item.senderName}</p>
+                                <span style={{ color: '#606060', margin: '0', fontSize: '0.575rem' }}>{TimeStringConvert.convertDateComparteNow(item.createdDate)}</span>
                                 <p style={{ marginTop: '0.5rem' }}>
                                     {item.message}
                                 </p>
@@ -92,29 +95,30 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
         </div>
     );
     const tempReSearch = (data: ReSearchType) => {
-        const gvhd: TeacherType[] = data.teachers.filter(tc => data.instructorsIds.includes(tc.id ? tc.id : "false"))
+        console.log(data)
+        const gvhd = data?.researchTeachers?.find(tc => tc.typeTeacher.name === typeTeacherReSearch.gvhuongdan)?.teacher
         return <div className="card" style={{ backgroundColor: 'white', padding: "16px" }}>
             <div style={{ minWidth: '50vw' }} className='overflow-hidden'>
                 <form className='mt-2 formgrid grid'>
                     <div className='col-6 flex flex-column gap-3 mb-2'>
                         <label htmlFor="nameThesis">Tên đề tài</label>
-                        <InputText id="nameThesis" value={data.name} readOnly />
+                        <InputText id="nameThesis" value={data?.name} readOnly />
                     </div>
                     <div className='col-6 flex flex-column gap-3 mb-2'>
                         <label htmlFor="idBomon">Chuyên ngành yêu cầu</label>
-                        <InputText id="idBomon" value={data.subjects.map(item => item.name).join(" ")} readOnly />
+                        <InputText id="idBomon" value={data?.subject?.name} readOnly />
                     </div>
                     <div className='col-6 flex flex-column gap-3 mb-2'>
                         <label htmlFor="instructors">Giảng viên hướng dẫn</label>
-                        <InputText id="instructors" value={gvhd.map(item => item.name).join("")} readOnly />
+                        <InputText id="instructors" value={gvhd?.name} readOnly />
                     </div>
                     <div className='col-2 flex flex-column gap-3 mb-2 mr-6'>
                         <label htmlFor="minTV">Số lượng tối thiểu</label>
-                        <InputNumber id="minTV" value={data.minMembers} readOnly />
+                        <InputNumber id="minTV" value={data?.minMembers} readOnly />
                     </div>
                     <div className='col-2 flex flex-column gap-3 mb-2'>
                         <label htmlFor="maxTV">Số lượng tối đa</label>
-                        <InputNumber id="maxTV" value={data.maxMembers} readOnly />
+                        <InputNumber id="maxTV" value={data?.maxMembers} readOnly />
                     </div>
                     <div className='col-9 flex flex-column gap-3 mb-2'>
                         <label htmlFor="students">Sinh viên tham gia đề tài</label>
@@ -122,7 +126,7 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
                     </div>
                     <div className='col-12 flex flex-column gap-3 mb-2'>
                         <label htmlFor="details">Chi tiết</label>
-                        <div id="details" dangerouslySetInnerHTML={{ __html: data.detail }} />
+                        <div id="details" dangerouslySetInnerHTML={{ __html: data?.detail }} />
                     </div>
                 </form>
             </div>

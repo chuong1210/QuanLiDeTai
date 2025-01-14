@@ -1,40 +1,83 @@
 "use client"
 
-import API from "@/assets/configs/api";
-import { request } from "@/assets/helpers/request";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { AxiosError } from "axios";
-import Link from "next/link";
 import { Card } from "primereact/card"
-import { Dialog } from "primereact/dialog";
-import { InputText } from "primereact/inputtext";
 import { useRef, useState } from "react";
-import { Controller } from "react-hook-form";
 import FormInsert from "./formInsert";
 
-// tạo hàm sao
+import { OverlayPanel } from "primereact/overlaypanel";
+import { MenuItem } from "@/resources/components/UI";
+import HEADER_MENU from '@/assets/configs/header_menu'
+import { MenuItemType } from "@/assets/types/menu";
+import { useMutation } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import API from "@/assets/configs/api";
+import * as request from "@/assets/helpers/request";
+import { FormRefType, TypeSelected } from "@/assets/types/form";
+import Link from "next/link";
+import { toast } from "react-toastify";
+import Confirm from "@/resources/components/UI/Confirm";
+import { ConfirmModalRefType } from "@/assets/types/modal";
+import { useRouter } from "next/compat/router";
+import { typeTeacherReSearch } from "@/assets/configs/general";
 
-const BangTinTemp = ({ reSearch }: { reSearch?: ReSearchType }) => {
-    const formInsert = useRef<any>();
+const key = "công việc";
+const BangTinTemp = ({ reSearch, onSuccess }: { reSearch?: ReSearchType, onSuccess: () => void }) => {
+
+    const router = useRouter()
+
+    const actionsModalRef = useRef<OverlayPanel>(null);
+    const [setlected, setSelected] = useState<TypeSelected<JobAll>>()
+    const formRef = useRef<FormRefType<JobAll>>(null);
+    const confirmModalRef = useRef<ConfirmModalRefType>(null);
+
+    const JobCommitAssignment = useMutation<any, AxiosError<ResponseType>, JobAll>({
+        mutationFn: (data) => {
+            return request.update<JobAll>(API.job.CommitJobForStudent + data?.id, undefined);
+        },
+    });
+    const handleDuyetDeTai = (data: JobAll) => {
+        JobCommitAssignment.mutate(data, {
+            onSuccess: (_: any) => {
+                toast.success("Đã duyệt đề tài:" + data?.name);
+                onSuccess
+            },
+        })
+    }
+
+    const handleClickAction = (item: MenuItemType, job: JobAll) => {
+        if (item.code === "update") {
+            formRef.current?.show?.(job);
+            setSelected({ type: "edit", data: job })
+        }
+        if (item.code === "commit") {
+            confirmModalRef.current?.show?.("" as any, job, `Bạn có chắc muốn đánh dấu hoàn thành ${key} ${job.name}`);
+        }
+    }
+
+
     const itemTemplate = (job: JobAll, index: number) => {
         return (
-            job?.id && <div className="col-12" key={index} style={{ padding: '4px 0' }}>
-                <div className={`flex flex-column xl:flex-row xl:align-items-start p-3 gap-4 border-round ${index !== 0 ? 'border-top-1 surface-border' : ''}`} style={{ backgroundColor: 'white', border: '1px solid #ccc', position: 'relative' }}>
-                    <div className="flex flex-column align-items-center sm:align-items-start gap-3 col-12">
-                        <div
-                            className="text-2xl font-bold text-800"
-                            style={{ width: '100%', wordWrap: 'break-word', wordBreak: 'break-word', fontSize: '1rem' }} // Giảm font-size cho tiêu đề
-                        >
-                            <p style={{ cursor: "pointer", display: 'block' }}>
-                                {job.name}
-                            </p >
-                            {/* <Link href={`${ROUTER.job.tasks_assigned}/${thesis.id}`} style={{ cursor: "pointer", display: 'block', minWidth: '50vw' }}>
-                                {thesis.name}
-                            </Link > */}
-                        </div>
+            job?.id && <Card
+                key={index}
+                // subTitle={`Hết hạn: ${new Date(Date.now()).toLocaleString("vi-VN")}`}
+                className="mb-2"
+                style={{ marginLeft: "auto", width: "90%" }}
+            >
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "center" }}>
+                    <div className="flex" style={{ alignItems: 'center' }}>
+                        <i className="pi pi-book p-2 mx-2" style={{ color: "green", fontSize: "20px", borderRadius: "9999px", border: "2px solid green" }}></i>
+                        <Link href={router?.pathname + "/" + job.id} >
+                            <p>{reSearch?.researchTeachers?.find(tc => tc.typeTeacher.name === typeTeacherReSearch.gvhuongdan)?.teacher.name} vừa giao nhiệm vụ: {job.name}</p>
+                        </Link>
                     </div>
+                    <i className="pi pi-ellipsis-v" onClick={(e) => actionsModalRef?.current?.toggle(e)}></i>
                 </div>
-            </div >
+                <OverlayPanel ref={actionsModalRef} className='p-0'>
+                    <ul>
+                        {HEADER_MENU.CLASS_ROOM_MENU().map(item => <MenuItem key={item.code} item={{ ...item, onItemClick: (_item) => handleClickAction(_item, job) }} />)}
+                    </ul>
+                </OverlayPanel>
+            </Card>
         );
     };
     const ListTemplate = ({ items }: { items?: JobAll[] }) => {
@@ -56,7 +99,6 @@ const BangTinTemp = ({ reSearch }: { reSearch?: ReSearchType }) => {
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
-
             paddingTop: "20%",
             maxWidth: "1000px",
             margin: "0 auto",
@@ -78,34 +120,49 @@ const BangTinTemp = ({ reSearch }: { reSearch?: ReSearchType }) => {
                 <h5>{reSearch?.code}</h5>
             </div>
         </div>
-        <div className='flex' style={{
-            margin: "auto",
-            marginLeft: "4.7rem",
+        <div className='flex mx-auto' style={{
+            // margin: "auto",
+            // marginLeft: "4.7rem",
             maxWidth: "1000px",
-            justifyContent: "space-between",
+            // justifyContent: "space-between",
             marginTop: "1rem"
         }}>
             <Card className='col-3' style={{ maxHeight: "200px", position: "relative" }}>
                 <b>
                     Nhiệm vụ đến hạn :
+                    chỗ này bạn phải viết lại cái api get job nó có luôn cái thời gian hết hạn mới làm được chức năng trên
                 </b>
                 {/* <p>
                     Tuyệt vời bạn có 5 nhiệm vụ chưa hoàng thành
                 </p> */}
                 <p style={{ position: "absolute", bottom: "12px", right: "32px", cursor: "pointer", textDecorationLine: "underline" }} onClick={() => {
-                    // console.log(ListResearch?ListQuery?.data);
-                    formInsert.current.show(reSearch.group?.id);
+                    formRef.current?.show?.(reSearch.group?.id as any);
+                    setSelected({ type: "create", data: undefined })
                 }}  >Giao nhiệm vụ</p>
             </Card>
-            <Card className='col-8' >
-                <ListTemplate items={reSearch.group?.jobGroups} />
-            </Card>
+            {/* <div className='col-9' > */}
+            <ListTemplate items={reSearch.group?.jobGroups} />
+            {/* </div> */}
         </div>
         <FormInsert
-            type="detail"
-            title={"Giao nhiệm vụ"}
-            onSuccess={() => { }}
-            ref={formInsert}
+            type={setlected?.type || "detail"}
+            onSuccess={() => {
+                // console.log("có chạy trang bảng tin")
+                onSuccess()
+            }}
+            data={setlected?.data}
+            title={`${setlected?.type === "detail" ?
+                `Thông tin ${key} ${setlected?.data?.name || ""}`
+                : setlected?.type === "create" ?
+                    `Thêm ${key} mới` :
+                    `Chỉnh sửa thông tin ${key} ${setlected?.data?.name || ""}`}`}
+            ref={formRef} />
+        <Confirm
+            ref={confirmModalRef}
+            onAccept={handleDuyetDeTai}
+            acceptLabel={'confirm'}
+            rejectLabel={'cancel'}
+            type="comfirm"
         />
     </div>
 }

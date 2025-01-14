@@ -19,20 +19,20 @@ export interface ResearchParams {
     note: string;
     minMembers: number;
     maxMembers: number;
-    instructorsIds: string[];
+    instructorsIds?: string;
     detail: string;
-    stage: number;
-    schoolYear: string;
+    // stage: number;
+    // schoolYear: string;
 }
 const defaultValues: ResearchParams = {
     name: "",
     minMembers: 1,
     note: "",
     maxMembers: 3,
-    instructorsIds: [],
+    instructorsIds: "",
     detail: "",
-    stage: 1,
-    schoolYear: "2024-2025"
+    // stage: 1,
+    // schoolYear: "2024-2025"
 }
 const schema = yup.object({
     name: yup.string().required(),
@@ -40,7 +40,7 @@ const schema = yup.object({
 
     minMembers: yup.number().required().min(1),
     maxMembers: yup.number().required().moreThan(yup.ref("minMembers")),
-    instructorsIds: yup.array().required(),
+    instructorsIds: yup.string(),
     // students: yup.array().test('check-students', 'Invalid number of students', function (value) {
     //     const { minMembers, maxMembers } = this.parent;
     //     //return //!value || (value.length >= minMembers && value.length <= maxMembers);
@@ -48,8 +48,8 @@ const schema = yup.object({
     //         return (value.length >= minMembers && value.length <= maxMembers);
     //     } else { return true }
     // }),
-    stage: yup.number().required(),
-    schoolYear: yup.string().required(),
+    // stage: yup.number().required(),
+    // schoolYear: yup.string().required(),
     detail: yup.string().required(),
 })
 
@@ -78,8 +78,8 @@ const Form = forwardRef<FormRefType<ReSearchType>, FormType<ReSearchType>>(({ ty
         queryKey: ['list-Teacher'],
         queryFn: async () => {
             const response: any = await request.get<TeacherType[]>(API.teachers.getAllNoParams);
-            //console.log(response.data.result)
-            return response.data.result || [];
+            //console.log(response.data?.result)
+            return response.data?.result || [];
         },
     });
 
@@ -87,8 +87,8 @@ const Form = forwardRef<FormRefType<ReSearchType>, FormType<ReSearchType>>(({ ty
     const show = async (data?: ReSearchType) => {
         setVisible(true);
         if (data) {
-            const req: any = await request.get<ResearchParams>(API.reSearch.showone + data.id);
-            reset(req.data.result);
+            const req: any = await request.get<ResearchParams>(API.reSearch.showone + data?.id);
+            reset(req.data?.result);
         } else {
             reset(defaultValues);
 
@@ -98,28 +98,14 @@ const Form = forwardRef<FormRefType<ReSearchType>, FormType<ReSearchType>>(({ ty
     };
 
 
-    const onSubmit = (data: {
-        students?: string[] | undefined;
-        detail?: string;
-        name: string;
-        minMembers: number;
-        maxMembers: number;
-        note?: string;
-        stage: number;
-        schoolYear: string;
-        instructorsIds: string[];
-    }) => {
-
+    const onSubmit = (data: any) => {
         const req = {
-            name: data.name,
-            detail: data.detail,
-            notes: data.note,
-            maxMembers: data.maxMembers,
-            minMembers: data.minMembers,
-            instructorsIds: data.instructorsIds,
-            thesisAdvisorId: "",
-            stage: data.stage,
-            schoolYear: data.schoolYear,
+            name: data?.name,
+            detail: data?.detail,
+            notes: data?.note,
+            maxMembers: data?.maxMembers,
+            minMembers: data?.minMembers,
+            subInstructorId: data?.instructorsIds,
         }
         ReSearchMutation.mutate(req, {
             onSuccess: (response: any) => {
@@ -185,10 +171,10 @@ const Form = forwardRef<FormRefType<ReSearchType>, FormType<ReSearchType>>(({ ty
                     <Controller
                         name={'instructorsIds'}
                         control={control}
-                        render={({ field, fieldState }) => <MultiSelect
+                        render={({ field, fieldState }) => <Dropdown
                             id={`form_data_${field.name}`}
                             value={field.value ? field.value : undefined}
-                            options={TeacherQuery.data?.map((t) => ({ label: `${t.name},msgv:${t.code}`, value: t.id }))}
+                            options={TeacherQuery.data?.map((t) => ({ label: `${t.name} - ${t.code}`, value: t.id }))}
                             label={"Giảng viên phụ trợ"}
                             placeholder={"Giảng viên phụ trợ"}
                             errorMessage={fieldState.error?.message}
@@ -226,7 +212,7 @@ const Form = forwardRef<FormRefType<ReSearchType>, FormType<ReSearchType>>(({ ty
                     />
                 </div>
 
-                <div className='col-2 flex flex-column gap-3 mb-2 mr-6'>
+                {/* <div className='col-2 flex flex-column gap-3 mb-2 mr-6'>
                     <Controller
                         name={"schoolYear"}
                         control={control}
@@ -253,7 +239,7 @@ const Form = forwardRef<FormRefType<ReSearchType>, FormType<ReSearchType>>(({ ty
                             onChange={field.onChange}
                         />}
                     />
-                </div>
+                </div> */}
 
                 <div className='col-12 flex flex-column gap-3 mb-2'>
                     <Controller

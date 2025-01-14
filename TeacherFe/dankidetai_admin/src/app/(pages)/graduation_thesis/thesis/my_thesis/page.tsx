@@ -15,7 +15,9 @@ import API from "@/assets/configs/api";
 import FormInsert from "./formInsert";
 import { MetaType, ParamType } from "@/assets/types/request";
 import { Paginator, PaginatorPageChangeEvent } from "primereact/paginator";
-export const key = "dề tài"
+import { statusRsE, typeTeacherReSearch } from "@/assets/configs/general";
+import FormHD, { ResearchAdvisorId } from "./formHD";
+export const key = "đề tài"
 interface fieldsType {
   field: string;
   code: 'note' | "name" | "minMembers" | "maxMembers" | "stage" | "schoolYear" | "detail";
@@ -33,6 +35,8 @@ export const fields: fieldsType[] = [
 export default function Page() {
   const [setlected, setSelected] = useState<TypeSelected<ReSearchType>>()
   const formRef = useRef<FormRefType<ReSearchType>>(null);
+  const [setlectedHD, setSelectedHD] = useState<TypeSelected<ResearchAdvisorId>>()
+  const formRefHD = useRef<FormRefType<ResearchAdvisorId>>(null);
   const formInsert = useRef<any>();
   const confirmModalRef = useRef<ConfirmModalRefType>(null);
 
@@ -48,19 +52,29 @@ export default function Page() {
     queryKey: ['list-Research'],
     queryFn: async () => {
       const response: any = await request.get<ReSearchType[]>(API.reSearch.showall_my_research, {
-        params: paramsRef.current
-      });
-      let responseData = response.data.result.responses ?? [];
-      if (response.data.result.page && response.data.result.totalPages) {
-        setMeta({
-          currentPage: response.data.result.page,
-          hasNextPage: response.data.result.page + 1 === response.data.result.totalPages ? false : true,
-          hasPreviousPage: response.data.result.page - 1 === 0 ? false : true,
-          limit: paramsRef.current.limit,
-          totalPages: response.data.result.totalPages,
-        });
+        params: { ...paramsRef.current, roleThesisAdvisor: true, roleInstructor: true },
 
+      });
+      console.log(response)
+      let responseData = response?.data?.result.responses ?? [];
+      if (response?.data?.result.page && response?.data?.result.totalPages) {
+        setMeta({
+          currentPage: response?.data?.result.page,
+          hasNextPage: response?.data?.result.page + 1 === response?.data?.result.totalPages ? false : true,
+          hasPreviousPage: response?.data?.result.page - 1 === 0 ? false : true,
+          limit: paramsRef.current.limit,
+          totalPages: response?.data?.result.totalPages,
+        });
       }
+      responseData = responseData.map((item: ReSearchType) => {
+        return {
+          ...item,
+          exitAdvisor: !!item?.researchTeachers?.find((chhecl: any) => chhecl.typeTeacher.name === typeTeacherReSearch.gvphanbien),
+          exitCoucli: !!item?.researchTeachers?.find((chhecl: any) => chhecl.typeTeacher.name === typeTeacherReSearch.hoidong)
+
+        }
+      })
+      console.log(responseData)
       return responseData || [];
 
     },
@@ -82,37 +96,41 @@ export default function Page() {
               style={{ width: '100%', wordWrap: 'break-word', wordBreak: 'break-word', fontSize: '1.5rem' }} // Giảm font-size cho tiêu đề
             >
               <span style={{ display: 'block', minWidth: '50vw' }}>
-                {thesis.name}
+                {thesis?.name}
               </span>
             </div>
             <div className="flex align-items-center gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin khác */}
               <span className="flex align-items-center gap-2">
-                <span className="font-semibold">Mã đề tài: {thesis.code}</span>
+                <span className="font-semibold">Mã đề tài: {thesis?.code}</span>
               </span>
-              <Tag value={thesis.status} severity={thesis.status === "DE" || thesis.status === "PA" ? 'danger' : 'success'}></Tag>
+              <span className="font-semibold text-nowrap" style={{ maxWidth: "200px" }}>Số lượng thành viên:  {`${thesis.minMembers} - ${thesis.maxMembers}`}</span>
+              <Tag value={thesis.status} severity={thesis.status === statusRsE.DE || thesis.status === statusRsE.PA ? 'danger' : 'success'}></Tag>
             </div>
             <div className="flex align-items-center gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin khác */}
-              <span className="font-semibold">Nhóm chuyên ngành:</span> {thesis.subjects.map(item => item.name + " ")}
+              <span className="font-semibold">Nhóm chuyên ngành:</span> {thesis?.subject?.name}
             </div>
-
+            <div className="flex align-items-center gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin khác */}
+              <span className="font-semibold">Giảng viên hướng dẫn:</span> {thesis?.researchTeachers?.find(tc => tc.typeTeacher.name === typeTeacherReSearch.gvhuongdan)?.teacher?.name}
+            </div>
           </div>
           <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-2 gap-3 col-4" style={{ minHeight: "120px" }}>
-            <div className="flex flex-column align-items-center sm:align-items-start gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin giảng viên và nhóm chuyên ngành */}
-              <div className="flex align-items-center gap-3">
-                {/* <span className="font-semibold">Giảng viên:</span> {thesis.teachers.map(item => item.name + ",")} */}
-              </div>
-              <div className="flex align-items-center gap-3">
-                {/* <span className="font-semibold">Số lượng TV:</span> {thesis.minMembers}-{thesis.maxMembers} */}
-              </div>
-              <div className="flex align-items-center gap-3">
-                {/* <span className="font-semibold">Nhóm chuyên ngành:</span> {thesis.subjects.map(item => item.name + ",")} */}
-              </div>
-            </div>
             <div className="flex gap-2 sm:gap-1" style={{ position: 'absolute', bottom: '16px', right: '16px' }}>
-              <span style={{ textDecoration: "underline", fontSize: '1rem', marginRight: "2px", cursor: "pointer" }} onClick={() => {
+              {thesis.status === statusRsE.PA && <span style={{ textDecoration: "underline", fontSize: '1rem', marginRight: "2px", cursor: "pointer" }} onClick={() => {
                 formRef.current?.show?.(thesis);
                 setSelected({ type: "edit", data: thesis })
-              }}>Thay đổi</span>
+              }}>Thay đổi</span>}
+              {!thesis.exitAdvisor && thesis.status === statusRsE.AS && <span style={{ textDecoration: "underline", fontSize: '1rem', marginRight: "2px", cursor: "pointer" }} onClick={() => {
+                formRefHD.current?.show?.(thesis);
+                setSelectedHD({ type: "edit", data: thesis })
+              }}>Thêm phản biện</span>}
+              {thesis.exitAdvisor && thesis.status === statusRsE.AS && <span style={{ textDecoration: "underline", fontSize: '1rem', marginRight: "2px", cursor: "pointer" }} onClick={() => {
+
+                formRefHD.current?.show?.({
+                  id: thesis?.id,
+                  advisorId: thesis?.researchTeachers?.find(tc => tc.typeTeacher.name === typeTeacherReSearch.gvphanbien)?.teacher.id
+                });
+                setSelectedHD({ type: "edit", data: thesis })
+              }}>Đổi phản biện</span>}
               <Link style={{ textDecoration: "underline", fontSize: '1rem' }} href={`/graduation_thesis/thesis/${thesis.id}`}>Chi tiết</Link> {/* Giảm font-size cho liên kết */}
             </div>
           </div>
@@ -120,10 +138,11 @@ export default function Page() {
       </div >
     );
   };
+
+
   const listTemplate = (items: ReSearchType[]) => {
     if (!items || items.length === 0) return null;
-
-    let list = items.map((thesis, index) => {
+    let list = items?.map((thesis, index) => {
       return itemTemplate(thesis, index);
     });
 
@@ -187,6 +206,16 @@ export default function Page() {
           onSuccess={() => { ListResearchListQuery.refetch() }}
           ref={formInsert}
         />
+        <FormHD
+          type={setlectedHD?.type || "detail"}
+          data={setlectedHD?.data}
+          onSuccess={() => ListResearchListQuery.refetch()}
+          title={`${setlectedHD?.type === "detail" ?
+            `Thông tin ${key}`
+            : setlectedHD?.type === "create" ?
+              `Thêm ${key} mới` :
+              `Chỉnh sửa thông tin ${key}`}`}
+          ref={formRefHD} />
       </div>
     </div>
   )

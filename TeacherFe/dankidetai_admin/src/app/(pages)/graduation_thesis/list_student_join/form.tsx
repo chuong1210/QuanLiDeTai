@@ -21,7 +21,7 @@ import { toast } from 'react-toastify';
 const defaultValues: StudentType = {
     code: '', name: "",
     myClass: '', email: "",
-    phoneNumber: "", subjectName: ""
+    phoneNumber: "", subjectId: ""
 }
 const schema = yup.object({
     code: yup.string().required(),
@@ -29,20 +29,20 @@ const schema = yup.object({
     myClass: yup.string().required(),
     email: yup.string().email().required(),
     phoneNumber: yup.string().min(8).max(11).required(),
-    //subjectName: yup.string().required()
+    subjectId: yup.string().required()
 
 })
 
 const Form = forwardRef<FormRefType<StudentType>, FormType<StudentType>>(({ type, title, data, onSuccess }, ref) => {
     const [visible, setVisible] = useState(false);
-    const { control, handleSubmit, reset, getValues } = useForm({
+    const { control, handleSubmit, reset } = useForm({
         resolver: yupResolver(schema) as Resolver<StudentType>, defaultValues: defaultValues
 
     });
 
     const StudentMutation = useMutation<any, AxiosError<ResponseType>, StudentType>({
         mutationFn: (data) => {
-            return type === "edit" ? request.update(API.students.update + `/${data.id}`, data) :
+            return type === "edit" ? request.update(API.students.update + `/${data?.id}`, data) :
                 request.post(API.students.insert_from_excel, { students: [data] })
         },
     });
@@ -53,8 +53,8 @@ const Form = forwardRef<FormRefType<StudentType>, FormType<StudentType>>(({ type
         queryKey: ['list-Subject'],
         queryFn: async () => {
             const response: any = await request.get<SubjectType[]>(API.subjects.getAllNoParams);
-            console.log(response)
-            return response.data.result || [];
+            // console.log(response)
+            return response.data?.result || [];
         },
     });
     const DepartmentQuery = useQuery<DepartmentType[], AxiosError<ResponseType>>({
@@ -64,7 +64,7 @@ const Form = forwardRef<FormRefType<StudentType>, FormType<StudentType>>(({ type
         queryFn: async () => {
             const response: any = await request.get<DepartmentType[]>(API.department.getAllNoParams);
 
-            return response.data.result || [];
+            return response.data?.result || [];
         },
     });
 
@@ -82,9 +82,9 @@ const Form = forwardRef<FormRefType<StudentType>, FormType<StudentType>>(({ type
     const onSubmit = (data: StudentType) => {
         const newData = {
             ...data,
-            chucVu: "HỌC SINH",
-            code: data.code
         }
+        // console.log(newData);
+
         StudentMutation.mutate(newData, {
             onSuccess: (response) => {
                 close();
@@ -191,13 +191,13 @@ const Form = forwardRef<FormRefType<StudentType>, FormType<StudentType>>(({ type
                         <div className='col-6 flex flex-column gap-3'>
 
                             <Controller
-                                name="subjectName"
+                                name="subjectId"
                                 control={control}
                                 render={({ field, fieldState }) => {
                                     return (
                                         <Dropdown
                                             id='form_data_industry_id'
-                                            options={SubjectsQuery.data?.map((t) => ({ label: t.name, value: t.name }))}
+                                            options={SubjectsQuery.data?.map((t) => ({ label: t.name, value: t.id }))}
                                             value={field.value}
                                             label={"Ngành"}
                                             placeholder={"Ngành"}

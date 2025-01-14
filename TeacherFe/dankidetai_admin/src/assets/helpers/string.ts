@@ -32,4 +32,22 @@ function trimObjectProperties(obj: any) {
     return obj
 }
 
-export { splitString, getDateNow, dateToString, trimObjectProperties }
+// write a function to check phone number properties return boolean , check string start with 03...09
+
+function isValidPhoneNumber(phone: string): boolean {
+    const phoneRegex = /^(?:\+84|0)(\d{9})$/;
+    return phoneRegex.test(phone);
+}
+
+
+// write a function to check email properties return boolean , check string end with @.com
+
+function isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+function isUUID(str: string): boolean {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(str);
+}
+export { isUUID, splitString, getDateNow, dateToString, trimObjectProperties, isValidEmail, isValidPhoneNumber }

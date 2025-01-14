@@ -14,7 +14,7 @@ import API from '@/assets/configs/api';
 import * as request from "@/assets/helpers/request"
 import { useSearchParams } from 'next/navigation';
 import { MetaType, ParamType } from '@/assets/types/request';
-import { roleE } from '@/assets/configs/general';
+import { roleE, statusRsE, typeTeacherReSearch } from '@/assets/configs/general';
 import { cookies } from '@/assets/helpers';
 import { ROLE_USER } from '@/assets/configs/request';
 import { toast } from 'react-toastify';
@@ -38,17 +38,17 @@ export default function Page() {
             });
             let responseData = response.data ?? [];
 
-            if (response.data.result.page && response.data.result.totalPages) {
+            if (response.data?.result.page && response.data?.result.totalPages) {
                 setMeta({
-                    currentPage: response.data.result.page,
-                    hasNextPage: response.data.result.page + 1 === response.data.result.totalPages ? false : true,
-                    hasPreviousPage: response.data.result.page - 1 === 0 ? false : true,
+                    currentPage: response.data?.result.page,
+                    hasNextPage: response.data?.result.page + 1 === response.data?.result.totalPages ? false : true,
+                    hasPreviousPage: response.data?.result.page - 1 === 0 ? false : true,
                     limit: paramsRef.current.limit,
-                    totalPages: response.data.result.totalPages,
+                    totalPages: response.data?.result.totalPages,
                 });
 
             }
-            return responseData.result.responses || [];
+            return responseData?.result.responses || [];
         },
     });
 
@@ -79,31 +79,18 @@ export default function Page() {
                             <span className="flex align-items-center gap-2">
                                 <span className="font-semibold">Mã đề tài: {thesis?.code}</span>
                             </span>
-                            <Tag value={thesis.status} severity={thesis.status === "DE" || thesis.status === "PA" ? 'danger' : 'success'}></Tag>
+                            <span className="font-semibold text-nowrap" style={{ maxWidth: "200px" }}>Số lượng thành viên:  {`${thesis.minMembers} - ${thesis.maxMembers}`}</span>
+                            <Tag value={thesis.status} severity={thesis.status === statusRsE.DE || thesis.status === statusRsE.PA ? 'danger' : 'success'}></Tag>
                         </div>
                         <div className="flex align-items-center gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin khác */}
-                            <span className="font-semibold">Nhóm chuyên ngành:</span> {thesis?.subjects?.map(item => item.name + " ")}   <span className="font-semibold">Số lượng thành viên:</span> {`${thesis.minMembers} - ${thesis.maxMembers}`}
+                            <span className="font-semibold">Nhóm chuyên ngành:</span> {thesis?.subject?.name}
                         </div>
                         <div className="flex align-items-center gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin khác */}
-                            <span className="font-semibold">Giảng viên hướng dẫn:</span> {thesis?.teachers?.map(tc => { if (tc.code) return tc.name })}
+                            <span className="font-semibold">Giảng viên hướng dẫn:</span> {thesis?.researchTeachers?.find(tc => tc.typeTeacher.name === typeTeacherReSearch.gvhuongdan)?.teacher?.name}
                         </div>
                     </div>
                     <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-2 gap-3 col-4" style={{ minHeight: "120px" }}>
-                        <div className="flex flex-column align-items-center sm:align-items-start gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin giảng viên và nhóm chuyên ngành */}
-                            <div className="flex align-items-center gap-3">
-                                {/* <span className="font-semibold">Giảng viên:</span> {thesis.teachers.map(item => item.name + ",")} */}
-                            </div>
-                            <div className="flex align-items-center gap-3">
-                                {/* <span className="font-semibold">Số lượng TV:</span> {thesis.minMembers}-{thesis.maxMembers} */}
-                            </div>
-                            <div className="flex align-items-center gap-3">
-                                {/* <span className="font-semibold">Nhóm chuyên ngành:</span> {thesis.subjects.map(item => item.name + ",")} */}
-                            </div>
-
-                        </div>
-
                         <div className="flex gap-2 sm:gap-1" style={{ position: 'absolute', bottom: '16px', right: '16px' }}>
-
                             <Link style={{ textDecoration: "underline", fontSize: '1rem' }} href={`/graduation_thesis/thesis/${thesis.id}`}>Chi tiết</Link> {/* Giảm font-size cho liên kết */}
                         </div>
                     </div>

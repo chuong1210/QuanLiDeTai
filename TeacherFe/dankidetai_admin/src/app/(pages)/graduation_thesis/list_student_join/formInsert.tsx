@@ -6,7 +6,7 @@ import * as request from "@/assets/helpers/request"
 import { fields, key } from './page';
 import { Button } from 'primereact/button';
 import XLSX from '@/assets/helpers/XLSX';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import API from '@/assets/configs/api';
 import { toast } from 'react-toastify';
@@ -17,13 +17,20 @@ import { FaInfoCircle } from 'react-icons/fa';
 import { Paginator, PaginatorPageChangeEvent } from 'primereact/paginator';
 import { MetaType } from '@/assets/types/request';
 import { Loader } from '@/resources/components/UI';
-import { trimObjectProperties } from '@/assets/helpers/string';
+import { isValidEmail, isValidPhoneNumber, trimObjectProperties } from '@/assets/helpers/string';
+import { CheckE } from '@/assets/configs/general';
 
+// const fieldsDefault = [{
+//     code: '2001221382', name: "Trần Vinh Hiển",
+//     myClass: '13DHTH08', email: "vinhhien12z@gmail.com",
+//     phoneNumber: "0344197279", subjectName: "Kỹ thuật phần mềm",
+//     departmentName: "Công nghệ thông tin"
+// }];
 const fieldsDefault = [{
-    maSo: '2001221382', name: "Trần Vinh Hiển",
-    myClass: '13DHTH08', email: "vinhhien12z@gmail.com",
-    phoneNumber: "0344197279", subjectName: "Kỹ thuật phần mềm",
-    departmentName: "Công nghệ thông tin"
+    "Mã Số": '2001221382', "Họ Tên": "Trần Vinh Hiển",
+    "Lớp": '13DHTH08', "Email": "vinhhien12z@gmail.com",
+    "Số Điện Thoại": "0344197279", "Chuyên Ngành": "Kỹ thuật phần mềm",
+    "Khoa": "Công nghệ thông tin"
 }];
 
 const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, ref) => {
@@ -45,21 +52,35 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
         show,
         close
     }));
+    const SubjectsQuery = useQuery<SubjectType[], AxiosError<ResponseType>>({
+        // enabled: false,
+        // refetchOnWindowFocus: false,
+        queryKey: ['list-Subject'],
+        queryFn: async () => {
+            const response: any = await request.get<SubjectType[]>(API.subjects.getAllNoParams);
+            // console.log(response)
+            return response.data?.result || [];
+        },
+    });
+
     const StudentListMutationInsert = useMutation<any, AxiosError<ResponseType>, StudentType[]>({
         mutationFn: (data) => {
             return request.post(`${API.students.insert_from_excel}`, { students: data });
         },
     });
     const onAddStudentExcel = (data: StudentType[]) => {
-        const newData = data.map((item: any) => {
+
+        const newData = data?.map((item: any) => {
             delete item.STT;
+
             return trimObjectProperties({
                 ...item,
-                code: item.maSo.toString(),
+                // code: item.maSo.toString(),
                 chucVu: "HỌC SINH",
                 user_id: "",
             })
         })
+        // console.log(newData)
         StudentListMutationInsert.mutate(newData, {
             onSuccess: (data) => {
                 //StudentListQuery.refetch();
@@ -81,6 +102,18 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
         setMeta(e => ({ ...e, limit: event.rows }))
         //        StudentListQuery.refetch();
     };
+
+    const customCellRenderer = (rowData: any, fieldCode: string) => {
+        const cellValue = rowData[fieldCode]; // Lấy giá trị của ô hiện tại dựa vào `fieldCode`
+        if (cellValue === CheckE.ERROR) {
+            return (
+                <span style={{ color: "red", fontWeight: "bold" }}>
+                    {cellValue}
+                </span>
+            );
+        }
+        return cellValue;
+    };
     return (
         <Dialog
             header={title}
@@ -92,10 +125,10 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
         >
             {StudentListMutationInsert.isPending && <Loader />}
             <>
-
                 <h3>Thực hiện thêm {key} vào đợt đăng kí Khóa luận</h3>
                 <div >
                     <Button className="my-3" onClick={() => XLSX.handleExportFile(fieldsDefault, "FilestudentExample")}>Export fie mẫu</Button>
+                    {/* <Button className="my-3" onClick={() => ExcelWithDropList.createExcelWithDropList(fieldsDefault, ["Option 1", "Option 2", "Option 3"], "FilestudentExample")} >Export fie mẫu</Button> */}
                     <h3>chose file</h3>
                     <InputFile
                         accept='.xlsx ,.xls'
@@ -103,7 +136,20 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
                         multiple={true}
                         onChange={(e) => {
                             XLSX.handleImportFile(e, (data) => {
-                                setStudentOnExcel(data)
+                                setStudentOnExcel(data?.map((row: any) => {
+                                    const subjectNames = SubjectsQuery?.data?.map((vl) => vl.name);
+                                    let Dulieu: StudentType = {
+                                        code: row["Mã Số"],
+                                        name: row["Họ Tên"],
+                                        myClass: row["Lớp"],
+                                        email: isValidEmail(row["Email"].trim()) ? row["Email"] : CheckE.ERROR,
+                                        phoneNumber: isValidPhoneNumber(row["Số Điện Thoại"].trim()) ? row["Số Điện Thoại"] : CheckE.ERROR,
+                                        subjectName: subjectNames?.includes(row["Chuyên Ngành"].trim()) ? row["Chuyên Ngành"] : CheckE.ERROR,
+                                        departmentName: row["Khoa"],
+                                        subjectId: SubjectsQuery?.data?.find(subj => subj?.name === row["Chuyên Ngành"].trim())?.id
+                                    }
+                                    return Dulieu
+                                }))
                             })
                         }}
                         onRemove={() => {
@@ -133,6 +179,7 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
                         }}
                         field={field.code}
                         header={field.field}
+                        body={(dulieu) => customCellRenderer(dulieu, field.code)}
                     />)}
 
 

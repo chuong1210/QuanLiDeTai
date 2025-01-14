@@ -10,7 +10,7 @@ import { AxiosError } from 'axios';
 import API from '@/assets/configs/api';
 import * as request from "@/assets/helpers/request"
 import { MetaType, ParamType } from '@/assets/types/request';
-import { roleE } from '@/assets/configs/general';
+import { roleE, statusRsE } from '@/assets/configs/general';
 import { cookies } from '@/assets/helpers';
 import { ROLE_USER } from '@/assets/configs/request';
 import { toast } from 'react-toastify';
@@ -26,25 +26,34 @@ export default function Page() {
 
     const ListResearchListQuery = useQuery<ReSearchType[], AxiosError<ResponseType>>({
 
-        queryKey: ['list-Research'],
+        queryKey: ['list-my-Research-AS'],
         queryFn: async () => {
-
             const response: any = await request.get<ReSearchType[]>(`${API.reSearch.showall_my_research}`, {
-                params: paramsRef.current
+                params: {
+                    ...paramsRef.current,
+                    roleCouncil: true,
+                    status: "AS"
+                }
             });
+            // const response: any = await request.get<ReSearchType[]>(`${API.reSearch.showAll}`, {
+            //     params: {
+            //         ...paramsRef.current,
+            //         search: "status:AS"
+            //     }
+            // });
             let responseData = response.data ?? [];
 
-            if (response.data.result.page && response.data.result.totalPages) {
+            if (response.data?.result.page && response.data?.result.totalPages) {
                 setMeta({
-                    currentPage: response.data.result.page,
-                    hasNextPage: response.data.result.page + 1 === response.data.result.totalPages ? false : true,
-                    hasPreviousPage: response.data.result.page - 1 === 0 ? false : true,
+                    currentPage: response.data?.result.page,
+                    hasNextPage: response.data?.result.page + 1 === response.data?.result.totalPages ? false : true,
+                    hasPreviousPage: response.data?.result.page - 1 === 0 ? false : true,
                     limit: paramsRef.current.limit,
-                    totalPages: response.data.result.totalPages,
+                    totalPages: response.data?.result.totalPages,
                 });
 
             }
-            return responseData.result.responses || [];
+            return responseData?.result.responses || [];
         },
     });
 
@@ -61,9 +70,9 @@ export default function Page() {
         },
     });
     const handleDuyetDeTai = (data: ReSearchType) => {
-        MarkApprovedMutation.mutate(data.id, {
+        MarkApprovedMutation.mutate(data?.id, {
             onSuccess: (_: any) => {
-                toast.success("Đã duyệt đề tài:" + data.name);
+                toast.success("Đã duyệt đề tài:" + data?.name);
                 ListResearchListQuery.refetch()
             },
         })
@@ -86,12 +95,12 @@ export default function Page() {
                             <span className="flex align-items-center gap-2">
                                 <span className="font-semibold">Mã đề tài: {thesis.code}</span>
                             </span>
-                            <Tag value={thesis.status} severity={thesis.status === "DE" || thesis.status === "PA" ? 'danger' : 'success'}></Tag>
+                            <Tag value={thesis.status} severity={thesis.status === statusRsE.DE || thesis.status === statusRsE.PA ? 'danger' : 'success'}></Tag>
                         </div>
                         <div className="flex align-items-center gap-3" style={{ fontSize: '1rem' }}> {/* Giảm font-size cho các thông tin khác */}
-                            <span className="font-semibold">Nhóm chuyên ngành:</span> {thesis.subjects.map(item => item.name + " ")}
+                            <span className="font-semibold">Nhóm chuyên ngành:</span> {thesis?.subject?.name}
                         </div>
-                        {(thesis.status === "PA") && (cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.truongkhoa) || cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.truongbomon)) && (
+                        {(thesis.status === statusRsE.PA) && (cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.truongkhoa) || cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.truongbomon)) && (
                             <div > {/* Giảm font-size cho các thông tin khác */}
                                 <Button onClick={() => handleDuyetDeTai(thesis)}>Duyệt đề tài</Button>
                             </div>
@@ -133,7 +142,7 @@ export default function Page() {
     return (
 
         <div className="card">
-            {ListResearchListQuery.data &&
+            {ListResearchListQuery.data && ListResearchListQuery.data?.length > 0 &&
                 <div>
                     {listTemplate(ListResearchListQuery.data)}
                     <Paginator

@@ -8,7 +8,9 @@ const ROUTER = {
     home: "/",
     master: {
         department: "/admin/department",
-        subject: "/admin/subject"
+        subject: "/admin/subject",
+        council: "/admin/council",
+        systemenv: "/admin/systemenv",
     },
     source_data: {
         students: "/source_data/studentList",

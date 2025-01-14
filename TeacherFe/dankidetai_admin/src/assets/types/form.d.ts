@@ -22,6 +22,7 @@ interface InputProps {
 
 interface InputTextProps extends InputProps {
     value?: string;
+    focus?: boolean;
 }
 
 interface InputNumberProps extends InputProps {
@@ -116,7 +117,7 @@ interface InputFileProps extends InputProps {
 }
 
 interface FormRefType<T> {
-    show?: (data?: T) => void;
+    show?: (data?: T, type?: "detail" | "edit" | "create") => void;
     close?: () => void;
 }
 

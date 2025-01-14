@@ -45,15 +45,15 @@ function Page() {
             const response = await request.get<DepartmentType[]>(`${API.department.getAll}`, {
                 params: paramsRef.current
             });
-            let responseData = response.data.result.responses ?? [];
+            let responseData = response.data?.result.responses ?? [];
 
-            if (response.data.result.currentPage && response.data.result.totalPages) {
+            if (response.data?.result.currentPage && response.data?.result.totalPages) {
                 setMeta({
-                    currentPage: response.data.result.currentPage,
-                    hasNextPage: response.data.result.currentPage + 1 === response.data.result.totalPages ? false : true,
-                    hasPreviousPage: response.data.result.currentPage - 1 === 0 ? false : true,
+                    currentPage: response.data?.result.currentPage,
+                    hasNextPage: response.data?.result.currentPage + 1 === response.data?.result.totalPages ? false : true,
+                    hasPreviousPage: response.data?.result.currentPage - 1 === 0 ? false : true,
                     limit: paramsRef.current.limit,
-                    totalPages: response.data.result.totalPages,
+                    totalPages: response.data?.result.totalPages,
                 });
 
             }
@@ -63,7 +63,7 @@ function Page() {
 
     const DeparmentMutation = useMutation<any, AxiosError<ResponseType>, DepartmentType>({
         mutationFn: (data) => {
-            return request.remove(`${API.department.delete}`, { data: [data.id] });
+            return request.remove(`${API.department.delete}`, { data: [data?.id] });
         },
     });
 
@@ -89,7 +89,7 @@ function Page() {
                     //         <i
                     //             className='pi pi-trash hover:text-red-600 cursor-pointer'
                     //             onClick={(e) => {
-                    //                 confirmModalRef.current?.show?.(e, data, `Bạn có chắc muốn xóa ${key} ${data.name}`);
+                    //                 confirmModalRef.current?.show?.(e, data, `Bạn có chắc muốn xóa ${key} ${data?.name}`);
                     //             }}
                     //         />
                     //     </>

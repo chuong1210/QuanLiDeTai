@@ -8,10 +8,10 @@ interface ItypePoint {
     name: string
 }
 interface Ipoint {
-    id: string,
-    point: number,
-    teacherId: string,
-    typePoint: ItypePoint
+    id?: string,
+    point?: number,
+    teacherId?: string,
+    typePoint?: ItypePoint
 
 }
 

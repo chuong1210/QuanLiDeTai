@@ -5,7 +5,7 @@ import Loader from "@/resources/components/UI/loader";
 const Loading = () => {
     return (
         <div className='absolute top-0 left-0 right-0 bottom-0 bg-white'>
-            <Loader show={true} />
+            {/* <Loader show={true} /> */}
         </div>
     );
 };

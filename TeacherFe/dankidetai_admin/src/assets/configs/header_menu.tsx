@@ -24,4 +24,34 @@ const USER_MENU = (): MenuItemType[] => {
     ];
 };
 
-export default USER_MENU;
+const CLASS_ROOM_MENU = (): MenuItemType[] => {
+    const actionsClassRoom = [
+        {
+            code: 'update',
+            parent: 'update',
+            label: 'Chỉnh sửa',
+        },
+        {
+            code: 'commit',
+            parent: 'commit',
+            label: 'Xác nhận hoàn thành',
+        },
+        {
+            code: 'delete',
+            parent: 'delete',
+            label: 'Xóa yêu càu',
+        },
+    ];
+    return actionsClassRoom
+};
+const TASKS_ASSIGNED = (): MenuItemType[] => {
+    const actionsClassRoom = [
+        {
+            code: 'update',
+            parent: 'update',
+            label: 'Chỉnh sửa',
+        }
+    ];
+    return actionsClassRoom
+};
+export default { USER_MENU, CLASS_ROOM_MENU, TASKS_ASSIGNED };

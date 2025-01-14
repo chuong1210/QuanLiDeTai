@@ -27,13 +27,13 @@ import { MetaType, ParamType } from "@/assets/types/request";
 
 interface fieldsType {
     field: string;
-    code: 'id' | "name" | "departments.name";
+    code: 'id' | "name" | "department.name";
     typeInput: string
 }
 export const fields: fieldsType[] = [
     // { field: "id", code: "id", typeInput: "text" },
     { field: "Tên", code: "name", typeInput: "text" },
-    { field: "Ngành", code: "departments.name", typeInput: "text" }
+    { field: "Ngành", code: "department.name", typeInput: "text" }
 ]
 export const key = "bộ môn"
 function Page() {
@@ -56,25 +56,25 @@ function Page() {
             const response = await request.get<SubjectType[]>(`${API.subjects.getAll}`, {
                 params: paramsRef.current
             });
-            let responseData = response.data.result.responses ?? [];
-            console.log(responseData)
-            if (response.data.result.currentPage && response.data.result.totalPages) {
+            let responseData = response.data?.result.responses ?? [];
+            if (response.data?.result.currentPage && response.data?.result.totalPages) {
                 setMeta({
-                    currentPage: response.data.result.currentPage,
-                    hasNextPage: response.data.result.currentPage + 1 === response.data.result.totalPages ? false : true,
-                    hasPreviousPage: response.data.result.currentPage - 1 === 0 ? false : true,
+                    currentPage: response.data?.result.currentPage,
+                    hasNextPage: response.data?.result.currentPage + 1 === response.data?.result.totalPages ? false : true,
+                    hasPreviousPage: response.data?.result.currentPage - 1 === 0 ? false : true,
                     limit: paramsRef.current.limit,
-                    totalPages: response.data.result.totalPages,
+                    totalPages: response.data?.result.totalPages,
                 });
 
             }
+            console.log(responseData)
             return responseData || [];
         },
     });
 
     const SubjectMutation = useMutation<any, AxiosError<ResponseType>, SubjectType>({
         mutationFn: (data) => {
-            return request.remove(`${API.subjects.delete}`, { data: [data.id] });
+            return request.remove(`${API.subjects.delete}`, { data: [data?.id] });
         },
     });
 
@@ -97,12 +97,12 @@ function Page() {
                                     setSelected({ type: "edit", data: data })
                                 }}
                             />
-                            <i
+                            {/* <i
                                 className='pi pi-trash hover:text-red-600 cursor-pointer'
                                 onClick={(e) => {
-                                    confirmModalRef.current?.show?.(e, data, `Bạn có chắc muốn xóa ${key} ${data.name}`);
+                                    confirmModalRef.current?.show?.(e, data, `Bạn có chắc muốn xóa ${key} ${data?.name}`);
                                 }}
-                            />
+                            /> */}
                         </>
                     )}
             </div>
@@ -135,6 +135,7 @@ function Page() {
 
             {cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.giaovu) &&
                 <>
+                    <h3 className=""> Quản lý {key}</h3>
                     <Button
                         label={`Thêm ${key} mới`}
                         icon='pi pi-plus'
@@ -145,7 +146,7 @@ function Page() {
                             setSelected({ type: "create", data: undefined })
                         }}
                     />
-                    <h3>Quản lý {key}</h3>
+
                 </>
             }
             <div >

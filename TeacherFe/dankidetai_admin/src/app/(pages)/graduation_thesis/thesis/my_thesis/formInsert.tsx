@@ -51,17 +51,17 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
         },
     });
     const onAddReSearchExcel = (data: ResearchParams[]) => {
-        const newData = data.map((item: ResearchParams) => {
+        const newData = data?.map((item: ResearchParams) => {
             return { ...item, instructorsIds: [] }
         })
-        ReSearchListMutationInsert.mutate(newData, {
-            onSuccess: (data) => {
-                //StudentListQuery.refetch();
-                close();
-                onSuccess?.(data);
-                toast.success("Thêm thành công");
-            },
-        })
+        // ReSearchListMutationInsert.mutate(newData, {
+        //     onSuccess: (data) => {
+        //         //StudentListQuery.refetch();
+        //         close();
+        //         onSuccess?.(data);
+        //         toast.success("Thêm thành công");
+        //     },
+        // })
     }
     return (
         <Dialog

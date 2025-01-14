@@ -6,12 +6,13 @@ interface Role {
 
 interface Teacher {
     id: string;
-    maSo: string;
+    // maSo: string;
     name: string;
     hocVi: string;
     email: string;
     phoneNumber: string;
     chucVu: string;
+    code: string;
 }
 
 interface UserLoginType {

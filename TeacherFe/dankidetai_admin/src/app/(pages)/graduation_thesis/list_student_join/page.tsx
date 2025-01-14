@@ -31,7 +31,7 @@ interface fieldsType {
     typeInput: string
 }
 export const fields: fieldsType[] = [
-    { field: "mssv", code: "code", typeInput: "text" },
+    { field: "Mã Số", code: "code", typeInput: "text" },
     { field: "Tên", code: "name", typeInput: "text" },
     { field: "Lớp", code: "myClass", typeInput: "text" },
     { field: "Email", code: "email", typeInput: "text" },
@@ -64,12 +64,13 @@ function Page() {
             const response = await request.get<StudentType[]>(`${API.students.getAll}`, {
                 params: paramsRef.current
             });
-            let responseData = response.data.result.responses ?? [];
-            console.table(responseData)
-            if (responseData.length > 0) {
-                responseData = responseData.map((student: any) => {
+            let responseData = response.data?.result.responses ?? [];
+            if (responseData?.length > 0) {
+                responseData = responseData?.map((student: any) => {
+
                     const newStudent = {
                         ...student,
+                        subjectId: student.subject.id,
                         subjectName: student.subject.name,
                         departmentName: student.subject.department.name
                     }
@@ -77,24 +78,24 @@ function Page() {
                     return newStudent
                 })
             }
-            if (response.data.result.currentPage && response.data.result.totalPages) {
+            if (response.data?.result.currentPage && response.data?.result.totalPages) {
                 setMeta({
-                    currentPage: response.data.result.currentPage,
-                    hasNextPage: response.data.result.currentPage + 1 === response.data.result.totalPages ? false : true,
-                    hasPreviousPage: response.data.result.currentPage - 1 === 0 ? false : true,
+                    currentPage: response.data?.result.currentPage,
+                    hasNextPage: response.data?.result.currentPage + 1 === response.data?.result.totalPages ? false : true,
+                    hasPreviousPage: response.data?.result.currentPage - 1 === 0 ? false : true,
                     limit: paramsRef.current.limit,
-                    totalPages: response.data.result.totalPages,
+                    totalPages: response.data?.result.totalPages,
                 });
 
             }
-            console.log(responseData)
+            // console.log(responseData)
             return responseData || [];
         },
     });
 
     const StudentListMutation = useMutation<any, AxiosError<ResponseType>, StudentType>({
         mutationFn: (data) => {
-            return request.remove(`${API.students.delete}`, { data: [data.id] });
+            return request.remove(`${API.students.delete}`, { data: [data?.id] });
         },
     });
 
@@ -119,7 +120,7 @@ function Page() {
                             {/* <i
                                 className='pi pi-trash hover:text-red-600 cursor-pointer'
                                 onClick={(e) => {
-                                    confirmModalRef.current?.show?.(e, data, `Bạn có chắc muốn xóa ${key} ${data.name}`);
+                                    confirmModalRef.current?.show?.(e, data, `Bạn có chắc muốn xóa ${key} ${data?.name}`);
                                 }}
                             /> */}
                         </>

@@ -38,7 +38,7 @@ const Form = forwardRef<FormRefType<DepartmentType>, FormType<DepartmentType>>((
 
             return type === "edit" ? request.update(`${API.department.update}/4`, JSON.stringify({
                 "name": "Công nghệ thông tin"
-            })) : request.post(API.department.insert, { name: data.name })
+            })) : request.post(API.department.insert, { name: data?.name })
         },
     });
     const show = (data?: DepartmentType) => {
@@ -70,46 +70,6 @@ const Form = forwardRef<FormRefType<DepartmentType>, FormType<DepartmentType>>((
         close
     }));
 
-    // const axios = require('axios');
-    // let dataa = JSON.stringify({
-    //     "name": "Công nghệ thông tin"
-    // });
-
-    // let config = {
-    //     method: 'put',
-    //     maxBodyLength: Infinity,
-    //     url: 'http://localhost:8888/departments/update/4',
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //         'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJnaWFvdnUxMjM0NSIsImlhdCI6MTcxMTQ1MTczMywiZXhwIjoxNzExNTM4MTMzfQ.JPV8eGXiRXrkN07-cpX9-sBu0ndBmJuI_C7zlPmQdhk'
-    //     },
-    //     data: dataa
-    // };
-
-    // axios.request(config)
-    //     .then((response: any) => {
-    //         console.log(JSON.stringify(response.data));
-    //     })
-    //     .catch((error: any) => {
-    //         console.log(error);
-    //     });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     return (
         <Dialog
             header={title}
@@ -124,7 +84,7 @@ const Form = forwardRef<FormRefType<DepartmentType>, FormType<DepartmentType>>((
                     <div className="p-col">
                         <Card>
                             <DataTable value={[data || []]}>
-                                <Column field="id" header="id" />
+                                {/* <Column field="id" header="id" /> */}
                                 <Column field="name" header="name" />
                             </DataTable>
                         </Card>
@@ -135,16 +95,19 @@ const Form = forwardRef<FormRefType<DepartmentType>, FormType<DepartmentType>>((
                             <Controller
                                 name="name"
                                 control={control}
-                                render={({ field, fieldState }) => (
-                                    <InputText
-                                        id='form_data_name'
-                                        value={field.value}
-                                        label={"Ngành"}
-                                        placeholder={"Ngành"}
-                                        errorMessage={fieldState.error?.message}
-                                        onChange={field.onChange}
-                                    />
-                                )}
+                                render={({ field, fieldState }) => {
+
+                                    return (
+                                        <InputText
+                                            id='form_data_name'
+                                            value={field.value}
+                                            label={"Ngành"}
+                                            placeholder={"Ngành"}
+                                            errorMessage={fieldState.error?.message}
+                                            onChange={field.onChange}
+                                        />
+                                    )
+                                }}
                             />
                         </div>
 

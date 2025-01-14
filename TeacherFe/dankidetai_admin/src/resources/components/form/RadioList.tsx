@@ -24,18 +24,18 @@ const RadioList = ({
 
     const Item = (data: OptionType) => {
         return (
-            <div key={data.value} className='flex align-items-center gap-2'>
+            <div key={data?.value} className='flex align-items-center gap-2'>
                 <PrimeRadioButton
-                    inputId={data.value?.toString()}
-                    value={data.value}
-                    checked={data.value === current}
+                    inputId={data?.value?.toString()}
+                    value={data?.value}
+                    checked={data?.value === current}
                     onChange={(e) => {
-                        setCurrent(data.value);
+                        setCurrent(data?.value);
                         onChange(e);
                     }}
                 />
 
-                <label htmlFor={data.value?.toString()}>{data.label}</label>
+                <label htmlFor={data?.value?.toString()}>{data?.label}</label>
             </div>
         );
     };

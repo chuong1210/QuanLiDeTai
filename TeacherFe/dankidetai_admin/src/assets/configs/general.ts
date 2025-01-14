@@ -88,4 +88,19 @@ enum typePoinsE {
 
 }
 
-export { DropdownValue, ChucVuValue, HocViValue, roleE, typePoinsE };
+enum statusRsE {
+    PA = "PA",
+    DE = "DE",
+    AS = "AS",
+    AP = "AP",
+
+}
+enum CheckE {
+    ERROR = "ERROR"
+}
+enum typeTeacherReSearch {
+    gvhuongdan = "GIẢNG VIÊN HƯỚNG DẪN",
+    gvphanbien = "GIẢNG VIÊN PHẢN BIỆN",
+    hoidong = "HỘI ĐỒNG GIẢNG VIÊN",
+}
+export { DropdownValue, ChucVuValue, HocViValue, statusRsE, roleE, typePoinsE, typeTeacherReSearch, CheckE };

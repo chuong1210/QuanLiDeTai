@@ -79,7 +79,7 @@ const InputFile = memo(
                     )}
 
                     <div className='p-3 flex flex-wrap overflow-auto justify-content-between'>
-                        <div>{placeholder}:{filesName.map((file, index) => <span key={index}>{file}</span>)}</div>
+                        <div>{placeholder}:{filesName.length > 0 ? filesName.map((file, index) => <span key={index}>{file}</span>) : " is empty"}</div>
                         {filesName.length > 0 &&
                             <Button icon='pi pi-arrow-circle-down' label="Gửi file" onClick={onSubmitFile} severity="success" >
                             </Button>

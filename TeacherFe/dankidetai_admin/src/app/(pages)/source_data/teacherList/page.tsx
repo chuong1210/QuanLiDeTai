@@ -32,7 +32,7 @@ interface fieldsType {
     typeInput: string
 }
 export const fields: fieldsType[] = [
-    { field: "msgv", code: "code", typeInput: "text" },
+    { field: "Mã Số", code: "code", typeInput: "text" },
     { field: "Tên", code: "name", typeInput: "text" },
     { field: "Email", code: "email", typeInput: "text" },
     { field: "Số điện thoại", code: "phoneNumber", typeInput: "text" },
@@ -63,37 +63,42 @@ function Page() {
             const response = await request.get<TeacherType[]>(`${API.teachers.getAll}`, {
                 params: paramsRef.current
             });
-            let responseData = response.data.result.responses ?? [];
+            let responseData = response.data?.result.responses ?? [];
             if (responseData) {
 
-                responseData = responseData.map((teacher: any) => {
-                    //teacher.degree = teacher.degree.split(",");
-                    teacher.position = teacher.position.join(" ,");
-                    if (teacher.subjects) {
-                        teacher.subjectName = teacher.subjects.name
-                        teacher.departmentName = teacher.subjects.departments.name
+                responseData = responseData?.map((teacher: TeacherType) => {
+                    // teacher.degree = teacher.degree.split(",");
+                    if (teacher.user) {
+                        teacher.position = teacher.user.roles?.map(item => item.name).join(", ");
+                    }
+
+                    if (teacher.subject) {
+                        teacher.subjectName = teacher.subject.name
+                        teacher.departmentName = teacher.subject?.department?.name || ""
                     }
                     return teacher
                 })
             }
 
-            if (response.data.result.currentPage && response.data.result.totalPages) {
+            if (response.data?.result.currentPage && response.data?.result.totalPages) {
                 setMeta({
-                    currentPage: response.data.result.currentPage,
-                    hasNextPage: response.data.result.currentPage + 1 === response.data.result.totalPages ? false : true,
-                    hasPreviousPage: response.data.result.currentPage - 1 === 0 ? false : true,
+                    currentPage: response.data?.result.currentPage,
+                    hasNextPage: response.data?.result.currentPage + 1 === response.data?.result.totalPages ? false : true,
+                    hasPreviousPage: response.data?.result.currentPage - 1 === 0 ? false : true,
                     limit: paramsRef.current.limit,
-                    totalPages: response.data.result.totalPages,
+                    totalPages: response.data?.result.totalPages,
                 });
 
             }
+            console.log(responseData)
+            console.log(response.data?.result)
             return responseData || [];
         },
     });
 
     const teacherListMutation = useMutation<any, AxiosError<ResponseType>, TeacherType>({
         mutationFn: (data) => {
-            return request.remove(`${API.teachers.delete}`, { data: [data.id] });
+            return request.remove(`${API.teachers.delete}`, { data: [data?.id] });
         },
     });
     // const teacherListMutationInsert = useMutation<any, AxiosError<ResponseType>, TeacherType[]>({
@@ -122,7 +127,7 @@ function Page() {
                             <i
                                 className='pi pi-trash hover:text-red-600 cursor-pointer'
                                 onClick={(e) => {
-                                    confirmModalRef.current?.show?.(e, data, `Bạn có chắc muốn xóa ${key} ${data.name}`);
+                                    confirmModalRef.current?.show?.(e, data, `Bạn có chắc muốn xóa ${key} ${data?.name}`);
                                 }}
                             />
                         </>
@@ -157,10 +162,14 @@ function Page() {
             <h2 className="mb-4">Danh sách {key}</h2>
             {
                 cookies.get<roleE[]>(ROLE_USER)?.includes(roleE.giaovu) && (
-                    <>
-                        <Button onClick={() => {
-                            formInsert.current.show(true);
-                        }}>Thêm {key} excel</Button>
+                    <div className="flex" >
+                        <Button
+                            label={`Thêm ${key} excel`}
+                            className="my-3 mr-3"
+                            icon="pi pi-upload"
+                            onClick={() => {
+                                formInsert.current.show(true);
+                            }} />
                         <p></p>
                         <Button
                             label={`Thêm ${key} mới`}
@@ -172,7 +181,7 @@ function Page() {
                                 setSelected({ type: "create", data: undefined })
                             }}
                         />
-                    </>
+                    </div>
                 )}
 
             <div className="my-3">

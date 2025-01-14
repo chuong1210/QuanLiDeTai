@@ -16,6 +16,7 @@ import { splitString } from "@/assets/helpers/string";
 import { jwtDecode } from "jwt-decode"
 
 import * as request from "@/assets/helpers/request"
+import API from "@/assets/configs/api";
 const schema = () =>
     yup.object({
         userName: yup.string().required('validation:required'),
@@ -36,9 +37,9 @@ export default function FormLogin() {
     });
     const signInMutation = useMutation({
         mutationFn: (data: any) => {
-            return axios.post("http://localhost:8888/auth/log-in", {
-                username: data.userName,
-                password: data.password,
+            return axios.post(API.base + API.auth.login, {
+                username: data?.userName,
+                password: data?.password,
             })
         },
     });
@@ -53,12 +54,12 @@ export default function FormLogin() {
         signInMutation.mutate(data, {
             async onSuccess(response) {
                 try {
-                    const decoded: any = jwtDecode(response.data.result.accessToken);
+                    const decoded: any = jwtDecode(response.data?.result.accessToken);
                     const arr = decoded.scope.split(" ");
-                    cookies.set(ACCESS_TOKEN, response.data.result.accessToken, { expires: new Date(decoded.exp * 1000 + 500 * 1000) })
-                    //cookies.set(REFERSH_TOKEN, response.data.result.refreshToken)
-                    cookies.set(ROLE_USER, arr, { expires: new Date(decoded.exp * 1000) })
-                    //response.data.result.allRoles
+                    cookies.set(ACCESS_TOKEN, response.data?.result.accessToken, { expires: new Date(decoded.exp * 1000 + 500 * 10000) })
+                    // cookies.set(REFERSH_TOKEN, response.data?.result.refreshToken)
+                    cookies.set(ROLE_USER, arr, { expires: new Date(decoded.exp * 1000 + 500 * 10000) })
+                    //response.data?.result.allRoles
                     // const res: any = await request.get("http://localhost:8888/users/getMyInfo", {
                     //     headers:{
                     //         auth
@@ -66,7 +67,7 @@ export default function FormLogin() {
                     //     params: { userName: decoded.username }
                     // })
                     const res: any = await request.get("/users/getMyInfo")
-                    const info: UserLoginType = res.data.result
+                    const info: UserLoginType = res.data?.result
                     // console.log(info)
                     localStorage.setItem(INFO_USER, JSON.stringify(info))
                     return router.push("/admin");
@@ -85,8 +86,8 @@ export default function FormLogin() {
                     <InputText
                         id='account'
                         value={field.value}
-                        label={'account'}
-                        placeholder={'account'}
+                        // label={'account'}
+                        placeholder={'Nhập mã giáo viên'}
                         errorMessage={formState.errors.userName?.message}
                         onChange={field.onChange}
                         onBlur={field.onBlur}
@@ -101,8 +102,8 @@ export default function FormLogin() {
                     <Password
                         id='password'
                         value={field.value}
-                        label={'password'}
-                        placeholder={'password'}
+                        // label={'password'}
+                        placeholder={'Nhập mật khẩu'}
                         errorMessage={formState.errors.password?.message}
                         onChange={field.onChange}
                         onBlur={field.onBlur}
@@ -116,11 +117,11 @@ export default function FormLogin() {
                     )}
                 </div>
                 <Link href={ROUTER.auth.forgotPassword} className='font-medium text-blue-500 hover:text-blue-700 cursor-pointer transition-colors transition-duration-150'>
-                    {'forgot_password'}
+                    {'quên mật khâu'}
                 </Link>
             </div>
 
-            <Button label={'sign_in'} className='w-full font-medium py-3 ' rounded={true} />
+            <Button label={'ĐĂNG NHẬP'} className='w-full font-medium py-3 ' rounded={true} />
         </form>
     )
 }

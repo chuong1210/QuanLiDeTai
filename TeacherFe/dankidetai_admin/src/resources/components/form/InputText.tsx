@@ -18,6 +18,7 @@ const InputText = ({
     readOnly = false,
     onChange = () => { },
     onBlur = () => { },
+    focus = false
 }: InputTextProps) => {
     const [inputValue, setInputValue] = useState(value ? value.toString() : '');
 
@@ -43,6 +44,7 @@ const InputText = ({
                 )}
                 <PrimeInputText
                     id={id}
+                    autoFocus={focus}
                     value={inputValue}
                     readOnly={readOnly}
                     placeholder={placeholder}

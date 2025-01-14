@@ -33,7 +33,20 @@ const SIDEBAR_MENU: MenuItemType[] = [
                 label: 'Bộ môn',
                 to: ROUTER.master.subject,
             },
-
+            {
+                code: 'Council',
+                parent: 'master_data',
+                label: 'Hội đồng',
+                to: ROUTER.master.council,
+                // permission: [roleE.truongkhoa],
+            },
+            {
+                code: 'systemenv',
+                parent: 'master_data',
+                label: 'Hệ thống',
+                to: ROUTER.master.systemenv,
+                // permission: [roleE.truongkhoa],
+            },
         ],
     },
     {
@@ -46,15 +59,15 @@ const SIDEBAR_MENU: MenuItemType[] = [
             {
                 code: 'teacherList',
                 parent: 'source_data',
-                label: 'danh sách giáo viên',
-                to: ROUTER.source_data.teachers,
+                label: 'Danh sách giáo viên',
+                to: ROUTER.source_data?.teachers,
 
             },
             {
                 code: 'studentList',
                 parent: 'source_data',
-                label: 'danh sách sinh viên',
-                to: ROUTER.source_data.students,
+                label: 'Danh sách sinh viên',
+                to: ROUTER.source_data?.students,
 
             },
 
@@ -75,7 +88,7 @@ const SIDEBAR_MENU: MenuItemType[] = [
                     {
                         code: 'list_thesis',
                         parent: 'thesis',
-                        label: 'danh sách đề tài',
+                        label: 'Danh sách đề tài',
                         // permission: [roleE.giaovien],
                         to: ROUTER.graduation_thesis.thesis.list_thesis,
 
@@ -83,7 +96,7 @@ const SIDEBAR_MENU: MenuItemType[] = [
                     {
                         code: 'my_thesis',
                         parent: 'thesis',
-                        label: 'đề tài của tôi',
+                        label: 'Đề tài của tôi',
                         permission: [roleE.giaovien],
                         to: ROUTER.graduation_thesis.thesis.my_thesis,
 

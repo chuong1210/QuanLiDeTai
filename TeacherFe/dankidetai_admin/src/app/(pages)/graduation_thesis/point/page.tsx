@@ -13,6 +13,9 @@ export default function Page() {
             <TabPanel header="Nhóm phản biện" >
                 <PageNhomDetai type={typePoinsE.gvphanbien} title='Nhóm phản biện' />
             </TabPanel>
+            <TabPanel header="Hội đồng" >
+                <PageNhomDetai type={typePoinsE.hoidong} title='Hội đồng' />
+            </TabPanel>
         </TabView>
     )
 }

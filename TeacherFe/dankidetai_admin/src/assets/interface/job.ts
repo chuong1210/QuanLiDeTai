@@ -21,5 +21,13 @@ interface JobType extends DefaultResponse {
     senderName: string;
 }
 interface JobAll extends DefaultResponse {
-    name: string
+    name?: string;
+    description?: string;
+    due?: string;
+    from?: string;
+    quantityRequirement?: number;
+    quantityCompleted?: number;
+    senderCode?: string;
+    senderName?: string;
+    totalQuantityRequired?: string;
 }

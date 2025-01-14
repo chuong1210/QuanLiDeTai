@@ -11,19 +11,25 @@ import { Button } from 'primereact/button';
 import { Controller, useForm } from 'react-hook-form';
 import * as yup from "yup"
 import { toast } from 'react-toastify';
-import { dateToString, getDateNow } from '@/assets/helpers/string';
-import { cookies } from '@/assets/helpers';
-import { ACCESS_TOKEN } from '@/assets/configs/request';
-import { jwtDecode } from 'jwt-decode';
-import { MultiSelect } from '@/resources/components/form/MultiSelect';
+
 const schema = yup.object({
     from: yup.date().required(),
     due: yup.date().required(),
     name: yup.string().required(),
     description: yup.string(),
     detail: yup.string(),
-    groupId: yup.string()
+    groupId: yup.string(),
+    id: yup.string(),
 })
+const defaultValue = {
+    from: new Date(),
+    due: new Date(),
+    name: "",
+    description: "",
+    detail: "",
+    groupId: "",
+    id: "",
+}
 const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, ref) => {
     const [visible, setVisible] = useState(false);
     const { control, handleSubmit, reset, setValue, getValues } = useForm({
@@ -31,10 +37,20 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
 
     });
 
-
-    const JobAssignment = useMutation<any, AxiosError<ResponseType>, JobType>({
+    // const JobGroupDetailQuery = useQuery<JobType, AxiosError<ResponseType>>({
+    //     queryKey: ['JobGroupDetailQuery', title],
+    //     refetchOnWindowFocus: false,
+    //     queryFn: async (id) => {
+    //         const response = await request.get<JobType[]>(`${API.job.ShowJobDetail}${id}`);
+    //         let responseData: any = response.data ?? [];
+    //         console.log(responseData);
+    //         return responsedata?.result;
+    //     }
+    // });
+    const JobAssignment = useMutation<any, AxiosError<JobType>, JobType>({
         mutationFn: (data) => {
-            return request.post<JobType>(API.job.InsertJobForStudent, data);
+            return type === "edit" ? request.update(API.job.UpdateJobForStudent + data?.id, data) :
+                request.post<JobType>(API.job.InsertJobForStudent, data);
         },
     });
 
@@ -44,19 +60,31 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
             JobAssignment.mutate(data, {
                 onSuccess: (response) => {
                     close();
-                    toast.success("Tạo nhiệm vụ mới thành công");
-                    onSuccess
+                    if (type === "create") {
+                        toast.success("Tạo nhiệm vụ mới thành công");
+                    }
+                    if (type === "edit") {
+                        toast.success("Cập nhật thành công");
+
+                    }
+                    onSuccess && onSuccess(response)
                 },
             })
+
         } catch (error: any) {
             toast.error(error)
         }
 
     };
 
-    const show = (data: string) => {
-        // console.log(data)
-        reset({ groupId: data })
+    const show = async (data: any) => {
+        if (data?.id !== undefined) {
+            // const res = await request.get<JobType[]>(`${API.job.ShowJobDetail}${data?.id}`);
+            // console.log(res)
+            reset({ ...defaultValue, id: data?.id })
+        } else {
+            reset({ ...defaultValue, groupId: data })
+        }
         setVisible(true);
     };
     const close = () => {
@@ -101,6 +129,7 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
                                 render={({ field, fieldState }) => <InputDate
                                     id={`form_data_${field.name}`}
                                     label={"Thời gian bắt đầu"}
+                                    value={field.value}
                                     placeholder={"Thời gian bắt đầu"}
                                     errorMessage={fieldState.error?.message}
                                     onChange={field.onChange}
@@ -117,6 +146,7 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
                                 render={({ field, fieldState }) => <InputDate
                                     id={`form_data_${field.name}`}
                                     label={"Thời gian kết thúc"}
+                                    value={field.value}
                                     placeholder={"Thời gian kết thúc"}
                                     errorMessage={fieldState.error?.message}
                                     onChange={field.onChange}
@@ -141,7 +171,7 @@ const FormInsert = forwardRef<any, FormType<any>>(({ title, type, onSuccess }, r
 
                             />
                         </div>
-                        <div className='col-12 flex flex-column gap-3 mb-2'>
+                        <div className='col-12 flex flex-column gap-3 mb-2 mt-3'>
                             <Controller
                                 name={"detail"}
                                 control={control}

@@ -24,8 +24,8 @@ const defaultValues: TeacherType = {
     code: '', name: "",
     email: "", phoneNumber: "",
     subjectName: "",
-    departmentName: "",
-    position: [], degree: "",
+    // departmentName: "",
+    roleIds: [], degree: "",
     subject: { name: "" }
 }
 const schema = yup.object({
@@ -34,8 +34,8 @@ const schema = yup.object({
     email: yup.string().email().required(),
     phoneNumber: yup.string().min(8).max(11).required(),
     degree: yup.string().required(),
-    position: yup.array().required(),
-    departmentName: yup.string().required(),
+    roleIds: yup.array().required(),
+    // departmentName: yup.string().required(),
     subjectName: yup.string().required(),
 
 })
@@ -49,9 +49,18 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
 
     const TeacherMutation = useMutation<any, AxiosError<ResponseType>, any>({
         mutationFn: (data) => {
-            console.log(data)
             return type === "edit" ? request.update(API.teachers.update, data) :
                 request.post(API.teachers.insert_from_excel, { teachers: [data] })
+        },
+    });
+    const RolesQuery = useQuery<RoleType[], AxiosError<ResponseType>>({
+        enabled: false,
+        refetchOnWindowFocus: false,
+        queryKey: ['list-Roles'],
+        queryFn: async () => {
+            const response: any = await request.get<RoleType[]>(API.role.showAlNoParams);
+            console.log(response.data?.result)
+            return response.data?.result || [];
         },
     });
 
@@ -62,38 +71,49 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
         queryFn: async () => {
             const response: any = await request.get<SubjectType[]>(API.subjects.getAllNoParams);
 
-            return response.data.result || [];
+            return response.data?.result || [];
         },
     });
-    const DepartmentsQuery = useQuery<DepartmentType[], AxiosError<ResponseType>>({
-        enabled: false,
-        refetchOnWindowFocus: false,
-        queryKey: ['list-Departments'],
-        queryFn: async () => {
-            const response: any = await request.get<DepartmentType[]>(API.department.getAllNoParams);
-            return response.data.result || [];
-        },
-    });
+
+    // const DepartmentsQuery = useQuery<DepartmentType[], AxiosError<ResponseType>>({
+    //     enabled: false,
+    //     refetchOnWindowFocus: false,
+    //     queryKey: ['list-Departments'],
+    //     queryFn: async () => {
+    //         const response: any = await request.get<DepartmentType[]>(API.department.getAllNoParams);
+    //         return response.data?.result || [];
+    //     },
+    // });
 
 
     const show = (data?: TeacherType) => {
         setVisible(true);
         if (data) {
-            reset(data);
+            const newData = {
+                code: data?.code,
+                name: data?.name,
+                email: data?.email,
+                phoneNumber: data?.phoneNumber,
+                degree: data?.degree,
+                roleIds: data?.roleIds,
+                // departmentName: data?.departmentName,
+                subjectName: data?.subject?.name,
+            }
+            reset(newData);
         } else {
             reset(defaultValues);
         }
+        RolesQuery.refetch()
         SubjectsQuery.refetch()
-        DepartmentsQuery.refetch()
+        // DepartmentsQuery.refetch()
 
     };
     const onSubmit = (data: TeacherType) => {
 
         const newData = {
             ...data,
+            subjectId: data?.subjectName
         }
-
-        console.log(newData)
         TeacherMutation.mutate(newData, {
             onSuccess: (response) => {
                 close();
@@ -173,13 +193,13 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
                         {/* chức vụ drop */}
                         <div className='col-6 flex flex-column gap-3'>
                             <Controller
-                                name={"position"}
+                                name={"roleIds"}
                                 control={control}
                                 render={({ field, fieldState }) => {
                                     return (
                                         <MultiSelect
-                                            id='form_data_position'
-                                            options={ChucVuValue}
+                                            id='form_data_roleIds'
+                                            options={RolesQuery.data?.map((t) => ({ label: t.name, value: t.id }))}
                                             value={field.value && Array.isArray(field.value) ? field.value : undefined}
                                             label={"Chức vụ"}
                                             placeholder={"Chức vụ"}
@@ -211,7 +231,7 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
                             />
                         </div>
                         {/* department drop */}
-                        <div className='col-6 flex flex-column gap-3'>
+                        {/* <div className='col-6 flex flex-column gap-3'>
                             <Controller
                                 name={"departmentName"}
                                 control={control}
@@ -227,7 +247,7 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
                                     />
                                 )}
                             />
-                        </div>
+                        </div> */}
                         {/* subject drop */}
                         <div className='col-6 flex flex-column gap-3'>
                             <Controller
@@ -236,7 +256,7 @@ const Form = forwardRef<FormRefType<TeacherType>, FormType<TeacherType>>(({ type
                                 render={({ field, fieldState }) => (
                                     <Dropdown
                                         id='form_data_subjectName'
-                                        options={SubjectsQuery.data?.map((t) => ({ label: t.name, value: t.name }))}
+                                        options={SubjectsQuery.data?.map((t) => ({ label: t.name, value: t.id }))}
                                         value={field.value}
                                         label={"Chuyên ngành"}
                                         placeholder={"Chuyên ngành"}

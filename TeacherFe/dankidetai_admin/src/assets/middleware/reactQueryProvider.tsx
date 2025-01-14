@@ -9,6 +9,7 @@ export default function ProviderQuery({ children }: { children: React.ReactNode 
     const queryClient = new QueryClient({
         queryCache: new QueryCache({
             onError: (error: any) => {
+                console.log(error)
                 toast.error(error?.response?.data?.messages?.[0] || error?.message);
             },
         }),

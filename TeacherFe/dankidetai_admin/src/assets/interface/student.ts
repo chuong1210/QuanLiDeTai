@@ -13,4 +13,5 @@ interface StudentType extends DefaultResponse {
     POINT_THESIS_ADVISOR?: Ipoint;
     POINT_COUNCIL?: Ipoint;
     POINT_AVG?: number;
+    subjectId?: string;
 }
